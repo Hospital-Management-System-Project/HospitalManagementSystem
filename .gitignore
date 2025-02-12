@@ -1,0 +1,11 @@
+# .gitignore for Qt/C++ projects
+# Ignore build directories
+build/
+bin/
+*.user
+*.qmlc
+*.autosave
+
+# Ignore Qt Creator auto-generated files
+.qmake.stash
+.qmake.conf
