@@ -4,16 +4,18 @@
 #include <string>
 #include <vector>
 
+using namespace std;
+
 class Nurse {
 public:
-    std::string nurseID;
-    std::string name;
-    std::string hospitalID;
-    std::vector<std::string> patientIDs;
+    string nurseID;
+    string name;
+    string hospitalID;
+    vector<string> patientIDs;
 
-    Nurse(std::string id, std::string n, std::string hospID);
-    bool assignPatient(std::string patientID);
-    void removePatient(std::string patientID);
+    Nurse(string id, string n, string hospID);
+    bool assignPatient(string patientID);
+    void removePatient(string patientID);
 };
 
 #endif // NURSE_H

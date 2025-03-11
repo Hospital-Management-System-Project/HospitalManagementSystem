@@ -1,4 +1,6 @@
 #include "pharmacy.h"
+#include <string>
 
-Pharmacy::Pharmacy(std::string id, std::string n)
-    : pharmacyID(id), name(n) {}
+using namespace std;
+
+Pharmacy::Pharmacy(std::string id, std::string n) : pharmacyID(id), name(n) {}

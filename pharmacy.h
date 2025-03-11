@@ -3,12 +3,14 @@
 
 #include <string>
 
+using namespace std;
+
 class Pharmacy {
 public:
-    std::string pharmacyID;
-    std::string name;
+  string pharmacyID;
+  string name;
 
-    Pharmacy(std::string id, std::string n);
+  Pharmacy(string id, string n);
 };
 
 #endif // PHARMACY_H

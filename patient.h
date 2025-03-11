@@ -4,26 +4,22 @@
 #include <string>
 #include <vector>
 
-class Patient
-{
-public:
-    std::string patientID;
-    std::string name;
-    std::string phoneNumber;
-    std::string disease;
-    std::string treatment;
-    int daysAdmitted;
-    std::string primaryDoctorID;
-    std::vector<std::string> attendingDoctorIDs;
+using namespace std;
 
-    Patient(std::string id,
-            std::string n,
-            std::string phone,
-            std::string d,
-            std::string t,
-            std::string docID);
-    void addAttendingDoctor(std::string docID);
-    void incrementDaysAdmitted();
+class Patient {
+public:
+  string patientID;
+  string name;
+  string phoneNumber;
+  string disease;
+  string treatment;
+  int daysAdmitted;
+  string primaryDoctorID;
+  vector<string> attendingDoctorIDs;
+
+  Patient(string id, string n, string phone, string d, string t, string docID);
+  void addAttendingDoctor(string docID);
+  void incrementDaysAdmitted();
 };
 
 #endif // PATIENT_H

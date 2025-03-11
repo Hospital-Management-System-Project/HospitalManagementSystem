@@ -3,13 +3,15 @@
 
 #include <string>
 
+using namespace std;
+
 class Doctor {
 public:
-    std::string doctorID;
-    std::string name;
-    std::string hospitalID;
+    string doctorID;
+    string name;
+    string hospitalID;
 
-    Doctor(std::string id, std::string n, std::string hospID);
+    Doctor(string id, string n, string hospID);
 };
 
 #endif // DOCTOR_H

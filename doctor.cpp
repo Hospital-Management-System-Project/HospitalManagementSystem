@@ -1,4 +1,10 @@
 #include "doctor.h"
+#include <string>
 
-Doctor::Doctor(std::string id, std::string n, std::string hospID)
-    : doctorID(id), name(n), hospitalID(hospID) {}
+using namespace std;
+
+Doctor::Doctor(std::string id, std::string n, std::string hospID){
+    doctorID = id;
+    name = n;
+    hospitalID = hospID;
+}
