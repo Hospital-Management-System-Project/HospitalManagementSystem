@@ -6,25 +6,504 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>900</width>
+    <height>700</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Hospital Management System</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow {
+    background-color: #f5f5f5;
+}
+QTabWidget::pane {
+    border: 1px solid #dcdcdc;
+    background-color: #ffffff;
+}
+QTabBar::tab {
+    background-color: #e1e1e1;
+    border: 1px solid #c4c4c4;
+    padding: 8px 16px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+QTabBar::tab:selected {
+    background-color: #ffffff;
+    border-bottom-color: #ffffff;
+}
+QPushButton {
+    background-color: #0078d7;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+}
+QPushButton:hover {
+    background-color: #0063b1;
+}
+QPushButton:pressed {
+    background-color: #004e8c;
+}
+QGroupBox {
+    border: 1px solid #dcdcdc;
+    border-radius: 5px;
+    margin-top: 16px;
+    font-weight: bold;
+}
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 5px;
+}
+QTextEdit, QLineEdit, QComboBox {
+    border: 1px solid #c4c4c4;
+    border-radius: 4px;
+    padding: 4px;
+}
+QLabel {
+    color: #333333;
+}
+QStatusBar {
+    background-color: #f0f0f0;
+    color: #333333;
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="patientTab">
+       <attribute name="title">
+        <string>Patient Management</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QGroupBox" name="groupBox">
+          <property name="title">
+           <string>Patient Information</string>
+          </property>
+          <layout class="QFormLayout" name="formLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="patientIDLabel">
+             <property name="text">
+              <string>Patient ID:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="patientIDInput">
+             <property name="placeholderText">
+              <string>Enter Patient ID</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="nameLabel">
+             <property name="text">
+              <string>Name:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="nameInput">
+             <property name="placeholderText">
+              <string>Enter Patient Name</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="phoneLabel">
+             <property name="text">
+              <string>Phone:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="phoneInput">
+             <property name="placeholderText">
+              <string>Enter Phone Number</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="diseaseLabel">
+             <property name="text">
+              <string>Disease:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="diseaseInput">
+             <property name="placeholderText">
+              <string>Enter Disease</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="treatmentLabel">
+             <property name="text">
+              <string>Treatment:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="treatmentInput">
+             <property name="placeholderText">
+              <string>Enter Treatment</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="hospitalLabel">
+             <property name="text">
+              <string>Hospital:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QComboBox" name="hospitalComboBox"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="title">
+           <string>Patient Actions</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QPushButton" name="addPatientButton">
+             <property name="text">
+              <string>Add Patient</string>
+             </property>
+             <property name="icon">
+              <iconset theme="list-add"/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="relocatePatientButton">
+             <property name="text">
+              <string>Relocate Patient</string>
+             </property>
+             <property name="icon">
+              <iconset theme="go-next"/>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="dischargePatientButton">
+             <property name="text">
+              <string>Discharge Patient</string>
+             </property>
+             <property name="icon">
+              <iconset theme="edit-delete"/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="staffTab">
+       <attribute name="title">
+        <string>Staff Assignment</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QGroupBox" name="groupBox_3">
+          <property name="title">
+           <string>Doctor Assignment</string>
+          </property>
+          <layout class="QFormLayout" name="formLayout_2">
+           <item row="0" column="0">
+            <widget class="QLabel" name="patientIDLabel2">
+             <property name="text">
+              <string>Patient ID:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="patientIDInput2">
+             <property name="placeholderText">
+              <string>Enter Patient ID</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="doctorIDLabel">
+             <property name="text">
+              <string>Doctor ID:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="doctorIDInput">
+             <property name="placeholderText">
+              <string>Enter Doctor ID</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="doctorTypeLabel">
+             <property name="text">
+              <string>Doctor Type:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QComboBox" name="doctorTypeComboBox"/>
+           </item>
+           <item row="3" column="1">
+            <widget class="QPushButton" name="assignDoctorButton">
+             <property name="text">
+              <string>Assign Doctor</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_4">
+          <property name="title">
+           <string>Nurse Assignment</string>
+          </property>
+          <layout class="QFormLayout" name="formLayout_3">
+           <item row="0" column="0">
+            <widget class="QLabel" name="patientIDLabel3">
+             <property name="text">
+              <string>Patient ID:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="patientIDInput3">
+             <property name="placeholderText">
+              <string>Enter Patient ID</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="nurseIDLabel">
+             <property name="text">
+              <string>Nurse ID:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="nurseIDInput">
+             <property name="placeholderText">
+              <string>Enter Nurse ID</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QPushButton" name="assignNurseButton">
+             <property name="text">
+              <string>Assign Nurse</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="medicationTab">
+       <attribute name="title">
+        <string>Medication</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="QGroupBox" name="groupBox_5">
+          <property name="title">
+           <string>Medication Request</string>
+          </property>
+          <layout class="QFormLayout" name="formLayout_4">
+           <item row="0" column="0">
+            <widget class="QLabel" name="patientIDLabel4">
+             <property name="text">
+              <string>Patient ID:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="patientIDInput4">
+             <property name="placeholderText">
+              <string>Enter Patient ID</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="medicationLabel">
+             <property name="text">
+              <string>Medication:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="medicationInput">
+             <property name="placeholderText">
+              <string>Enter Medication Name</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="costLabel">
+             <property name="text">
+              <string>Cost:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="costInput">
+             <property name="placeholderText">
+              <string>Enter Cost ($)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="pharmacyLabel">
+             <property name="text">
+              <string>Pharmacy:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QComboBox" name="pharmacyComboBox"/>
+           </item>
+           <item row="4" column="1">
+            <widget class="QPushButton" name="requestMedicationButton">
+             <property name="text">
+              <string>Request Medication</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_6">
+          <property name="title">
+           <string>Billing</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QPushButton" name="payBillButton">
+             <property name="text">
+              <string>Pay Pharmacy Bill</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="managementTab">
+       <attribute name="title">
+        <string>Management</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <widget class="QGroupBox" name="groupBox_7">
+          <property name="title">
+           <string>Hospital Management</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_3">
+           <item>
+            <widget class="QPushButton" name="displayStatusButton">
+             <property name="text">
+              <string>Display Hospital Status</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="updateDaysButton">
+             <property name="text">
+              <string>Update Patient Days</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_8">
+          <property name="title">
+           <string>Statistics</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_6">
+           <item>
+            <widget class="QListWidget" name="statsListWidget"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QTextEdit" name="statusDisplay">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>200</height>
+       </size>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+      <property name="placeholderText">
+       <string>Status and notifications will appear here...</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>900</width>
      <height>26</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
