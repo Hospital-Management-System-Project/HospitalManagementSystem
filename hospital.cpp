@@ -1,6 +1,8 @@
 #include "hospital.h"
 #include <algorithm>
 #include <sstream>
+#include <iostream>  // Add this include for cout
+#include "mainwindow.h" // Include mainwindow.h instead of forward declaring
 
 using namespace std;
 
@@ -251,5 +253,7 @@ void Hospital::displayStaffingSummary() const {
   summary << "Nurse Capacity Utilization: " << 
     (nurses.empty() ? 0 : (nurseAssignments * 100.0 / (nurses.size() * 2))) << "%" << endl;
   
-  return summary.str();
+  // Don't return a value since the function return type is void
+  // Instead, print the summary to console or use it in some other way
+  std::cout << summary.str();  // Add std:: namespace qualifier
 }

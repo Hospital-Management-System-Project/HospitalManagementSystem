@@ -46,7 +46,7 @@ public:
   void addNurse(Nurse* nurse);
   bool assignDoctorToPatient(Doctor* doctor, Patient* patient, bool isPrimary);
   bool assignNurseToPatient(Nurse* nurse, Patient* patient);
-  string displayStaffingSummary() const; // New method for staff summary
+  void displayStaffingSummary() const; // New method for staff summary
   
   // Pharmacy interactions
   bool requestMedication(Pharmacy* pharmacy, Patient* patient, const string& medication, double cost);
