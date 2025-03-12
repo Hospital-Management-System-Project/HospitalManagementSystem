@@ -219,7 +219,7 @@ void MainWindow::relocatePatient() {
     Patient* patient = patients[patientID];
     Hospital* currentHospital = nullptr;
     for (auto& hospital : hospitals) {
-        if (find(hospital->patients.begin(), hospital->patients.end(), patient) != hospital->patients.end()) {
+        if (std::find(hospital->patients.begin(), hospital->patients.end(), patient) != hospital->patients.end()) {
             currentHospital = hospital;
             break;
         }
@@ -242,7 +242,7 @@ void MainWindow::dischargePatient() {
 
     Patient* patient = patients[patientID];
     for (auto& hospital : hospitals) {
-        if (find(hospital->patients.begin(), hospital->patients.end(), patient) != hospital->patients.end()) {
+        if (std::find(hospital->patients.begin(), hospital->patients.end(), patient) != hospital->patients.end()) {
             hospital->dischargePatient(patient);
             patients.erase(patientID);
             delete patient;
