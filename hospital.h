@@ -19,7 +19,7 @@ private:
   static const int MAX_CAPACITY = 20;
   static const int TOTAL_LOCATIONS = 5;
   static const int TOTAL_CAPACITY = 100; // Total capacity across all locations
-  static const double DAILY_RATE = 500.0; // Daily rate for patient billing in dollars
+  static constexpr double DAILY_RATE = 500.0; // Daily rate for patient billing in dollars
 
 public:
   string hospitalID;
