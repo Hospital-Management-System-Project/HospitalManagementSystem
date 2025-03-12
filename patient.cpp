@@ -200,10 +200,8 @@ string Patient::getFullDetails() const {
     details << "Treatment: " << treatment << endl;
     details << "Days Admitted: " << daysAdmitted << endl;
     
-    // Format admission date
-    char admission_time[26];
-    ctime_s(admission_time, sizeof(admission_time), &admissionDate);
-    details << "Admission Date: " << admission_time;
+    char* time_str = ctime(&admissionDate);
+    details << "Admission Date: " << (time_str ? time_str : "Unknown") << endl;
     
     // Primary doctor
     details << "Primary Doctor: " << primaryDoctorID << endl;
