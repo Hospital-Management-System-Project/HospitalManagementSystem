@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <sstream>
+#include "patient.h"
 
 using namespace std;
 
@@ -9,6 +11,16 @@ Doctor::Doctor(string id, string n, string hospID){
     doctorID = id;
     name = n;
     hospitalID = hospID;
+    specialization = "General";
+    primaryPatients.clear();
+    secondaryPatients.clear();
+}
+
+Doctor::Doctor(string id, string n, string hospID, string spec){
+    doctorID = id;
+    name = n;
+    hospitalID = hospID;
+    specialization = spec;
     primaryPatients.clear();
     secondaryPatients.clear();
 }
@@ -98,4 +110,48 @@ int Doctor::getPrimaryPatientCount() const {
 
 int Doctor::getSecondaryPatientCount() const {
     return secondaryPatients.size();
+}
+
+bool Doctor::authorizeDischarge(const string& patientID) {
+    // Only primary doctors can authorize discharge
+    if (!isPrimaryPatient(patientID)) {
+        return false;
+    }
+    
+    // In a real implementation, this would interact with the patient directly
+    // For now, we'll assume success once we verified this is the patient's primary doctor
+    return true;
+}
+
+string Doctor::getSpecialization() const {
+    return specialization;
+}
+
+void Doctor::setSpecialization(const string& spec) {
+    specialization = spec;
+}
+
+string Doctor::getDetails() const {
+    stringstream details;
+    
+    details << "DOCTOR DETAILS" << endl;
+    details << "==============" << endl;
+    details << "Doctor ID: " << doctorID << endl;
+    details << "Name: " << name << endl;
+    details << "Hospital ID: " << hospitalID << endl;
+    details << "Specialization: " << specialization << endl;
+    details << "Primary Patients: " << primaryPatients.size() << "/" << MAX_PRIMARY_PATIENTS << endl;
+    details << "Secondary Patients: " << secondaryPatients.size() << endl;
+    
+    details << "Primary Patient IDs:" << endl;
+    for (const auto& id : primaryPatients) {
+        details << "- " << id << endl;
+    }
+    
+    details << "Secondary Patient IDs:" << endl;
+    for (const auto& id : secondaryPatients) {
+        details << "- " << id << endl;
+    }
+    
+    return details.str();
 }

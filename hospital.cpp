@@ -7,6 +7,13 @@ using namespace std;
 Hospital::Hospital(string id, string n) {
   hospitalID = id;
   name = n;
+  location = "Main Campus"; // Default location
+}
+
+Hospital::Hospital(string id, string n, string loc) {
+  hospitalID = id;
+  name = n;
+  location = loc;
 }
 
 bool Hospital::admitPatient(Patient* patient) {
@@ -19,6 +26,11 @@ bool Hospital::admitPatient(Patient* patient) {
 }
 
 bool Hospital::relocatePatient(Patient* patient, Hospital* newHospital) {
+  // First check if the patient is in this hospital
+  if (!hasPatient(patient)) {
+    return false;
+  }
+  
   if (newHospital->admitPatient(patient)) {
     patients.erase(remove(patients.begin(), patients.end(), patient), patients.end());
     
@@ -30,7 +42,23 @@ bool Hospital::relocatePatient(Patient* patient, Hospital* newHospital) {
   return false;
 }
 
-void Hospital::dischargePatient(Patient* patient) {
+// Check if patient is in this hospital
+bool Hospital::hasPatient(Patient* patient) const {
+  return find(patients.begin(), patients.end(), patient) != patients.end();
+}
+
+bool Hospital::dischargePatient(Patient* patient, Doctor* authorizedBy) {
+  // Check if discharge is authorized
+  // If a doctor is provided, they must be the patient's primary doctor
+  // Otherwise, the patient must have been previously marked as ready for discharge
+  if (authorizedBy) {
+    if (!authorizedBy->isPrimaryPatient(patient->getPatientID())) {
+      return false; // Not authorized to discharge
+    }
+  } else if (!patient->getReadyForDischarge()) {
+    return false; // Not authorized for discharge
+  }
+  
   // First remove patient from any assigned nurses
   for (auto& nurse : nurses) {
     nurse->removePatient(patient->getPatientID());
@@ -44,12 +72,20 @@ void Hospital::dischargePatient(Patient* patient) {
   
   // Remove patient from the hospital
   patients.erase(remove(patients.begin(), patients.end(), patient), patients.end());
+  return true;
+}
+
+bool Hospital::authorizePatientDischarge(Doctor* doctor, Patient* patient) {
+  if (!doctor->isPrimaryPatient(patient->getPatientID())) {
+    return false; // Only primary doctor can authorize
+  }
+  
+  patient->markReadyForDischarge(true);
+  return true;
 }
 
 double Hospital::calculatePatientBill(Patient* patient) const {
-  // Assuming a daily rate of $500 for hospital stay
-  const double DAILY_RATE = 500.0;
-  return patient->getDaysAdmitted() * DAILY_RATE;
+  return patient->calculateBill(DAILY_RATE);
 }
 
 void Hospital::addDoctor(Doctor* doctor) {
@@ -89,6 +125,11 @@ bool Hospital::assignNurseToPatient(Nurse* nurse, Patient* patient) {
     return false;
   }
   
+  // Ensure nurse can accept more patients (maximum of 2)
+  if (!nurse->canAcceptMorePatients()) {
+    return false;
+  }
+  
   if (nurse->assignPatient(patient->getPatientID())) {
     patient->addNurse(nurse->getNurseID());
     return true;
@@ -102,13 +143,26 @@ bool Hospital::requestMedication(Pharmacy* pharmacy, Patient* patient, const str
   
   // Record medication for the patient
   patient->addMedication(medication);
+  
+  // Tell the pharmacy to deliver and bill the hospital
+  pharmacy->deliverMedication(this, patient->getPatientID(), medication, cost);
+  
   return true;
 }
 
 void Hospital::payPharmacyBill(const string& pharmacyID) {
   // In a real system, this would handle the actual payment
   if (pharmacyBills.find(pharmacyID) != pharmacyBills.end()) {
+    double amount = pharmacyBills[pharmacyID];
     pharmacyBills[pharmacyID] = 0.0; // Reset bill after payment
+    
+    // Notify the pharmacy of the payment
+    for (auto& pharmacy : MainWindow::getPharmacies()) {
+      if (pharmacy->getPharmacyID() == pharmacyID) {
+        pharmacy->receiveBillPayment(hospitalID, amount);
+        break;
+      }
+    }
   }
 }
 
@@ -124,6 +178,7 @@ string Hospital::getStatusReport() const {
   stringstream report;
   report << "Hospital ID: " << hospitalID << "\n";
   report << "Name: " << name << "\n";
+  report << "Location: " << location << "\n";
   report << "Patients: " << patients.size() << "/" << MAX_CAPACITY << "\n";
   report << "Doctors: " << doctors.size() << "\n";
   report << "Nurses: " << nurses.size() << "\n";
@@ -145,4 +200,56 @@ void Hospital::updatePatientStay() {
 
 int Hospital::getCapacity() const {
   return MAX_CAPACITY;
+}
+
+// Method to get total system capacity
+int Hospital::getTotalCapacity() {
+  return TOTAL_CAPACITY;
+}
+
+double Hospital::getDailyRate() {
+  return DAILY_RATE;
+}
+
+void Hospital::displayStaffingSummary() const {
+  stringstream summary;
+  summary << "Hospital: " << name << " (ID: " << hospitalID << ")" << endl;
+  summary << "Location: " << location << endl;
+  summary << "STAFF SUMMARY:" << endl;
+  
+  // Doctor summary
+  summary << "Doctors: " << doctors.size() << endl;
+  map<string, int> doctorSpecialtyCounts;
+  for (const auto& doctor : doctors) {
+    doctorSpecialtyCounts[doctor->getSpecialization()]++;
+  }
+  
+  summary << "Doctor Specialties:" << endl;
+  for (const auto& specialty : doctorSpecialtyCounts) {
+    summary << "  - " << specialty.first << ": " << specialty.second << endl;
+  }
+  
+  // Nurse summary
+  summary << "Nurses: " << nurses.size() << endl;
+  map<string, int> nurseSpecialtyCounts;
+  for (const auto& nurse : nurses) {
+    nurseSpecialtyCounts[nurse->getSpecialization()]++;
+  }
+  
+  summary << "Nurse Specialties:" << endl;
+  for (const auto& specialty : nurseSpecialtyCounts) {
+    summary << "  - " << specialty.first << ": " << specialty.second << endl;
+  }
+  
+  // Calculate currently assigned patients for nurses
+  int nurseAssignments = 0;
+  for (const auto& nurse : nurses) {
+    nurseAssignments += nurse->getPatientCount();
+  }
+  
+  summary << "Nurse Patient Assignments: " << nurseAssignments << "/" << (nurses.size() * 2) << endl;
+  summary << "Nurse Capacity Utilization: " << 
+    (nurses.empty() ? 0 : (nurseAssignments * 100.0 / (nurses.size() * 2))) << "%" << endl;
+  
+  return summary.str();
 }
