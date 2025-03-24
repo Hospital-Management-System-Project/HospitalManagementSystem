@@ -4,9 +4,9 @@
 
 using namespace std;
 
-Doctor::Doctor(string id, string doctorName, string hospID) {
+Doctor::Doctor(string id, string n, string hospID) {
     doctorID = id;
-    name = doctorName;
+    doctorName = n;
     hospitalID = hospID;
 }
 

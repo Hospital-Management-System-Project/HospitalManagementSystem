@@ -313,7 +313,7 @@ void MainWindow::viewPatientDetails() {
     statusDisplay->clear();
     statusDisplay->append("=== PATIENT DETAILS ===");
     statusDisplay->append("Patient ID: " + QString::fromStdString(patient->patientID));
-    statusDisplay->append("Name: " + QString::fromStdString(patient->name));
+    statusDisplay->append("Name: " + QString::fromStdString(patient->patientName));
     statusDisplay->append("Phone Number: " + QString::fromStdString(patient->phoneNumber));
     statusDisplay->append("Disease: " + QString::fromStdString(patient->disease));
     statusDisplay->append("Treatment: " + QString::fromStdString(patient->treatment));
@@ -321,7 +321,7 @@ void MainWindow::viewPatientDetails() {
     statusDisplay->append("Admission Date: " + QString::fromStdString(patient->getAdmissionDateString()));
     statusDisplay->append("Status: " + QString::fromStdString(patient->getStatus()));
     statusDisplay->append("Current Bill: $" + QString::number(patient->calculateCurrentBill(), 'f', 2));
-    statusDisplay->append("Hospital: " + QString::fromStdString(hospital ? hospital->name : "Unknown"));
+    statusDisplay->append("Hospital: " + QString::fromStdString(hospital ? hospital->hospitalName : "Unknown"));
     statusDisplay->append("Primary Doctor: " + QString::fromStdString(patient->primaryDoctorID));
     
     if (!patient->attendingDoctorIDs.empty()) {
@@ -333,7 +333,7 @@ void MainWindow::viewPatientDetails() {
 }
 
 void MainWindow::viewPatientBillingHistory() {
-    string patientID = patientIDInput->text().toStdString();
+    string patientID = billingPatientIDInput->text().toStdString();
     
     if (patientID.empty()) {
         statusDisplay->append("Error: Enter Patient ID to view billing history.");
@@ -355,7 +355,7 @@ void MainWindow::viewPatientBillingHistory() {
     statusDisplay->clear();
     statusDisplay->append("=== PATIENT BILLING HISTORY ===");
     statusDisplay->append("Patient ID: " + QString::fromStdString(patient->patientID));
-    statusDisplay->append("Name: " + QString::fromStdString(patient->name));
+    statusDisplay->append("Name: " + QString::fromStdString(patient->patientName));
     statusDisplay->append("Days Admitted: " + QString::number(patient->daysAdmitted));
     statusDisplay->append("Daily Rate: $" + QString::number(patient->billingRatePerDay, 'f', 2));
     statusDisplay->append("Current Total: $" + QString::number(patient->calculateCurrentBill(), 'f', 2));
@@ -381,7 +381,8 @@ void MainWindow::assignDoctorToPatient(bool isPrimary) {
             statusDisplay->append("Failed to set primary doctor. Check IDs and try again.");
         }
     } else {
-        if (hospitalSystem->assignDoctorToPatient(doctorID, patientID)) {
+        // Explicitly provide the third parameter to resolve ambiguity
+        if (hospitalSystem->assignDoctorToPatient(doctorID, patientID, false)) {
             statusDisplay->append("Assigned doctor " + QString::fromStdString(doctorID) + 
                                 " to patient " + QString::fromStdString(patientID));
         } else {

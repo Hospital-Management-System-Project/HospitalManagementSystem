@@ -51,7 +51,7 @@ void HospitalSystem::initializeDoctors() {
     };
     
     int doctorIndex = 0;
-    for (int i = 0; i < hospitals.size(); i++) {
+    for (size_t i = 0; i < hospitals.size(); i++) {
         Hospital* hospital = hospitals[i];
         
         // Add 3 doctors to each hospital
@@ -85,7 +85,7 @@ void HospitalSystem::initializeNurses() {
     };
     
     int nurseIndex = 0;
-    for (int i = 0; i < hospitals.size(); i++) {
+    for (size_t i = 0; i < hospitals.size(); i++) {
         Hospital* hospital = hospitals[i];
         
         // Add 5 nurses to each hospital
@@ -104,7 +104,7 @@ void HospitalSystem::initializeNurses() {
 
 bool HospitalSystem::admitPatient(Patient* patient, int hospitalIndex) {
     // Validate hospital index
-    if (hospitalIndex < 0 || hospitalIndex >= hospitals.size()) {
+    if (hospitalIndex < 0 || static_cast<size_t>(hospitalIndex) >= hospitals.size()) {
         return false;
     }
     
@@ -118,7 +118,7 @@ bool HospitalSystem::admitPatient(Patient* patient, int hospitalIndex) {
 
 bool HospitalSystem::relocatePatient(string patientID, int newHospitalIndex) {
     // Validate hospital index
-    if (newHospitalIndex < 0 || newHospitalIndex >= hospitals.size()) {
+    if (newHospitalIndex < 0 || static_cast<size_t>(newHospitalIndex) >= hospitals.size()) {
         return false;
     }
     
@@ -153,7 +153,7 @@ bool HospitalSystem::dischargePatient(string patientID) {
 }
 
 Hospital* HospitalSystem::getHospital(int index) {
-    if (index >= 0 && index < hospitals.size()) {
+    if (index >= 0 && static_cast<size_t>(index) < hospitals.size()) {
         return hospitals[index];
     }
     return nullptr;
@@ -260,7 +260,7 @@ bool HospitalSystem::addNurse(Nurse* nurse) {
 }
 
 string HospitalSystem::orderPrescription(int hospitalIndex, string patientID, string pharmacyID, string medication, double price) {
-    if (hospitalIndex < 0 || hospitalIndex >= hospitals.size()) {
+    if (hospitalIndex < 0 || static_cast<size_t>(hospitalIndex) >= hospitals.size()) {
         return "";
     }
     
@@ -269,7 +269,7 @@ string HospitalSystem::orderPrescription(int hospitalIndex, string patientID, st
 }
 
 bool HospitalSystem::payPharmacyBill(int hospitalIndex, string pharmacyID, string billID) {
-    if (hospitalIndex < 0 || hospitalIndex >= hospitals.size()) {
+    if (hospitalIndex < 0 || static_cast<size_t>(hospitalIndex) >= hospitals.size()) {
         return false;
     }
     
@@ -311,37 +311,6 @@ bool HospitalSystem::collectPatientPayment(string patientID, double amount) {
     return hospital->collectPaymentFromPatient(patientID, amount);
 }
 
-bool HospitalSystem::assignDoctorToPatient(string doctorID, string patientID) {
-    // Find which hospital the doctor is in
-    Hospital* doctorHospital = nullptr;
-    for (auto hospital : hospitals) {
-        for (auto doctor : hospital->doctors) {
-            if (doctor->doctorID == doctorID) {
-                doctorHospital = hospital;
-                break;
-            }
-        }
-        if (doctorHospital) break;
-    }
-    
-    if (!doctorHospital) {
-        return false; // Doctor not found
-    }
-    
-    // Find which hospital the patient is in
-    Hospital* patientHospital = findPatientHospital(patientID);
-    if (!patientHospital) {
-        return false; // Patient not found
-    }
-    
-    // Doctors can only be assigned to patients in the same hospital
-    if (doctorHospital->hospitalID != patientHospital->hospitalID) {
-        return false;
-    }
-    
-    return patientHospital->assignDoctorToPatient(doctorID, patientID);
-}
-
 bool HospitalSystem::assignDoctorToPatient(string doctorID, string patientID, bool isPrimary) {
     Doctor* doctor = findDoctor(doctorID);
     if (!doctor) {
@@ -350,6 +319,33 @@ bool HospitalSystem::assignDoctorToPatient(string doctorID, string patientID, bo
     
     Patient* patient = findPatient(patientID);
     if (!patient) {
+        return false;
+    }
+    
+    // Find which hospital the doctor is in
+    Hospital* doctorHospital = nullptr;
+    for (auto hospital : hospitals) {
+        for (auto doc : hospital->doctors) {
+            if (doc->doctorID == doctorID) {
+                doctorHospital = hospital;
+                break;
+            }
+        }
+        if (doctorHospital) break;
+    }
+    
+    if (!doctorHospital) {
+        return false; // Doctor not found in any hospital
+    }
+    
+    // Find which hospital the patient is in
+    Hospital* patientHospital = findPatientHospital(patientID);
+    if (!patientHospital) {
+        return false; // Patient not found in any hospital
+    }
+    
+    // Doctors can only be assigned to patients in the same hospital
+    if (doctorHospital->hospitalID != patientHospital->hospitalID) {
         return false;
     }
     
@@ -412,7 +408,7 @@ string HospitalSystem::getHospitalStatus() {
     stringstream status;
     
     for (auto hospital : hospitals) {
-        status << "Hospital: " << hospital->name << "\n";
+        status << "Hospital: " << hospital->hospitalName << "\n";
         status << "Patients Admitted: " << hospital->patients.size() << "/20\n";
         status << "Doctors: " << hospital->doctors.size() << "\n";
         status << "Nurses: " << hospital->nurses.size() << "\n\n";
@@ -422,7 +418,7 @@ string HospitalSystem::getHospitalStatus() {
             status << "--- Doctor Details ---\n";
             for (auto doctor : hospital->doctors) {
                 status << "ID: " << doctor->doctorID 
-                       << ", Name: " << doctor->name 
+                       << ", Name: " << doctor->doctorName 
                        << ", Patients: " << doctor->patientIDs.size() << "\n";
             }
             status << "\n";
@@ -433,7 +429,7 @@ string HospitalSystem::getHospitalStatus() {
             status << "--- Nurse Details ---\n";
             for (auto nurse : hospital->nurses) {
                 status << "ID: " << nurse->nurseID 
-                       << ", Name: " << nurse->name 
+                       << ", Name: " << nurse->nurseName 
                        << ", Patients: " << nurse->patientIDs.size() << "/2\n";
             }
             status << "\n";
@@ -444,7 +440,7 @@ string HospitalSystem::getHospitalStatus() {
             status << "--- Patient Details ---\n";
             for (auto patient : hospital->patients) {
                 status << "ID: " << patient->patientID 
-                       << ", Name: " << patient->name 
+                       << ", Name: " << patient->patientName 
                        << ", Phone: " << patient->phoneNumber << "\n";
                 status << "   Disease: " << patient->disease 
                        << ", Treatment: " << patient->treatment 

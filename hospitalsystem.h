@@ -47,8 +47,8 @@ public:
     double calculatePatientBill(string patientID);
     bool collectPatientPayment(string patientID, double amount);
     
-    // Doctor-patient relations
-    bool assignDoctorToPatient(string doctorID, string patientID);
+    // Doctor-patient relations - remove this version as it's redundant
+    // bool assignDoctorToPatient(string doctorID, string patientID);
     bool requestPatientDischarge(string doctorID, string patientID);
     
     // Enhanced reporting

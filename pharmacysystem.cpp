@@ -32,7 +32,7 @@ void PharmacySystem::initializePharmacies() {
 }
 
 Pharmacy* PharmacySystem::getPharmacy(int index) {
-    if (index >= 0 && index < pharmacies.size()) {
+    if (index >= 0 && static_cast<size_t>(index) < pharmacies.size()) {
         return pharmacies[index];
     }
     return nullptr;
@@ -89,7 +89,7 @@ string PharmacySystem::getPharmacyStatus() {
     status << "=== Pharmacy System Status ===\n\n";
     
     for (auto pharmacy : pharmacies) {
-        status << "Pharmacy: " << pharmacy->name << " (ID: " << pharmacy->pharmacyID << ")\n";
+        status << "Pharmacy: " << pharmacy->parmacyName << " (ID: " << pharmacy->pharmacyID << ")\n";
         status << "Total Prescriptions: " << pharmacy->prescriptions.size() << "\n";
         status << "Total Bills: " << pharmacy->bills.size() << "\n";
         status << "Total Revenue: $" << pharmacy->getTotalRevenue() << "\n";

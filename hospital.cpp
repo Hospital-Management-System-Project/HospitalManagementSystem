@@ -228,8 +228,8 @@ bool Hospital::assignDoctorToPatient(string doctorID, string patientID) {
         return false; // Patient not found
     }
     
-    // Assign doctor to patient
-    doctor->assignPatient(patientID);
+    // Assign doctor to patient - use addPatient instead of assignPatient
+    doctor->addPatient(patientID);
     patient->addAttendingDoctor(doctorID);
     
     return true;
@@ -255,14 +255,14 @@ bool Hospital::requestPatientDischarge(string doctorID, string patientID) {
 string Hospital::getPatientBillingReport() const {
     stringstream report;
     
-    report << "===== " << name << " Patient Billing Report =====\n\n";
+    report << "===== " << hospitalName << " Patient Billing Report =====\n\n";
     report << left << setw(15) << "Patient ID" << setw(25) << "Name" 
            << setw(10) << "Days" << setw(15) << "Amount Due" << setw(15) << "Status" << "\n";
     report << string(80, '-') << "\n";
     
     for (auto patient : patients) {
         report << left << setw(15) << patient->patientID 
-               << setw(25) << patient->name 
+               << setw(25) << patient->patientName 
                << setw(10) << patient->daysAdmitted 
                << "$" << setw(14) << fixed << setprecision(2) << patient->calculateCurrentBill()
                << setw(15) << patient->getStatus() << "\n";

@@ -10,12 +10,15 @@
 #include <QMessageBox>
 #include <QDoubleSpinBox>
 #include <QTabWidget>
+#include <QTimer>
+#include <QLabel>
 #include <vector>
 #include <map>
 #include <string>
 #include "hospital.h"
 #include "patient.h"
 #include "hospitalsystem.h"
+#include "pharmacysystem.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -28,8 +31,9 @@ private slots:
     void relocatePatient();
     void dischargePatient();
     void displayHospitalStatus();
-    void viewPatientDetails(); // Add this slot
-    void assignDoctorToPatient();
+    void viewPatientDetails();
+    void viewPatientBillingHistory();
+    void assignDoctorToPatient(bool isPrimary = false);
     void requestPatientDischarge();
     void calculateBill();
     void collectPayment();
