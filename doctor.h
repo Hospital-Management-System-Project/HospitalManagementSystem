@@ -2,14 +2,24 @@
 #define DOCTOR_H
 
 #include <string>
+#include <vector>
+
+using namespace std;
 
 class Doctor {
 public:
-    std::string doctorID;
-    std::string name;
-    std::string hospitalID;
+    string doctorID;
+    string doctorName;
+    string hospitalID;
+    vector<string> patientIDs; // Patients this doctor treats
 
-    Doctor(std::string id, std::string n, std::string hospID);
+    Doctor(string id, string doctorName, string hospID);
+    
+    // Patient management
+    void addPatient(string patientID);
+    void removePatient(string patientID);
+    bool isAssignedToPatient(string patientID);
+    bool requestPatientDischarge(string patientID);
 };
 
 #endif // DOCTOR_H

@@ -1,17 +1,22 @@
 #include "nurse.h"
-#include <algorithm> // For std::remove
+#include <algorithm>
 
-Nurse::Nurse(std::string id, std::string n, std::string hospID)
-    : nurseID(id), name(n), hospitalID(hospID) {}
+using namespace std;
 
-bool Nurse::assignPatient(std::string patientID) {
-    if (patientIDs.size() < 2) {
-        patientIDs.push_back(patientID);
-        return true;
-    }
-    return false;
+Nurse::Nurse(string id, string name, string hospID) {
+  nurseID = id;
+  nurseName = name;
+  hospitalID = hospID;
 }
 
-void Nurse::removePatient(std::string patientID) {
-    patientIDs.erase(std::remove(patientIDs.begin(), patientIDs.end(), patientID), patientIDs.end());
+bool Nurse::assignPatient(string patientID) {
+  if (patientIDs.size() < 2) {
+    patientIDs.push_back(patientID);
+    return true;
+  }
+  return false;
+}
+
+void Nurse::removePatient(string patientID) {
+  patientIDs.erase(remove(patientIDs.begin(), patientIDs.end(), patientID), patientIDs.end());
 }
