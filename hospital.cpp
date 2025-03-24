@@ -191,14 +191,47 @@ bool Hospital::collectPaymentFromPatient(string patientID, double amount) {
     for (auto patient : patients) {
         if (patient->patientID == patientID) {
             double bill = patient->calculateCurrentBill();
-            if (amount <= bill) {
-                collectedPayments += amount;
-                return true;
+            double alreadyPaid = 0.0;
+            
+            // Get any existing payments
+            auto it = patientPayments.find(patientID);
+            if (it != patientPayments.end()) {
+                alreadyPaid = it->second;
             }
-            return false; // Payment exceeds bill
+            
+            // Calculate remaining balance
+            double remainingBalance = bill - alreadyPaid;
+            
+            // Check if payment exceeds remaining bill
+            // Allow paying the exact amount (changed from > to >) 
+            if (amount > remainingBalance) {
+                return false; // Payment exceeds remaining bill
+            }
+            
+            // Update payment records
+            collectedPayments += amount;
+            patientPayments[patientID] = alreadyPaid + amount;
+            return true;
         }
     }
     return false; // Patient not found
+}
+
+double Hospital::getPatientRemainingBalance(string patientID) const {
+    for (auto patient : patients) {
+        if (patient->patientID == patientID) {
+            double bill = patient->calculateCurrentBill();
+            
+            // Check for payments
+            auto it = patientPayments.find(patientID);
+            if (it != patientPayments.end()) {
+                return bill - it->second;
+            }
+            
+            return bill; // No payments yet
+        }
+    }
+    return 0.0; // Patient not found
 }
 
 bool Hospital::assignDoctorToPatient(string doctorID, string patientID) {

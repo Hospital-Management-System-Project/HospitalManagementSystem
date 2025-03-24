@@ -460,3 +460,17 @@ string HospitalSystem::getHospitalStatus() {
     
     return status.str();
 }
+
+double HospitalSystem::getPatientRemainingBalance(string patientID) {
+    Patient* patient = findPatient(patientID);
+    if (!patient) {
+        return 0.0;
+    }
+    
+    Hospital* hospital = findPatientHospital(patientID);
+    if (!hospital) {
+        return 0.0;
+    }
+    
+    return hospital->getPatientRemainingBalance(patientID);
+}

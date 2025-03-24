@@ -37,7 +37,8 @@ void Patient::incrementDaysAdmitted() {
 }
 
 double Patient::calculateCurrentBill() const {
-    return billingRatePerDay * daysAdmitted;
+    // Always charge at least one day's rate (even for newly admitted patients)
+    return billingRatePerDay * max(1, daysAdmitted);
 }
 
 void Patient::setDailyRate(double rate) {

@@ -78,12 +78,14 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     QPushButton* dischargePatientButton = new QPushButton("Discharge Patient", this);
     QPushButton* viewPatientDetailsButton = new QPushButton("View Patient Details", this);
     QPushButton* displayStatusButton = new QPushButton("Display Hospital Status", this);
+    QPushButton* displayPharmacyButton = new QPushButton("Display Pharmacy Status", this);
     
     buttonLayout->addWidget(addPatientButton);
     buttonLayout->addWidget(relocatePatientButton);
     buttonLayout->addWidget(dischargePatientButton);
     buttonLayout->addWidget(viewPatientDetailsButton);
     buttonLayout->addWidget(displayStatusButton);
+    buttonLayout->addWidget(displayPharmacyButton);
 
     // Add patient management widgets to the layout
     patientLayout->addLayout(formLayout);
@@ -104,11 +106,20 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     patientAssignmentIDInput->setPlaceholderText("Enter Patient ID");
     doctorFormLayout->addRow("Patient ID:", patientAssignmentIDInput);
     
+    // Add the List All Patients button before doctor assignment buttons
+    QPushButton* listPatientsButton = new QPushButton("List All Patients", this);
+    
+    // Add assignment buttons in their own layout
     QHBoxLayout* doctorButtonLayout = new QHBoxLayout();
     QPushButton* assignDoctorButton = new QPushButton("Assign Doctor", this);
     QPushButton* setPrimaryDoctorButton = new QPushButton("Set as Primary Doctor", this);
     doctorButtonLayout->addWidget(assignDoctorButton);
     doctorButtonLayout->addWidget(setPrimaryDoctorButton);
+    
+    // Add the form layout and buttons to the main layout
+    doctorPatientLayout->addLayout(doctorFormLayout);
+    doctorPatientLayout->addWidget(listPatientsButton); // Place list button above doctor assignment buttons
+    doctorPatientLayout->addLayout(doctorButtonLayout);
     
     // Discharge request section
     QGroupBox* dischargeGroupBox = new QGroupBox("Request Patient Discharge", this);
@@ -187,6 +198,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(relocatePatientButton, &QPushButton::clicked, this, &MainWindow::relocatePatient);
     connect(dischargePatientButton, &QPushButton::clicked, this, &MainWindow::dischargePatient);
     connect(displayStatusButton, &QPushButton::clicked, this, &MainWindow::displayHospitalStatus);
+    connect(displayPharmacyButton, &QPushButton::clicked, this, &MainWindow::displayPharmacyStatus);
     connect(viewPatientDetailsButton, &QPushButton::clicked, this, &MainWindow::viewPatientDetails);
     connect(viewBillingButton, &QPushButton::clicked, this, &MainWindow::viewPatientBillingHistory);
     connect(assignDoctorButton, &QPushButton::clicked, this, &MainWindow::assignDoctorToPatient);
@@ -198,11 +210,32 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(calculateBillButton, &QPushButton::clicked, this, &MainWindow::calculateBill);
     connect(collectPaymentButton, &QPushButton::clicked, this, &MainWindow::collectPayment);
     connect(billingReportButton, &QPushButton::clicked, this, &MainWindow::showBillingReport);
+    connect(listPatientsButton, &QPushButton::clicked, this, &MainWindow::listAllPatients);
     
     // Set up timer for daily updates
     dayUpdateTimer = new QTimer(this);
     connect(dayUpdateTimer, &QTimer::timeout, this, &MainWindow::updateDayCounter);
     dayUpdateTimer->start(60000); // Update every minute (simulation)
+}
+
+// Add this helper method to check if a doctor belongs to a specific hospital
+bool MainWindow::isDoctorInHospital(const string& doctorID, int hospitalIndex) {
+    if (hospitalIndex < 0 || static_cast<size_t>(hospitalIndex) >= hospitalSystem->getAllHospitals().size()) {
+        return false;
+    }
+    
+    Doctor* doctor = hospitalSystem->findDoctor(doctorID);
+    if (!doctor) {
+        return false;
+    }
+    
+    Hospital* hospital = hospitalSystem->getHospital(hospitalIndex);
+    if (!hospital) {
+        return false;
+    }
+    
+    // Check if the doctor's hospital ID matches the selected hospital's ID
+    return doctor->hospitalID == hospital->hospitalID;
 }
 
 void MainWindow::addPatient() {
@@ -213,6 +246,7 @@ void MainWindow::addPatient() {
     string treatment = treatmentInput->text().toStdString();
     string doctorID = doctorIDInput->text().toStdString();
     double dailyRate = dailyRateInput->value();
+    int hospitalIndex = hospitalComboBox->currentIndex();
     
     // Validate inputs
     if (patientID.empty() || name.empty() || phone.empty() || 
@@ -226,15 +260,23 @@ void MainWindow::addPatient() {
         statusDisplay->append("Error: Patient ID already exists.");
         return;
     }
-
-    int hospitalIndex = hospitalComboBox->currentIndex();
+    
+    // Check if the doctor works at the selected hospital
+    if (!isDoctorInHospital(doctorID, hospitalIndex)) {
+        statusDisplay->append("Error: Doctor " + QString::fromStdString(doctorID) + 
+                              " does not work at " + hospitalComboBox->currentText() + 
+                              ". Please choose a doctor from this hospital.");
+        return;
+    }
     
     Patient* patient = new Patient(patientID, name, phone, disease, treatment, doctorID);
-    patient->setDailyRate(dailyRate);
+    patient->setDailyRate(dailyRate); // Make sure this actually sets the rate
     
     if (hospitalSystem->admitPatient(patient, hospitalIndex)) {
         statusDisplay->append("Patient admitted successfully to " + 
                              hospitalComboBox->currentText());
+        statusDisplay->append("Daily billing rate set to: $" + QString::number(dailyRate, 'f', 2));
+        statusDisplay->append("Initial bill: $" + QString::number(dailyRate, 'f', 2) + " (charged immediately)");
         
         // Clear input fields
         patientIDInput->clear();
@@ -285,11 +327,13 @@ void MainWindow::dischargePatient() {
 
 void MainWindow::displayHospitalStatus() {
     statusDisplay->clear();
+    statusDisplay->append("=== HOSPITAL SYSTEM STATUS ===\n");
     statusDisplay->append(QString::fromStdString(hospitalSystem->getHospitalStatus()));
-    
-    // Add pharmacy information
+}
+
+void MainWindow::displayPharmacyStatus() {
+    statusDisplay->clear();
     PharmacySystem* pharmacySystem = PharmacySystem::getInstance();
-    statusDisplay->append("\n=== PHARMACY INFORMATION ===\n");
     statusDisplay->append(QString::fromStdString(pharmacySystem->getPharmacyStatus()));
 }
 
@@ -310,6 +354,9 @@ void MainWindow::viewPatientDetails() {
     
     Hospital* hospital = hospitalSystem->findPatientHospital(patientID);
     
+    // Get the remaining balance
+    double remainingBalance = hospitalSystem->getPatientRemainingBalance(patientID);
+    
     statusDisplay->clear();
     statusDisplay->append("=== PATIENT DETAILS ===");
     statusDisplay->append("Patient ID: " + QString::fromStdString(patient->patientID));
@@ -320,7 +367,25 @@ void MainWindow::viewPatientDetails() {
     statusDisplay->append("Days Admitted: " + QString::number(patient->daysAdmitted));
     statusDisplay->append("Admission Date: " + QString::fromStdString(patient->getAdmissionDateString()));
     statusDisplay->append("Status: " + QString::fromStdString(patient->getStatus()));
-    statusDisplay->append("Current Bill: $" + QString::number(patient->calculateCurrentBill(), 'f', 2));
+    
+    // Show billing information prominently
+    statusDisplay->append("\n=== BILLING INFORMATION ===");
+    statusDisplay->append("Daily Rate: $" + QString::number(patient->billingRatePerDay, 'f', 2));
+    
+    if (patient->daysAdmitted == 0) {
+        statusDisplay->append("Current Bill: $" + QString::number(patient->billingRatePerDay, 'f', 2) + " (Initial day charge)");
+        statusDisplay->append("Remaining Balance: $" + QString::number(remainingBalance, 'f', 2));
+        
+        // Add explanation about billing
+        statusDisplay->append("\nNote: Patients are charged the daily rate ($" + 
+                             QString::number(patient->billingRatePerDay, 'f', 2) + 
+                             ") immediately upon admission. Additional days will increase the bill.");
+    } else {
+        statusDisplay->append("Current Bill: $" + QString::number(patient->calculateCurrentBill(), 'f', 2));
+        statusDisplay->append("Remaining Balance: $" + QString::number(remainingBalance, 'f', 2));
+    }
+    
+    statusDisplay->append("\n=== HOSPITAL & DOCTOR INFO ===");
     statusDisplay->append("Hospital: " + QString::fromStdString(hospital ? hospital->hospitalName : "Unknown"));
     statusDisplay->append("Primary Doctor: " + QString::fromStdString(patient->primaryDoctorID));
     
@@ -372,6 +437,28 @@ void MainWindow::assignDoctorToPatient(bool isPrimary) {
         return;
     }
     
+    // Find which hospital the patient is in
+    Hospital* patientHospital = hospitalSystem->findPatientHospital(patientID);
+    if (!patientHospital) {
+        statusDisplay->append("Error: Patient not found in any hospital.");
+        return;
+    }
+    
+    // Check if the doctor works at the patient's hospital
+    Doctor* doctor = hospitalSystem->findDoctor(doctorID);
+    if (!doctor) {
+        statusDisplay->append("Error: Doctor ID not found.");
+        return;
+    }
+    
+    if (doctor->hospitalID != patientHospital->hospitalID) {
+        statusDisplay->append("Error: Doctor " + QString::fromStdString(doctorID) + 
+                             " does not work at " + QString::fromStdString(patientHospital->hospitalName) + 
+                             " where the patient is admitted.");
+        return;
+    }
+    
+    // Continue with assignment
     if (isPrimary) {
         if (hospitalSystem->setPatientPrimaryDoctor(patientID, doctorID)) {
             statusDisplay->append("Set doctor " + QString::fromStdString(doctorID) + 
@@ -417,11 +504,12 @@ void MainWindow::calculateBill() {
         return;
     }
     
-    double bill = hospitalSystem->calculatePatientBill(patientID);
-    currentBillLabel->setText(QString("$%1").arg(bill, 0, 'f', 2));
+    // Get remaining balance instead of full bill
+    double remainingBalance = hospitalSystem->getPatientRemainingBalance(patientID);
+    currentBillLabel->setText(QString("$%1").arg(remainingBalance, 0, 'f', 2));
     
-    statusDisplay->append("Current bill for patient " + QString::fromStdString(patientID) + 
-                        " is $" + QString::number(bill, 'f', 2));
+    statusDisplay->append("Remaining balance for patient " + QString::fromStdString(patientID) + 
+                        " is $" + QString::number(remainingBalance, 'f', 2));
 }
 
 void MainWindow::collectPayment() {
@@ -438,12 +526,43 @@ void MainWindow::collectPayment() {
         return;
     }
     
+    // Get the current remaining balance
+    double remainingBalance = hospitalSystem->getPatientRemainingBalance(patientID);
+    
+    // Allow a small floating-point difference (0.01) for comparing doubles
+    if (amount > remainingBalance + 0.01) {
+        statusDisplay->append("Error: Payment amount ($" + QString::number(amount, 'f', 2) + 
+                             ") exceeds remaining balance ($" + QString::number(remainingBalance, 'f', 2) + ")");
+        return;
+    }
+    
+    // If the amount is very close to the remaining balance, adjust it to be exact
+    if (fabs(amount - remainingBalance) < 0.01) {
+        amount = remainingBalance;
+    }
+    
     if (hospitalSystem->collectPatientPayment(patientID, amount)) {
+        // Show payment collected
         statusDisplay->append("Payment of $" + QString::number(amount, 'f', 2) + 
                             " collected from patient " + QString::fromStdString(patientID));
         
-        // Update the displayed bill
-        calculateBill();
+        // Calculate new remaining balance
+        double newBalance = remainingBalance - amount;
+        if (newBalance < 0.01) newBalance = 0.0; // Avoid tiny remaining amounts
+        
+        // Update display with remaining amount
+        statusDisplay->append("Remaining balance: $" + QString::number(newBalance, 'f', 2));
+        
+        // Update the bill label
+        currentBillLabel->setText(QString("$%1").arg(newBalance, 0, 'f', 2));
+        
+        // Reset payment input
+        paymentAmountInput->setValue(0.0);
+        
+        // If paid in full, show a congratulatory message
+        if (newBalance < 0.01) {
+            statusDisplay->append("Bill paid in full. Thank you!");
+        }
     } else {
         statusDisplay->append("Payment failed. Check patient ID and try again.");
     }
@@ -466,4 +585,60 @@ void MainWindow::updateDayCounter() {
             calculateBill();
         }
     }
+}
+
+// Implementation of the new method to list all patients
+void MainWindow::listAllPatients() {
+    statusDisplay->clear();
+    statusDisplay->append("=== CURRENT PATIENTS LIST ===\n");
+    
+    map<string, Patient*>& allPatients = hospitalSystem->getAllPatients();
+    
+    if (allPatients.empty()) {
+        statusDisplay->append("No patients currently admitted.");
+        return;
+    }
+    
+    // Group patients by hospital for better organization
+    map<string, vector<Patient*>> patientsByHospital;
+    
+    for (const auto& pair : allPatients) {
+        Patient* patient = pair.second;
+        Hospital* hospital = hospitalSystem->findPatientHospital(patient->patientID);
+        
+        if (hospital) {
+            patientsByHospital[hospital->hospitalName].push_back(patient);
+        }
+    }
+    
+    // Display patients grouped by hospital
+    for (const auto& pair : patientsByHospital) {
+        statusDisplay->append("\n--- " + QString::fromStdString(pair.first) + " ---");
+        
+        for (const Patient* patient : pair.second) {
+            statusDisplay->append("Patient ID: " + QString::fromStdString(patient->patientID));
+            statusDisplay->append("Name: " + QString::fromStdString(patient->patientName));
+            statusDisplay->append("Disease: " + QString::fromStdString(patient->disease));
+            statusDisplay->append("Days Admitted: " + QString::number(patient->daysAdmitted));
+            statusDisplay->append("Primary Doctor: " + QString::fromStdString(patient->primaryDoctorID));
+            
+            // Show attending doctors if any
+            if (!patient->attendingDoctorIDs.empty()) {
+                QString attendingDocs = "Attending Doctors: ";
+                for (size_t i = 0; i < patient->attendingDoctorIDs.size(); i++) {
+                    attendingDocs += QString::fromStdString(patient->attendingDoctorIDs[i]);
+                    if (i < patient->attendingDoctorIDs.size() - 1) {
+                        attendingDocs += ", ";
+                    }
+                }
+                statusDisplay->append(attendingDocs);
+            }
+            
+            // Show a separator between patients
+            statusDisplay->append("------------------------");
+        }
+    }
+    
+    // Show count at the end
+    statusDisplay->append("\nTotal patients: " + QString::number(allPatients.size()));
 }

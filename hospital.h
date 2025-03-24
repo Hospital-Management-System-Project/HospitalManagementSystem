@@ -23,6 +23,7 @@ public:
     map<string, double> pharmacyBills; // Maps billID to amount
     double totalPatientBillings;
     double collectedPayments;
+    map<string, double> patientPayments; // Track payments per patient
     
     Hospital(string id, string n);
     bool admitPatient(Patient* patient);
@@ -43,6 +44,7 @@ public:
     double calculatePatientBill(string patientID) const;
     double getTotalPatientBills() const;
     bool collectPaymentFromPatient(string patientID, double amount);
+    double getPatientRemainingBalance(string patientID) const;
     
     // Doctor-patient relationship
     bool assignDoctorToPatient(string doctorID, string patientID);

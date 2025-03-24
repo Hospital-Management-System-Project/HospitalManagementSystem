@@ -31,6 +31,7 @@ private slots:
     void relocatePatient();
     void dischargePatient();
     void displayHospitalStatus();
+    void displayPharmacyStatus();
     void viewPatientDetails();
     void viewPatientBillingHistory();
     void assignDoctorToPatient(bool isPrimary = false);
@@ -39,6 +40,7 @@ private slots:
     void collectPayment();
     void showBillingReport();
     void updateDayCounter();
+    void listAllPatients(); // New method to list all patients
 
 private:
     // Patient management tab
@@ -74,6 +76,9 @@ private:
     
     // Timer for daily updates
     QTimer* dayUpdateTimer;
+    
+    // Helper method to check if a doctor works at a specific hospital
+    bool isDoctorInHospital(const string& doctorID, int hospitalIndex);
 };
 
 #endif // MAINWINDOW_H
