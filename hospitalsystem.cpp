@@ -140,12 +140,19 @@ bool HospitalSystem::dischargePatient(string patientID) {
     if (!patient) {
         return false;
     }
-    
+
+    if (!patient->dischargeRequested) {
+        // The doctor never requested discharge, so do not allow it.
+        return false;
+    }
+
+    // Otherwise, proceed with discharge
     Hospital* hospital = findPatientHospital(patientID);
     if (!hospital) {
         return false;
     }
-    
+
+    // Actually remove the patient from the hospital
     hospital->dischargePatient(patient);
     patients.erase(patientID);
     delete patient;

@@ -18,6 +18,7 @@ public:
   string primaryDoctorID;
   vector<string> attendingDoctorIDs;
   bool discharged;
+  bool dischargeRequested;
   double billingRatePerDay;
   time_t admissionDate;
 

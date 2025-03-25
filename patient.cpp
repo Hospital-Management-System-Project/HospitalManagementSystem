@@ -14,6 +14,7 @@ Patient::Patient(string id, string name, string phone, string d, string t, strin
     daysAdmitted = 0;
     primaryDoctorID = docID;
     discharged = false;
+    dischargeRequested = (false);
     billingRatePerDay = 100.0; // Default daily rate
     admissionDate = time(nullptr); // Current time
 }

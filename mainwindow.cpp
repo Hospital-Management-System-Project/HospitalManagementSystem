@@ -489,7 +489,7 @@ void MainWindow::requestPatientDischarge() {
     
     if (hospitalSystem->requestPatientDischarge(doctorID, patientID)) {
         statusDisplay->append("Discharge request approved. Patient " + 
-                            QString::fromStdString(patientID) + " is now discharged.");
+                            QString::fromStdString(patientID) + " can now be discharged.");
     } else {
         statusDisplay->append("Discharge request denied. Either the doctor is not authorized " +
                             QString("or the patient ID is invalid."));
