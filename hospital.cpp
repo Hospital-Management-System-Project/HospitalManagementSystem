@@ -303,7 +303,6 @@ string Hospital::getPatientBillingReport() const {
     
     report << "\n";
     report << "Total Billing: $" << fixed << setprecision(2) << getTotalPatientBills() << "\n";
-    report << "Collected Payments: $" << fixed << setprecision(2) << collectedPayments << "\n";
     
     return report.str();
 }

@@ -145,35 +145,25 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // ===== BILLING TAB =====
     QWidget* billingTab = new QWidget(this);
     QVBoxLayout* billingLayout = new QVBoxLayout(billingTab);
-    
+
+    // Patient ID input
     QFormLayout* billingFormLayout = new QFormLayout();
-    
     billingPatientIDInput = new QLineEdit(this);
     billingPatientIDInput->setPlaceholderText("Enter Patient ID");
     billingFormLayout->addRow("Patient ID:", billingPatientIDInput);
-    
-    currentBillLabel = new QLabel("$0.00", this);
-    billingFormLayout->addRow("Current Bill:", currentBillLabel);
-    
-    paymentAmountInput = new QDoubleSpinBox(this);
-    paymentAmountInput->setRange(0.0, 10000.0);
-    paymentAmountInput->setPrefix("$");
-    billingFormLayout->addRow("Payment Amount:", paymentAmountInput);
-    
-    QHBoxLayout* billingButtonLayout = new QHBoxLayout();
-    QPushButton* calculateBillButton = new QPushButton("Calculate Bill", this);
-    QPushButton* collectPaymentButton = new QPushButton("Collect Payment", this);
-    QPushButton* viewBillingButton = new QPushButton("View Billing History", this);
-    QPushButton* billingReportButton = new QPushButton("Billing Report", this);
-    
-    billingButtonLayout->addWidget(calculateBillButton);
-    billingButtonLayout->addWidget(collectPaymentButton);
-    billingButtonLayout->addWidget(viewBillingButton);
-    billingButtonLayout->addWidget(billingReportButton);
-    
+
+    // Only one button: Generate Billing Report
+    QPushButton* billingReportButton = new QPushButton("Generate Billing Report", this);
+    billingFormLayout->addWidget(billingReportButton);
+
     billingLayout->addLayout(billingFormLayout);
-    billingLayout->addLayout(billingButtonLayout);
     billingTab->setLayout(billingLayout);
+
+    // Add tab to widget
+    tabWidget->addTab(billingTab, "Billing");
+
+    // Connect the button
+    connect(billingReportButton, &QPushButton::clicked, this, &MainWindow::showBillingReport);
     
     // Add the tabs to the tab widget
     tabWidget->addTab(patientTab, "Patient Management");
@@ -200,22 +190,19 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(displayStatusButton, &QPushButton::clicked, this, &MainWindow::displayHospitalStatus);
     connect(displayPharmacyButton, &QPushButton::clicked, this, &MainWindow::displayPharmacyStatus);
     connect(viewPatientDetailsButton, &QPushButton::clicked, this, &MainWindow::viewPatientDetails);
-    connect(viewBillingButton, &QPushButton::clicked, this, &MainWindow::viewPatientBillingHistory);
     connect(assignDoctorButton, &QPushButton::clicked, this, &MainWindow::assignDoctorToPatient);
     connect(setPrimaryDoctorButton, &QPushButton::clicked, this, [this]() {
         // Lambda to call assignDoctorToPatient with isPrimary=true
         this->assignDoctorToPatient(true);
     });
     connect(requestDischargeButton, &QPushButton::clicked, this, &MainWindow::requestPatientDischarge);
-    connect(calculateBillButton, &QPushButton::clicked, this, &MainWindow::calculateBill);
-    connect(collectPaymentButton, &QPushButton::clicked, this, &MainWindow::collectPayment);
     connect(billingReportButton, &QPushButton::clicked, this, &MainWindow::showBillingReport);
     connect(listPatientsButton, &QPushButton::clicked, this, &MainWindow::listAllPatients);
     
     // Set up timer for daily updates
     dayUpdateTimer = new QTimer(this);
     connect(dayUpdateTimer, &QTimer::timeout, this, &MainWindow::updateDayCounter);
-    dayUpdateTimer->start(60000); // Update every minute (simulation)
+    dayUpdateTimer->start(10000); // Update every 10 seconds (simulation)
 }
 
 // Add this helper method to check if a doctor belongs to a specific hospital
