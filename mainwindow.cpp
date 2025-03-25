@@ -146,21 +146,21 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     QWidget* billingTab = new QWidget(this);
     QVBoxLayout* billingLayout = new QVBoxLayout(billingTab);
 
-    // Patient ID input
     QFormLayout* billingFormLayout = new QFormLayout();
-    billingPatientIDInput = new QLineEdit(this);
-    billingPatientIDInput->setPlaceholderText("Enter Patient ID");
-    billingFormLayout->addRow("Patient ID:", billingPatientIDInput);
 
-    // Only one button: Generate Billing Report
+    // Generate Billing Report
     QPushButton* billingReportButton = new QPushButton("Generate Billing Report", this);
     billingFormLayout->addWidget(billingReportButton);
+
+    QPushButton* pharmacyBillingButton = new QPushButton("Generate Pharmacy Billing", this);
+    billingFormLayout->addRow("", pharmacyBillingButton);
 
     billingLayout->addLayout(billingFormLayout);
     billingTab->setLayout(billingLayout);
 
     // Connect the button
     connect(billingReportButton, &QPushButton::clicked, this, &MainWindow::showBillingReport);
+    connect(pharmacyBillingButton, &QPushButton::clicked, this, &MainWindow::showPharmacyBillingReport);
 
     // ===== DRUG DELIVERY TAB =====
     QWidget* drugDeliveryTab = new QWidget(this);
@@ -237,7 +237,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Set up timer for daily updates
     dayUpdateTimer = new QTimer(this);
     connect(dayUpdateTimer, &QTimer::timeout, this, &MainWindow::updateDayCounter);
-    dayUpdateTimer->start(10000); // Update every 10 seconds (simulation)
+    dayUpdateTimer->start(60000); // Update every 60 seconds (simulation)
 }
 
 // Add this helper method to check if a doctor belongs to a specific hospital
@@ -453,37 +453,6 @@ void MainWindow::viewPatientDetails() {
     }
 }
 
-void MainWindow::viewPatientBillingHistory() {
-    string patientID = billingPatientIDInput->text().toStdString();
-    
-    if (patientID.empty()) {
-        statusDisplay->append("Error: Enter Patient ID to view billing history.");
-        return;
-    }
-    
-    Patient* patient = hospitalSystem->findPatient(patientID);
-    if (!patient) {
-        statusDisplay->append("Patient not found.");
-        return;
-    }
-    
-    Hospital* hospital = hospitalSystem->findPatientHospital(patientID);
-    if (!hospital) {
-        statusDisplay->append("Hospital not found for this patient.");
-        return;
-    }
-    
-    statusDisplay->clear();
-    statusDisplay->append("=== PATIENT BILLING HISTORY ===");
-    statusDisplay->append("Patient ID: " + QString::fromStdString(patient->patientID));
-    statusDisplay->append("Name: " + QString::fromStdString(patient->patientName));
-    statusDisplay->append("Days Admitted: " + QString::number(patient->daysAdmitted));
-    statusDisplay->append("Daily Rate: $" + QString::number(patient->billingRatePerDay, 'f', 2));
-    statusDisplay->append("Current Total: $" + QString::number(patient->calculateCurrentBill(), 'f', 2));
-    statusDisplay->append("Status: " + QString::fromStdString(patient->getStatus()));
-    statusDisplay->append("\nNote: Additional charges for medications and services may apply.");
-}
-
 void MainWindow::assignDoctorToPatient(bool isPrimary) {
     string doctorID = doctorAssignmentIDInput->text().toStdString();
     string patientID = patientAssignmentIDInput->text().toStdString();
@@ -554,74 +523,18 @@ void MainWindow::requestPatientDischarge() {
 
 void MainWindow::calculateBill() {
     string patientID = billingPatientIDInput->text().toStdString();
-    
+
     if (patientID.empty()) {
         statusDisplay->append("Error: Patient ID is required.");
         return;
     }
-    
+
     // Get remaining balance instead of full bill
     double remainingBalance = hospitalSystem->getPatientRemainingBalance(patientID);
     currentBillLabel->setText(QString("$%1").arg(remainingBalance, 0, 'f', 2));
-    
-    statusDisplay->append("Remaining balance for patient " + QString::fromStdString(patientID) + 
-                        " is $" + QString::number(remainingBalance, 'f', 2));
-}
 
-void MainWindow::collectPayment() {
-    string patientID = billingPatientIDInput->text().toStdString();
-    double amount = paymentAmountInput->value();
-    
-    if (patientID.empty()) {
-        statusDisplay->append("Error: Patient ID is required.");
-        return;
-    }
-    
-    if (amount <= 0) {
-        statusDisplay->append("Error: Payment amount must be greater than zero.");
-        return;
-    }
-    
-    // Get the current remaining balance
-    double remainingBalance = hospitalSystem->getPatientRemainingBalance(patientID);
-    
-    // Allow a small floating-point difference (0.01) for comparing doubles
-    if (amount > remainingBalance + 0.01) {
-        statusDisplay->append("Error: Payment amount ($" + QString::number(amount, 'f', 2) + 
-                             ") exceeds remaining balance ($" + QString::number(remainingBalance, 'f', 2) + ")");
-        return;
-    }
-    
-    // If the amount is very close to the remaining balance, adjust it to be exact
-    if (fabs(amount - remainingBalance) < 0.01) {
-        amount = remainingBalance;
-    }
-    
-    if (hospitalSystem->collectPatientPayment(patientID, amount)) {
-        // Show payment collected
-        statusDisplay->append("Payment of $" + QString::number(amount, 'f', 2) + 
-                            " collected from patient " + QString::fromStdString(patientID));
-        
-        // Calculate new remaining balance
-        double newBalance = remainingBalance - amount;
-        if (newBalance < 0.01) newBalance = 0.0; // Avoid tiny remaining amounts
-        
-        // Update display with remaining amount
-        statusDisplay->append("Remaining balance: $" + QString::number(newBalance, 'f', 2));
-        
-        // Update the bill label
-        currentBillLabel->setText(QString("$%1").arg(newBalance, 0, 'f', 2));
-        
-        // Reset payment input
-        paymentAmountInput->setValue(0.0);
-        
-        // If paid in full, show a congratulatory message
-        if (newBalance < 0.01) {
-            statusDisplay->append("Bill paid in full. Thank you!");
-        }
-    } else {
-        statusDisplay->append("Payment failed. Check patient ID and try again.");
-    }
+    statusDisplay->append("Remaining balance for patient " + QString::fromStdString(patientID) +
+                        " is $" + QString::number(remainingBalance, 'f', 2));
 }
 
 void MainWindow::showBillingReport() {
@@ -633,7 +546,7 @@ void MainWindow::showBillingReport() {
 void MainWindow::updateDayCounter() {
     // This is called periodically to simulate the passage of time
     hospitalSystem->updateAllPatientDays();
-    
+
     // If the current tab is the billing tab, update the displayed bill
     if (tabWidget->currentIndex() == 2) { // Billing tab is index 2
         string patientID = billingPatientIDInput->text().toStdString();
@@ -732,3 +645,37 @@ void MainWindow::requestDrugDelivery() {
                           " for $" + QString::number(selectedDrug.price, 'f', 2) +
                           " (Bill ID: " + QString::fromStdString(billID) + ")");
 }
+
+void MainWindow::showPharmacyBillingReport() {
+    statusDisplay->clear();
+    statusDisplay->append("=== PHARMACY BILLING REPORT ===\n");
+
+    PharmacySystem* ps = PharmacySystem::getInstance();
+    auto allPharmacies = ps->getAllPharmacies();
+    auto allHospitals = hospitalSystem->getAllHospitals();
+
+    std::map<std::string, double> hospitalTotals;
+
+    // Aggregate unpaid bills for each hospital
+    for (auto pharmacy : allPharmacies) {
+        for (auto hospital : allHospitals) {
+            std::vector<Bill> bills = pharmacy->getBillsForHospital(hospital->hospitalID);
+            for (const auto& bill : bills) {
+                if (!bill.paid) {
+                    hospitalTotals[hospital->hospitalName] += bill.amount;
+                }
+            }
+        }
+    }
+
+    // Show the result
+    for (const auto& pair : hospitalTotals) {
+        statusDisplay->append(QString::fromStdString(pair.first) +
+                              " owes: $" + QString::number(pair.second, 'f', 2));
+    }
+
+    if (hospitalTotals.empty()) {
+        statusDisplay->append("All pharmacy bills have been paid!");
+    }
+}
+

@@ -33,16 +33,14 @@ private slots:
     void displayHospitalStatus();
     void displayPharmacyStatus();
     void viewPatientDetails();
-    void viewPatientBillingHistory();
     void assignDoctorToPatient(bool isPrimary = false);
     void requestPatientDischarge();
     void calculateBill();
-    void collectPayment();
     void showBillingReport();
     void updateDayCounter();
     void listAllPatients();
     void requestDrugDelivery();
-    // void showPharmacyBillingReport();
+    void showPharmacyBillingReport();
 
 private:
     // Patient management tab
