@@ -4,16 +4,17 @@
 #include <vector>
 #include <map>
 #include <string>
+#include "drug.h"
 #include "pharmacy.h"
-
-using namespace std;
 
 class PharmacySystem {
 private:
     static PharmacySystem* instance;
-    vector<Pharmacy*> pharmacies;
-    
-    // Private constructor for singleton
+
+    std::vector<Pharmacy*> pharmacies;
+
+    std::vector<Drug> drugList;
+
     PharmacySystem() {}
 
 public:
@@ -23,18 +24,25 @@ public:
         }
         return instance;
     }
-    
+
     void initializePharmacies();
+
+    void initializeDrugs();
+
     Pharmacy* getPharmacy(int index);
-    Pharmacy* findPharmacyByID(string pharmacyID);
-    vector<Pharmacy*> getAllPharmacies();
-    
-    bool addPrescription(string pharmacyID, string prescriptionID, string patientID, string medication, double price);
-    bool deliverMedication(string pharmacyID, string prescriptionID);
-    string createBill(string pharmacyID, string hospitalID, string prescriptionID);
-    bool payBill(string pharmacyID, string billID);
-    
-    string getPharmacyStatus();
+    Pharmacy* findPharmacyByID(std::string pharmacyID);
+    std::vector<Pharmacy*> getAllPharmacies();
+
+    std::vector<Drug> getAllDrugs() const { return drugList; }
+
+    bool addPrescription(std::string pharmacyID, std::string prescriptionID,
+                         std::string patientID, std::string medication, double price);
+    bool deliverMedication(std::string pharmacyID, std::string prescriptionID);
+    std::string createBill(std::string pharmacyID, std::string hospitalID, std::string prescriptionID);
+    bool payBill(std::string pharmacyID, std::string billID);
+
+    std::string getPharmacyStatus();
+
     ~PharmacySystem();
 };
 

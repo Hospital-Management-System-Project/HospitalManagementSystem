@@ -21,6 +21,7 @@ SOURCES += \
     pharmacysystem.cpp
 
 HEADERS += \
+    Drug.h \
     mainwindow.h \
     patient.h \
     hospital.h \

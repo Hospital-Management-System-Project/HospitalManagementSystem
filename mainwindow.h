@@ -64,6 +64,8 @@ private:
     QLineEdit* billingPatientIDInput;
     QLabel* currentBillLabel;
     QDoubleSpinBox* paymentAmountInput;
+
+    //Drug tab
     
     // Status display
     QTextEdit* statusDisplay;
