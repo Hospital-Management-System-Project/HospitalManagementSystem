@@ -280,20 +280,54 @@ void MainWindow::addPatient() {
 
 void MainWindow::relocatePatient() {
     string patientID = patientIDInput->text().toStdString();
-    
-    if (patientID.empty()) {
-        statusDisplay->append("Error: Enter Patient ID to relocate.");
+    string newPrimaryDoctorID = doctorIDInput->text().toStdString();
+    int newHospitalIndex = relocateHospitalComboBox->currentIndex();
+
+    if (patientID.empty() || newPrimaryDoctorID.empty()) {
+        statusDisplay->append("Error: Patient ID and new Primary Doctor ID must be provided.");
         return;
     }
 
-    int newHospitalIndex = relocateHospitalComboBox->currentIndex();
-    
+    Patient* patient = hospitalSystem->findPatient(patientID);
+    if (!patient) {
+        statusDisplay->append("Error: Patient not found.");
+        return;
+    }
+
+    Hospital* currentHospital = hospitalSystem->findPatientHospital(patientID);
+    Hospital* newHospital = hospitalSystem->getHospital(newHospitalIndex);
+
+    if (!currentHospital || !newHospital) {
+        statusDisplay->append("Error: Hospital selection is invalid.");
+        return;
+    }
+
+    // Check if doctor works at new hospital
+    if (!isDoctorInHospital(newPrimaryDoctorID, newHospitalIndex)) {
+        statusDisplay->append("Error: Doctor " + QString::fromStdString(newPrimaryDoctorID) +
+                              " does not work at " + relocateHospitalComboBox->currentText() + ".");
+        return;
+    }
+
+    // Remove all doctor assignments from current hospital
+    for (auto doctor : currentHospital->doctors) {
+        doctor->removePatient(patientID);
+    }
+    patient->attendingDoctorIDs.clear();
+    patient->primaryDoctorID = "";
+
+    // Attempt to relocate the patient
     if (hospitalSystem->relocatePatient(patientID, newHospitalIndex)) {
-        statusDisplay->append("Patient " + QString::fromStdString(patientID) + 
-                             " relocated successfully to " + 
-                             relocateHospitalComboBox->currentText());
+        // Assign the new primary doctor
+        if (hospitalSystem->setPatientPrimaryDoctor(patientID, newPrimaryDoctorID)) {
+            statusDisplay->append("Patient " + QString::fromStdString(patientID) +
+                                  " relocated to " + relocateHospitalComboBox->currentText() +
+                                  " and assigned to Doctor " + QString::fromStdString(newPrimaryDoctorID));
+        } else {
+            statusDisplay->append("Patient relocated, but failed to assign new primary doctor.");
+        }
     } else {
-        statusDisplay->append("Failed to relocate patient. Either patient not found or destination hospital is full.");
+        statusDisplay->append("Failed to relocate patient. Destination hospital may be full.");
     }
 }
 
