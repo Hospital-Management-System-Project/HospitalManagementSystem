@@ -47,8 +47,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     formLayout->addRow("Treatment:", treatmentInput);
 
     doctorIDInput = new QLineEdit(this);
-    doctorIDInput->setPlaceholderText("Enter Doctor ID");
-    formLayout->addRow("Doctor ID:", doctorIDInput);
+    doctorIDInput->setPlaceholderText("Enter Primary Doctor ID");
+    formLayout->addRow("Primary Doctor ID:", doctorIDInput);
     
     // Add daily rate input
     dailyRateInput = new QDoubleSpinBox(this);
