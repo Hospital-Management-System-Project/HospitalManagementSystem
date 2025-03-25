@@ -91,8 +91,6 @@ string PharmacySystem::getPharmacyStatus() {
     for (auto pharmacy : pharmacies) {
         status << "Pharmacy: " << pharmacy->parmacyName << " (ID: " << pharmacy->pharmacyID << ")\n";
         status << "Total Prescriptions: " << pharmacy->prescriptions.size() << "\n";
-        status << "Total Bills: " << pharmacy->bills.size() << "\n";
-        status << "Total Revenue: $" << pharmacy->getTotalRevenue() << "\n";
         status << "Pending Payments: $" << pharmacy->getPendingPayments() << "\n\n";
     }
     
