@@ -60,6 +60,7 @@ public:
     
     // Billing functions
     string billHospital(string hospitalID, string prescriptionID);
+    string billHospitalForDrug(string hospitalID, string drugName, double price);
     bool receivePayment(string billID);
     
     // Reporting
