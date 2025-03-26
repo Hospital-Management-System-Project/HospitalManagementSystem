@@ -40,7 +40,10 @@ private slots:
     void collectPayment();
     void showBillingReport();
     void updateDayCounter();
-    void listAllPatients(); // New method to list all patients
+    void listAllPatients();
+    void listAllPatients();
+    void requestDrugDelivery();
+    void showPharmacyBillingReport();
 
 private:
     // Patient management tab
@@ -64,6 +67,11 @@ private:
     QLineEdit* billingPatientIDInput;
     QLabel* currentBillLabel;
     QDoubleSpinBox* paymentAmountInput;
+
+    //Drug tab
+    QComboBox* drugHospitalComboBox;
+    QComboBox* drugPharmacyComboBox;
+    QComboBox* drugComboBox;
     
     // Status display
     QTextEdit* statusDisplay;

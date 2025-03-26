@@ -16,6 +16,7 @@ SOURCES += \
     hospital.cpp \
     doctor.cpp \
     nurse.cpp \
+    drugs.cpp \
     hospitalsystem.cpp \
     pharmacy.cpp \
     pharmacysystem.cpp

@@ -1,4 +1,5 @@
 #include "pharmacysystem.h"
+#include "drug.h"
 #include <sstream>
 
 using namespace std;
@@ -29,6 +30,15 @@ void PharmacySystem::initializePharmacies() {
         string id = "P" + to_string(i + 1);
         pharmacies.push_back(new Pharmacy(id, PHARMACY_NAMES[i]));
     }
+}
+
+void PharmacySystem::initializeDrugs() {
+    drugList.clear();
+    drugList.push_back(Drug("Aspirin", 10.0));
+    drugList.push_back(Drug("Ibuprofen", 12.5));
+    drugList.push_back(Drug("Acetaminophen", 8.0));
+    drugList.push_back(Drug("Amoxicillin", 25.0));
+    drugList.push_back(Drug("Insulin", 50.0));
 }
 
 Pharmacy* PharmacySystem::getPharmacy(int index) {

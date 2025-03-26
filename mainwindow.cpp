@@ -156,19 +156,58 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     QPushButton* billingReportButton = new QPushButton("Generate Billing Report", this);
     billingFormLayout->addWidget(billingReportButton);
 
+    QPushButton* pharmacyBillingButton = new QPushButton("Generate Pharmacy Billing", this);
+    billingFormLayout->addRow("", pharmacyBillingButton);
+
     billingLayout->addLayout(billingFormLayout);
     billingTab->setLayout(billingLayout);
 
-    // Add tab to widget
-    tabWidget->addTab(billingTab, "Billing");
-
     // Connect the button
     connect(billingReportButton, &QPushButton::clicked, this, &MainWindow::showBillingReport);
+    connect(pharmacyBillingButton, &QPushButton::clicked, this, &MainWindow::showPharmacyBillingReport);
     
+        // ===== DRUG DELIVERY TAB =====
+    QWidget* drugDeliveryTab = new QWidget(this);
+    QVBoxLayout* drugDeliveryLayout = new QVBoxLayout(drugDeliveryTab);
+
+    QFormLayout* drugFormLayout = new QFormLayout();
+
+    drugHospitalComboBox = new QComboBox(this);
+    auto allHospitals = hospitalSystem->getAllHospitals();
+    for (auto hospital : allHospitals) {
+        drugHospitalComboBox->addItem(QString::fromStdString(hospital->hospitalName));
+    }
+    drugFormLayout->addRow("Select Hospital:", drugHospitalComboBox);
+
+    drugPharmacyComboBox = new QComboBox(this);
+    auto allPharmacies = PharmacySystem::getInstance()->getAllPharmacies();
+    for (auto pharmacy : allPharmacies) {
+        drugPharmacyComboBox->addItem(
+            QString::fromStdString(pharmacy->parmacyName + " (" + pharmacy->pharmacyID + ")")
+            );
+    }
+    drugFormLayout->addRow("Select Pharmacy:", drugPharmacyComboBox);
+
+    drugComboBox = new QComboBox(this);
+    auto allDrugs = PharmacySystem::getInstance()->getAllDrugs();
+    for (auto &d : allDrugs) {
+        drugComboBox->addItem(QString::fromStdString(d.drugName));
+    }
+    drugFormLayout->addRow("Select Drug:", drugComboBox);
+
+    QPushButton* requestDeliveryButton = new QPushButton("Request Delivery", this);
+    drugFormLayout->addRow("", requestDeliveryButton);
+
+    drugDeliveryLayout->addLayout(drugFormLayout);
+    drugDeliveryTab->setLayout(drugDeliveryLayout);
+
+    connect(requestDeliveryButton, &QPushButton::clicked, this, &MainWindow::requestDrugDelivery);
+
     // Add the tabs to the tab widget
     tabWidget->addTab(patientTab, "Patient Management");
     tabWidget->addTab(doctorPatientTab, "Doctor-Patient");
     tabWidget->addTab(billingTab, "Billing");
+    tabWidget->addTab(drugDeliveryTab, "Drug Delivery");
     
     // Add status display
     statusDisplay = new QTextEdit(this);
@@ -202,7 +241,12 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Set up timer for daily updates
     dayUpdateTimer = new QTimer(this);
     connect(dayUpdateTimer, &QTimer::timeout, this, &MainWindow::updateDayCounter);
-    dayUpdateTimer->start(10000); // Update every 10 seconds (simulation)
+    dayUpdateTimer->start(86400000); // 24 hours in milliseconds
+    hospitalSystem->updateAllPatientDays(); // Initial update    
+    QTime currentTime = QTime::currentTime();
+    statusDisplay->append("Current Time: " + currentTime.toString());
+    statusDisplay->append("System initialized. Daily updates will occur every 24 hours.");
+    statusDisplay->append("Welcome to the Hospital Management System!");
 }
 
 // Add this helper method to check if a doctor belongs to a specific hospital
@@ -595,6 +639,39 @@ void MainWindow::showBillingReport() {
     statusDisplay->append(QString::fromStdString(hospitalSystem->getPatientBillingReport()));
 }
 
+void MainWindow::showPharmacyBillingReport() {
+    statusDisplay->clear();
+    statusDisplay->append("=== PHARMACY BILLING REPORT ===\n");
+
+    PharmacySystem* ps = PharmacySystem::getInstance();
+    auto allPharmacies = ps->getAllPharmacies();
+    auto allHospitals = hospitalSystem->getAllHospitals();
+
+    std::map<std::string, double> hospitalTotals;
+
+    // Aggregate unpaid bills for each hospital
+    for (auto pharmacy : allPharmacies) {
+        for (auto hospital : allHospitals) {
+            std::vector<Bill> bills = pharmacy->getBillsForHospital(hospital->hospitalID);
+            for (const auto& bill : bills) {
+                if (!bill.paid) {
+                    hospitalTotals[hospital->hospitalName] += bill.amount;
+                }
+            }
+        }
+    }
+
+    // Show the result
+    for (const auto& pair : hospitalTotals) {
+        statusDisplay->append(QString::fromStdString(pair.first) +
+                              " owes: $" + QString::number(pair.second, 'f', 2));
+    }
+
+    if (hospitalTotals.empty()) {
+        statusDisplay->append("All pharmacy bills have been paid!");
+    }
+}
+
 void MainWindow::updateDayCounter() {
     // This is called periodically to simulate the passage of time
     hospitalSystem->updateAllPatientDays();
@@ -662,4 +739,38 @@ void MainWindow::listAllPatients() {
     
     // Show count at the end
     statusDisplay->append("\nTotal patients: " + QString::number(allPatients.size()));
+}
+
+void MainWindow::requestDrugDelivery() {
+    int hospitalIndex = drugHospitalComboBox->currentIndex();
+    int pharmacyIndex = drugPharmacyComboBox->currentIndex();
+    int drugIndex = drugComboBox->currentIndex();
+
+    if (hospitalIndex < 0 || pharmacyIndex < 0 || drugIndex < 0) {
+        statusDisplay->append("Error: Please select a hospital, pharmacy, and drug.");
+        return;
+    }
+
+    Hospital* hospital = hospitalSystem->getHospital(hospitalIndex);
+    if (!hospital) {
+        statusDisplay->append("Error: Invalid hospital selection.");
+        return;
+    }
+
+    PharmacySystem* ps = PharmacySystem::getInstance();
+    Pharmacy* pharmacy = ps->getPharmacy(pharmacyIndex);
+    if (!pharmacy) {
+        statusDisplay->append("Error: Invalid pharmacy selection.");
+        return;
+    }
+
+    Drug selectedDrug = ps->getAllDrugs()[drugIndex];
+
+    // Just bill the hospital for this drug
+    std::string billID = pharmacy->billHospitalForDrug(hospital->hospitalID, selectedDrug.drugName, selectedDrug.price);
+
+    statusDisplay->append("Drug \"" + QString::fromStdString(selectedDrug.drugName) +
+                          "\" billed to " + QString::fromStdString(hospital->hospitalName) +
+                          " for $" + QString::number(selectedDrug.price, 'f', 2) +
+                          " (Bill ID: " + QString::fromStdString(billID) + ")");
 }
