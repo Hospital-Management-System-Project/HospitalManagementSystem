@@ -16,7 +16,6 @@ SOURCES += \
     hospital.cpp \
     doctor.cpp \
     nurse.cpp \
-    drugs.cpp \
     hospitalsystem.cpp \
     pharmacy.cpp \
     pharmacysystem.cpp
@@ -26,7 +25,8 @@ HEADERS += \
     patient.h \
     hospital.h \
     doctor.h \
-    nurse.h \
+    nurse.h \    
+    drugs.h \
     hospitalsystem.h \
     pharmacy.h \
     pharmacysystem.h
