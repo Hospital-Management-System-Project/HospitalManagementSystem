@@ -41,7 +41,6 @@ private slots:
     void showBillingReport();
     void updateDayCounter();
     void listAllPatients();
-    void listAllPatients();
     void requestDrugDelivery();
     void showPharmacyBillingReport();
 

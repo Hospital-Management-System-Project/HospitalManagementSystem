@@ -96,8 +96,11 @@ vector<Bill> Pharmacy::getBillsForHospital(string hospitalID) const {
 }
 
 string Pharmacy::billHospitalForDrug(string hospitalID, string drugName, double price) {
-    // Create a unique bill ID
-    string billID = "DRUGBILL-" + pharmacyID + "-" + hospitalID + "-" + to_string(rand() % 100000);
+    string sanitizedDrugName = drugName;
+    replace(sanitizedDrugName.begin(), sanitizedDrugName.end(), ' ', '_');
+    
+    string billID = "DRUGBILL-" + pharmacyID + "-" + hospitalID + "-" + 
+                    sanitizedDrugName + "-" + to_string(rand() % 100000);
 
     // Add bill
     bills.push_back(Bill(billID, hospitalID, price));

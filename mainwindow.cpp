@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QTabWidget>
 #include <QTimer>
+#include <QTime>  // Add the missing QTime header
 #include "hospitalsystem.h"
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
@@ -764,7 +765,7 @@ void MainWindow::requestDrugDelivery() {
         return;
     }
 
-    Drug selectedDrug = ps->getAllDrugs()[drugIndex];
+    drug selectedDrug = ps->getAllDrugs()[drugIndex];  // Changed Drug to drug to match the actual class name
 
     // Just bill the hospital for this drug
     std::string billID = pharmacy->billHospitalForDrug(hospital->hospitalID, selectedDrug.drugName, selectedDrug.price);
