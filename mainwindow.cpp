@@ -153,17 +153,39 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     billingPatientIDInput->setPlaceholderText("Enter Patient ID");
     billingFormLayout->addRow("Patient ID:", billingPatientIDInput);
 
-    // Only one button: Generate Billing Report
+    // Add current bill display
+    currentBillLabel = new QLabel("$0.00", this);
+    currentBillLabel->setStyleSheet("font-weight: bold; font-size: 14px;");
+    billingFormLayout->addRow("Current Bill:", currentBillLabel);
+    
+    // Add payment amount input
+    paymentAmountInput = new QDoubleSpinBox(this);
+    paymentAmountInput->setRange(0.0, 10000.0);
+    paymentAmountInput->setPrefix("$");
+    paymentAmountInput->setValue(0.0);
+    billingFormLayout->addRow("Payment Amount:", paymentAmountInput);
+
+    // Add button layout for multiple buttons
+    QHBoxLayout* billingButtonLayout = new QHBoxLayout();
+    QPushButton* calculateBillButton = new QPushButton("Calculate Bill", this);
+    QPushButton* collectPaymentButton = new QPushButton("Collect Payment", this);
     QPushButton* billingReportButton = new QPushButton("Generate Billing Report", this);
-    billingFormLayout->addWidget(billingReportButton);
-
     QPushButton* pharmacyBillingButton = new QPushButton("Generate Pharmacy Billing", this);
-    billingFormLayout->addRow("", pharmacyBillingButton);
-
+    
+    billingButtonLayout->addWidget(calculateBillButton);
+    billingButtonLayout->addWidget(collectPaymentButton);
+    
+    // Add all the components to the main billing layout
     billingLayout->addLayout(billingFormLayout);
+    billingLayout->addLayout(billingButtonLayout);
+    billingLayout->addWidget(billingReportButton);
+    billingLayout->addWidget(pharmacyBillingButton);
+    
     billingTab->setLayout(billingLayout);
 
-    // Connect the button
+    // Connect the buttons
+    connect(calculateBillButton, &QPushButton::clicked, this, &MainWindow::calculateBill);
+    connect(collectPaymentButton, &QPushButton::clicked, this, &MainWindow::collectPayment);
     connect(billingReportButton, &QPushButton::clicked, this, &MainWindow::showBillingReport);
     connect(pharmacyBillingButton, &QPushButton::clicked, this, &MainWindow::showPharmacyBillingReport);
     
