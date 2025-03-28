@@ -35,6 +35,7 @@ private slots:
     void viewPatientDetails();
     void viewPatientBillingHistory();
     void assignDoctorToPatient(bool isPrimary = false);
+    void assignNurseToPatient(bool isPrimary = false);
     void requestPatientDischarge();
     void calculateBill();
     void collectPayment();
@@ -61,6 +62,9 @@ private:
     QLineEdit* patientAssignmentIDInput;
     QLineEdit* doctorDischargeIDInput;
     QLineEdit* patientDischargeIDInput;
+
+    //Nurse-patient tab
+    QLineEdit* nurseAssignmentIDInput;
     
     // Billing tab
     QLineEdit* billingPatientIDInput;

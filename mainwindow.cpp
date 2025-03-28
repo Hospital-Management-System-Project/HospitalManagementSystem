@@ -142,6 +142,32 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     doctorPatientLayout->addLayout(doctorButtonLayout);
     doctorPatientLayout->addWidget(dischargeGroupBox);
     doctorPatientTab->setLayout(doctorPatientLayout);
+
+    // ===== NURSE-PATIENT TAB =====
+
+    QWidget* nursePatientTab = new QWidget(this);
+    QVBoxLayout* nursePatientLayout = new QVBoxLayout(nursePatientTab);
+
+    QFormLayout* nurseFormLayout = new QFormLayout();
+    
+    nurseAssignmentIDInput = new QLineEdit(this);
+    nurseAssignmentIDInput->setPlaceholderText("Enter Nurse ID");
+    nurseFormLayout->addRow("Nurse ID:", nurseAssignmentIDInput);
+
+    patientAssignmentIDInput = new QLineEdit(this);
+    patientAssignmentIDInput->setPlaceholderText("Enter Patient ID");
+    nurseFormLayout->addRow("Patient ID:", patientAssignmentIDInput);
+
+    // Add assignment buttons in their own layout
+    QHBoxLayout* nurseButtonLayout = new QHBoxLayout();
+    QPushButton* assignNurseButton = new QPushButton("Assign Nurse", this);
+    nurseButtonLayout->addWidget(assignNurseButton);
+    
+
+    nursePatientLayout->addLayout(nurseFormLayout);
+    nursePatientLayout->addLayout(nurseButtonLayout);
+    nursePatientTab->setLayout(nursePatientLayout);
+    nursePatientLayout->addWidget(listPatientsButton); // Place list button above doctor assignment buttons
     
     // ===== BILLING TAB =====
     QWidget* billingTab = new QWidget(this);
@@ -229,6 +255,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Add the tabs to the tab widget
     tabWidget->addTab(patientTab, "Patient Management");
     tabWidget->addTab(doctorPatientTab, "Doctor-Patient");
+    tabWidget->addTab(nursePatientTab, "Nurse-Patient");
     tabWidget->addTab(billingTab, "Billing");
     tabWidget->addTab(drugDeliveryTab, "Drug Delivery");
     
@@ -258,6 +285,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
         this->assignDoctorToPatient(true);
     });
     connect(requestDischargeButton, &QPushButton::clicked, this, &MainWindow::requestPatientDischarge);
+    connect(assignNurseButton, &QPushButton::clicked, this, &MainWindow::assignNurseToPatient);
     connect(billingReportButton, &QPushButton::clicked, this, &MainWindow::showBillingReport);
     connect(listPatientsButton, &QPushButton::clicked, this, &MainWindow::listAllPatients);
     
@@ -564,6 +592,47 @@ void MainWindow::assignDoctorToPatient(bool isPrimary) {
             statusDisplay->append("Failed to assign doctor. Check IDs and try again.");
         }
     }
+}
+
+void MainWindow::assignNurseToPatient(bool isPrimary) {
+    string nurseID = nurseAssignmentIDInput->text().toStdString();
+    string patientID = patientAssignmentIDInput->text().toStdString();
+
+    if (nurseID.empty() || patientID.empty()) {
+        statusDisplay->append("Error: Both Nurse ID and Patient ID are required.");
+        return;
+    }
+
+    // Find which hospital the patient is in
+    Hospital* patientHospital = hospitalSystem->findPatientHospital(patientID);
+    if (!patientHospital) {
+        statusDisplay->append("Error: Patient not found in any hospital.");
+        return;
+    }
+
+    // Check if the doctor works at the patient's hospital
+    Nurse* nurse = hospitalSystem->findNurse(nurseID);
+    if (!nurse) {
+        statusDisplay->append("Error: Nurse ID not found.");
+        return;
+    }    
+
+    if (nurse->hospitalID != patientHospital->hospitalID) {
+        statusDisplay->append("Error: Nurse " + QString::fromStdString(nurseID) + 
+                             " does not work at " + QString::fromStdString(patientHospital->hospitalName) + 
+                             " where the patient is admitted.");
+        return;
+    }
+
+    // Continue with assignment
+    // Explicitly provide the third parameter to resolve ambiguity
+    if (hospitalSystem->assignNurseToPatient(nurseID, patientID)) {
+        statusDisplay->append("Assigned nurse " + QString::fromStdString(nurseID) + 
+                            " to patient " + QString::fromStdString(patientID));
+    } else {
+        statusDisplay->append("Failed to assign nurse. Check IDs and try again.");
+    } 
+
 }
 
 void MainWindow::requestPatientDischarge() {
