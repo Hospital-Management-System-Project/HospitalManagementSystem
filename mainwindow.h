@@ -35,7 +35,7 @@ private slots:
     void viewPatientDetails();
     void viewPatientBillingHistory();
     void assignDoctorToPatient(bool isPrimary = false);
-    void assignNurseToPatient(bool isPrimary = false);
+    void assignNurseToPatient();
     void requestPatientDischarge();
     void calculateBill();
     void collectPayment();

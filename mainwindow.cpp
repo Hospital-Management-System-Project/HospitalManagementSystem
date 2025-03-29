@@ -594,7 +594,7 @@ void MainWindow::assignDoctorToPatient(bool isPrimary) {
     }
 }
 
-void MainWindow::assignNurseToPatient(bool isPrimary) {
+void MainWindow::assignNurseToPatient() {
     string nurseID = nurseAssignmentIDInput->text().toStdString();
     string patientID = patientAssignmentIDInput->text().toStdString();
 
