@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
     // Initialize pharmacy system
     PharmacySystem* pharmacySystem = PharmacySystem::getInstance();
     pharmacySystem->initializePharmacies();
+    pharmacySystem->initializeDrugs();
     
     MainWindow mainWindow;
     mainWindow.show();

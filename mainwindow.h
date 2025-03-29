@@ -35,12 +35,15 @@ private slots:
     void viewPatientDetails();
     void viewPatientBillingHistory();
     void assignDoctorToPatient(bool isPrimary = false);
+    void assignNurseToPatient();
     void requestPatientDischarge();
     void calculateBill();
     void collectPayment();
     void showBillingReport();
     void updateDayCounter();
-    void listAllPatients(); // New method to list all patients
+    void listAllPatients();
+    void requestDrugDelivery();
+    void showPharmacyBillingReport();
 
 private:
     // Patient management tab
@@ -59,11 +62,19 @@ private:
     QLineEdit* patientAssignmentIDInput;
     QLineEdit* doctorDischargeIDInput;
     QLineEdit* patientDischargeIDInput;
+
+    //Nurse-patient tab
+    QLineEdit* nurseAssignmentIDInput;
     
     // Billing tab
     QLineEdit* billingPatientIDInput;
     QLabel* currentBillLabel;
     QDoubleSpinBox* paymentAmountInput;
+
+    //Drug tab
+    QComboBox* drugHospitalComboBox;
+    QComboBox* drugPharmacyComboBox;
+    QComboBox* drugComboBox;
     
     // Status display
     QTextEdit* statusDisplay;

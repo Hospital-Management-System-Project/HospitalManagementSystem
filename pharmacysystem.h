@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include "pharmacy.h"
+#include "drugs.h"
 
 using namespace std;
 
@@ -12,8 +13,9 @@ class PharmacySystem {
 private:
     static PharmacySystem* instance;
     vector<Pharmacy*> pharmacies;
+    vector<drug> drugList; 
     
-    // Private constructor for singleton
+    // Private constructor
     PharmacySystem() {}
 
 public:
@@ -24,10 +26,12 @@ public:
         return instance;
     }
     
+    void initializeDrugs();
     void initializePharmacies();
     Pharmacy* getPharmacy(int index);
     Pharmacy* findPharmacyByID(string pharmacyID);
     vector<Pharmacy*> getAllPharmacies();
+    std::vector<drug> getAllDrugs() const { return drugList; }
     
     bool addPrescription(string pharmacyID, string prescriptionID, string patientID, string medication, double price);
     bool deliverMedication(string pharmacyID, string prescriptionID);

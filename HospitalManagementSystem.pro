@@ -25,7 +25,8 @@ HEADERS += \
     patient.h \
     hospital.h \
     doctor.h \
-    nurse.h \
+    nurse.h \    
+    drugs.h \
     hospitalsystem.h \
     pharmacy.h \
     pharmacysystem.h
