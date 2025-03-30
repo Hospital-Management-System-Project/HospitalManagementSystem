@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "*.ejs": "html",
+        "*.html": "html",
+        "*.json": "json",
+        "*.js": "javascript",
+        "xstring": "cpp"
+    }
+}

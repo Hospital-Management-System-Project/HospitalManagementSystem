@@ -379,9 +379,13 @@ bool HospitalSystem::assignNurseToPatient(string nurseID, string patientID) {
     if (!patient) {
         return false;
     }
+
+    if (!patient->addAttendingNurse(nurseID) || !nurse->assignPatient(patientID)) {
+        return false;
+    }
     
     // Check if nurse can take another patient (max 2)
-    return nurse->assignPatient(patientID);
+    return true;
 }
 
 bool HospitalSystem::setPatientPrimaryDoctor(string patientID, string doctorID) {

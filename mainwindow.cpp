@@ -50,6 +50,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     doctorIDInput = new QLineEdit(this);
     doctorIDInput->setPlaceholderText("Enter Primary Doctor ID");
     formLayout->addRow("Primary Doctor ID:", doctorIDInput);
+
+    nurseIDInput = new QLineEdit(this);
+    nurseIDInput->setPlaceholderText("Enter Nurse ID");
+    formLayout->addRow("Nurse ID:", nurseIDInput);
     
     // Add daily rate input
     dailyRateInput = new QDoubleSpinBox(this);
@@ -320,6 +324,25 @@ bool MainWindow::isDoctorInHospital(const string& doctorID, int hospitalIndex) {
     return doctor->hospitalID == hospital->hospitalID;
 }
 
+bool MainWindow::isNurseInHospital(const string& nurseID, int hospitalIndex) {
+    if (hospitalIndex < 0 || static_cast<size_t>(hospitalIndex) >= hospitalSystem->getAllHospitals().size()) {
+        return false;
+    }
+    
+    Nurse* nurse = hospitalSystem->findNurse(nurseID);
+    if (!nurse) {
+        return false;
+    }
+    
+    Hospital* hospital = hospitalSystem->getHospital(hospitalIndex);
+    if (!hospital) {
+        return false;
+    }
+    
+    // Check if the nurse's hospital ID matches the selected hospital's ID
+    return nurse->hospitalID == hospital->hospitalID;
+}
+
 void MainWindow::addPatient() {
     string patientID = patientIDInput->text().toStdString();
     string name = nameInput->text().toStdString();
@@ -327,12 +350,13 @@ void MainWindow::addPatient() {
     string disease = diseaseInput->text().toStdString();
     string treatment = treatmentInput->text().toStdString();
     string doctorID = doctorIDInput->text().toStdString();
+    string nurseID = nurseIDInput->text().toStdString();
     double dailyRate = dailyRateInput->value();
     int hospitalIndex = hospitalComboBox->currentIndex();
     
     // Validate inputs
     if (patientID.empty() || name.empty() || phone.empty() || 
-        disease.empty() || treatment.empty() || doctorID.empty()) {
+        disease.empty() || treatment.empty() || doctorID.empty() || nurseID.empty()) {
         statusDisplay->append("Error: All fields must be filled out.");
         return;
     }
@@ -350,8 +374,15 @@ void MainWindow::addPatient() {
                               ". Please choose a doctor from this hospital.");
         return;
     }
+
+    if (!isNurseInHospital(nurseID, hospitalIndex)) {
+        statusDisplay->append("Error: Nurse " + QString::fromStdString(nurseID) + 
+                              " does not work at " + hospitalComboBox->currentText() + 
+                              ". Please choose a nurse from this hospital.");
+        return;        
+    }
     
-    Patient* patient = new Patient(patientID, name, phone, disease, treatment, doctorID);
+    Patient* patient = new Patient(patientID, name, phone, disease, treatment, doctorID, nurseID);
     patient->setDailyRate(dailyRate); // Make sure this actually sets the rate
     
     if (hospitalSystem->admitPatient(patient, hospitalIndex)) {
@@ -367,6 +398,7 @@ void MainWindow::addPatient() {
         diseaseInput->clear();
         treatmentInput->clear();
         doctorIDInput->clear();
+        nurseIDInput->clear();
     } else {
         statusDisplay->append("Hospital is full. Cannot admit patient.");
         delete patient;
@@ -472,6 +504,8 @@ void MainWindow::viewPatientDetails() {
     
     // Get the remaining balance
     double remainingBalance = hospitalSystem->getPatientRemainingBalance(patientID);
+
+    // statusDisplay->append(QString::fromStdString(patient->getFullDescription()));  // -> use this function to display patient info rather than using the code below
     
     statusDisplay->clear();
     statusDisplay->append("=== PATIENT DETAILS ===");
