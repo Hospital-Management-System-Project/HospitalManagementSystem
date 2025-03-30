@@ -500,11 +500,21 @@ void MainWindow::viewPatientDetails() {
         return;
     }
     
+    // Get the hospital information to display
     Hospital* hospital = hospitalSystem->findPatientHospital(patientID);
+    if (!hospital) {
+        statusDisplay->append("Error: Cannot locate patient's hospital.");
+        return;
+    }
     
-    // Get the remaining balance
+    // Display hospital information with patient details
+    statusDisplay->append("Hospital: " + QString::fromStdString(hospital->hospitalName));
+    
+    // Get and display the remaining balance
     double remainingBalance = hospitalSystem->getPatientRemainingBalance(patientID);
+    statusDisplay->append("Remaining Balance: $" + QString::number(remainingBalance, 'f', 2));
 
+    // Display patient details
     statusDisplay->append(QString::fromStdString(patient->getFullDescription()));
 }
 
@@ -775,7 +785,7 @@ void MainWindow::updateDayCounter() {
 // Implementation of the new method to list all patients
 void MainWindow::listAllPatients() {
     statusDisplay->clear();
-    statusDisplay->append("=== CURRENT PATIENTS LIST ===\n");
+    statusDisplay->append("=== CURRENT PATIENTS LIST ===");
     
     map<string, Patient*>& allPatients = hospitalSystem->getAllPatients();
     
@@ -807,6 +817,18 @@ void MainWindow::listAllPatients() {
             statusDisplay->append("Days Admitted: " + QString::number(patient->daysAdmitted));
             statusDisplay->append("Primary Doctor: " + QString::fromStdString(patient->primaryDoctorID));
             
+            // Show attending nurses if any
+            if (!patient->attendingNursesIDs.empty()) {
+                QString attendingNurses = "Assigned Nurses: ";
+                for (size_t i = 0; i < patient->attendingNursesIDs.size(); i++) {
+                    attendingNurses += QString::fromStdString(patient->attendingNursesIDs[i]);
+                    if (i < patient->attendingNursesIDs.size() - 1) {
+                        attendingNurses += ", ";
+                    }
+                }
+                statusDisplay->append(attendingNurses);
+            }
+            
             // Show attending doctors if any
             if (!patient->attendingDoctorIDs.empty()) {
                 QString attendingDocs = "Attending Doctors: ";
@@ -820,12 +842,12 @@ void MainWindow::listAllPatients() {
             }
             
             // Show a separator between patients
-            statusDisplay->append("------------------------");
+            statusDisplay->append("-------------------------------");
         }
     }
     
     // Show count at the end
-    statusDisplay->append("\nTotal patients: " + QString::number(allPatients.size()));
+    statusDisplay->append("\nTotal Patients In All Hospitals: " + QString::number(allPatients.size()));
 }
 
 void MainWindow::requestDrugDelivery() {

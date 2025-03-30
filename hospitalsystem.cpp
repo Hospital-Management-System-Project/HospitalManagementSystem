@@ -1,6 +1,7 @@
 #include "hospitalsystem.h"
 #include <algorithm>
 #include <sstream>
+#include <iomanip>
 #include "pharmacysystem.h"
 
 using namespace std;
@@ -446,25 +447,39 @@ string HospitalSystem::getHospitalStatus() {
             status << "\n";
         }
         
-        // Display patient information
+        // Display patient information with improved formatting
         if (!hospital->patients.empty()) {
-            status << "--- Patient Details ---\n";
+            status << "=================== PATIENT DETAILS ===================\n\n";
+            
             for (auto patient : hospital->patients) {
-                status << "ID: " << patient->patientID 
-                       << ", Name: " << patient->patientName 
-                       << ", Phone: " << patient->phoneNumber << "\n";
-                status << "   Disease: " << patient->disease 
-                       << ", Treatment: " << patient->treatment 
-                       << ", Days Admitted: " << patient->daysAdmitted << "\n";
-                status << "   Primary Doctor: " << patient->primaryDoctorID << "\n";
+                status << "PATIENT INFORMATION\n";
+                status << "Name:   \t\t" << patient->patientName << "\n";
+                status << "ID:   \t\t" << patient->patientID << "\n";
+                status << "Phone:   \t\t" << patient->phoneNumber << "\n";
+                status << "Days Admitted:\t " << patient->daysAdmitted << "\n\n";
+                
+                status << "MEDICAL INFORMATION\n";
+                status << "Diagnosis:      " << patient->disease << "\n";
+                status << "Treatment:      " << patient->treatment << "\n\n";
+                
+                status << "MEDICAL STAFF\n";
+                status << "Primary Doctor: " << patient->primaryDoctorID << "\n";
+                
                 if (!patient->attendingDoctorIDs.empty()) {
-                    status << "   Attending Doctors: ";
+                    status << "Attending Doctors:\n";
                     for (auto& docID : patient->attendingDoctorIDs) {
-                        status << docID << " ";
+                        status << "  • " << docID << "\n";
                     }
-                    status << "\n";
                 }
-                status << "\n";
+                
+                if (!patient->attendingNursesIDs.empty()) {
+                    status << "Attending Nurses:\n";
+                    for (auto& nurseID : patient->attendingNursesIDs) {
+                        status << "  • " << nurseID << "\n";
+                    }
+                }
+                
+                status << "======================================================\n\n";
             }
         }
     }
