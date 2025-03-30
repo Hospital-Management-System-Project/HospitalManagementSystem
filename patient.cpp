@@ -2,10 +2,11 @@
 #include <algorithm>
 #include <sstream>
 #include <iomanip>
+#include <iostream>
 
 using namespace std;
 
-Patient::Patient(string id, string name, string phone, string d, string t, string docID){
+Patient::Patient(string id, string name, string phone, string d, string t, string docID, string nurseID){
     patientID = id;
     patientName = name;
     phoneNumber = phone;
@@ -13,6 +14,7 @@ Patient::Patient(string id, string name, string phone, string d, string t, strin
     treatment = t;
     daysAdmitted = 0;
     primaryDoctorID = docID;
+    attendingNursesIDs.push_back(nurseID);
     discharged = false;
     dischargeRequested = (false);
     billingRatePerDay = 100.0; // Default daily rate
@@ -29,6 +31,16 @@ void Patient::addAttendingDoctor(string docID) {
     if (find(attendingDoctorIDs.begin(), attendingDoctorIDs.end(), docID) == attendingDoctorIDs.end()) {
         attendingDoctorIDs.push_back(docID);
     }
+}
+
+bool Patient::addAttendingNurse(string nurseID) {
+
+    if (std::find(attendingNursesIDs.begin(), attendingNursesIDs.end(), nurseID) != attendingNursesIDs.end()) {
+        return false;
+    }
+
+    attendingNursesIDs.push_back(nurseID);
+    return true;
 }
 
 void Patient::incrementDaysAdmitted() {
@@ -94,6 +106,15 @@ string Patient::getFullDescription() const {
         }
         description << "\n";
     }
+
+    description << "Attending Nurses: ";
+    for (size_t i = 0; i < attendingNursesIDs.size(); i++) {
+        description << attendingNursesIDs[i];
+        if (i < attendingNursesIDs.size() - 1) {
+            description << ", ";
+        }
+    }
+    description << "\n";    
     
     return description.str();
 }

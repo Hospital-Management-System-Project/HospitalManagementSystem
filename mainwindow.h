@@ -53,6 +53,7 @@ private:
     QLineEdit* diseaseInput;
     QLineEdit* treatmentInput;
     QLineEdit* doctorIDInput;
+    QLineEdit* nurseIDInput;
     QDoubleSpinBox* dailyRateInput;
     QComboBox* hospitalComboBox;
     QComboBox* relocateHospitalComboBox;
@@ -90,6 +91,7 @@ private:
     
     // Helper method to check if a doctor works at a specific hospital
     bool isDoctorInHospital(const string& doctorID, int hospitalIndex);
+    bool isNurseInHospital(const string& nurseID, int hospitalIndex);
 };
 
 #endif // MAINWINDOW_H

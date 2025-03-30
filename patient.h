@@ -16,15 +16,17 @@ public:
   string treatment;
   int daysAdmitted;
   string primaryDoctorID;
+  vector<string> attendingNursesIDs;
   vector<string> attendingDoctorIDs;
   bool discharged;
   bool dischargeRequested;
   double billingRatePerDay;
   time_t admissionDate;
 
-  Patient(string id, string name, string phone, string patientDisease, string treatmentType, string docID);
+  Patient(string id, string name, string phone, string patientDisease, string treatmentType, string docID, string nurseID);
 
   void addAttendingDoctor(string docID);
+  bool addAttendingNurse(string nurseID);
   void incrementDaysAdmitted();
   double calculateCurrentBill() const;
   void setDailyRate(double rate);
