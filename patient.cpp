@@ -34,9 +34,6 @@ void Patient::addAttendingDoctor(string docID) {
 }
 
 bool Patient::addAttendingNurse(string nurseID) {
-    if (attendingNursesIDs.size() >= 2) {
-        return false;
-    } 
 
     if (std::find(attendingNursesIDs.begin(), attendingNursesIDs.end(), nurseID) != attendingNursesIDs.end()) {
         return false;
@@ -109,8 +106,6 @@ string Patient::getFullDescription() const {
         }
         description << "\n";
     }
-
-    cout << "made it here" << endl;
 
     description << "Attending Nurses: ";
     for (size_t i = 0; i < attendingNursesIDs.size(); i++) {

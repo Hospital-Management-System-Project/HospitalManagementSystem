@@ -505,46 +505,7 @@ void MainWindow::viewPatientDetails() {
     // Get the remaining balance
     double remainingBalance = hospitalSystem->getPatientRemainingBalance(patientID);
 
-    // statusDisplay->append(QString::fromStdString(patient->getFullDescription()));  // -> use this function to display patient info rather than using the code below
-    
-    statusDisplay->clear();
-    statusDisplay->append("=== PATIENT DETAILS ===");
-    statusDisplay->append("Patient ID: " + QString::fromStdString(patient->patientID));
-    statusDisplay->append("Name: " + QString::fromStdString(patient->patientName));
-    statusDisplay->append("Phone Number: " + QString::fromStdString(patient->phoneNumber));
-    statusDisplay->append("Disease: " + QString::fromStdString(patient->disease));
-    statusDisplay->append("Treatment: " + QString::fromStdString(patient->treatment));
-    statusDisplay->append("Days Admitted: " + QString::number(patient->daysAdmitted));
-    statusDisplay->append("Admission Date: " + QString::fromStdString(patient->getAdmissionDateString()));
-    statusDisplay->append("Status: " + QString::fromStdString(patient->getStatus()));
-    
-    // Show billing information prominently
-    statusDisplay->append("\n=== BILLING INFORMATION ===");
-    statusDisplay->append("Daily Rate: $" + QString::number(patient->billingRatePerDay, 'f', 2));
-    
-    if (patient->daysAdmitted == 0) {
-        statusDisplay->append("Current Bill: $" + QString::number(patient->billingRatePerDay, 'f', 2) + " (Initial day charge)");
-        statusDisplay->append("Remaining Balance: $" + QString::number(remainingBalance, 'f', 2));
-        
-        // Add explanation about billing
-        statusDisplay->append("\nNote: Patients are charged the daily rate ($" + 
-                             QString::number(patient->billingRatePerDay, 'f', 2) + 
-                             ") immediately upon admission. Additional days will increase the bill.");
-    } else {
-        statusDisplay->append("Current Bill: $" + QString::number(patient->calculateCurrentBill(), 'f', 2));
-        statusDisplay->append("Remaining Balance: $" + QString::number(remainingBalance, 'f', 2));
-    }
-    
-    statusDisplay->append("\n=== HOSPITAL & DOCTOR INFO ===");
-    statusDisplay->append("Hospital: " + QString::fromStdString(hospital ? hospital->hospitalName : "Unknown"));
-    statusDisplay->append("Primary Doctor: " + QString::fromStdString(patient->primaryDoctorID));
-    
-    if (!patient->attendingDoctorIDs.empty()) {
-        statusDisplay->append("\nAttending Doctors:");
-        for (const auto& docID : patient->attendingDoctorIDs) {
-            statusDisplay->append(" - " + QString::fromStdString(docID));
-        }
-    }
+    statusDisplay->append(QString::fromStdString(patient->getFullDescription()));
 }
 
 void MainWindow::viewPatientBillingHistory() {

@@ -380,11 +380,11 @@ bool HospitalSystem::assignNurseToPatient(string nurseID, string patientID) {
         return false;
     }
 
-    if (!patient->addAttendingNurse(nurseID) || !nurse->assignPatient(patientID)) {
+    if (!nurse->assignPatient(patientID)) {
         return false;
     }
     
-    // Check if nurse can take another patient (max 2)
+    patient->addAttendingNurse(nurseID);
     return true;
 }
 
