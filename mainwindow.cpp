@@ -112,8 +112,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     doctorFormLayout->addRow("Patient ID:", doctorPatientAssignmentIDInput);
     
     // Add the List All Patients button before doctor assignment buttons
-    QPushButton* listPatientsButton = new QPushButton("List All Patients", this);
-    
+    QPushButton* doctorListPatientsButton = new QPushButton("List All Patients", this);
+    QPushButton* nurseListPatientsButton = new QPushButton("List All Patients", this);
+
     // Add assignment buttons in their own layout
     QHBoxLayout* doctorButtonLayout = new QHBoxLayout();
     QPushButton* assignDoctorButton = new QPushButton("Assign Doctor", this);
@@ -123,7 +124,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     
     // Add the form layout and buttons to the main layout
     doctorPatientLayout->addLayout(doctorFormLayout);
-    doctorPatientLayout->addWidget(listPatientsButton); // Place list button above doctor assignment buttons
+    doctorPatientLayout->addWidget(doctorListPatientsButton); // Place list button above doctor assignment buttons
     doctorPatientLayout->addLayout(doctorButtonLayout);
     
     // Discharge request section
@@ -171,7 +172,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     nursePatientLayout->addLayout(nurseFormLayout);
     nursePatientLayout->addLayout(nurseButtonLayout);
     nursePatientTab->setLayout(nursePatientLayout);
-    nursePatientLayout->addWidget(listPatientsButton); // Place list button above doctor assignment buttons
+    nursePatientLayout->addWidget(nurseListPatientsButton); // Place list button above doctor assignment buttons
     
     // ===== BILLING TAB =====
     QWidget* billingTab = new QWidget(this);
@@ -291,8 +292,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(requestDischargeButton, &QPushButton::clicked, this, &MainWindow::requestPatientDischarge);
     connect(assignNurseButton, &QPushButton::clicked, this, &MainWindow::assignNurseToPatient);
     connect(billingReportButton, &QPushButton::clicked, this, &MainWindow::showBillingReport);
-    connect(listPatientsButton, &QPushButton::clicked, this, &MainWindow::listAllPatients);
-    
+    connect(doctorListPatientsButton, &QPushButton::clicked, this, &MainWindow::listAllPatients);
+    connect(nurseListPatientsButton, &QPushButton::clicked, this, &MainWindow::listAllPatients);
+
     // Set up timer for daily updates
     dayUpdateTimer = new QTimer(this);
     connect(dayUpdateTimer, &QTimer::timeout, this, &MainWindow::updateDayCounter);
