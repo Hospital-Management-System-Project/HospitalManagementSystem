@@ -94,7 +94,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     QPushButton* relocatePatientButton = new QPushButton("Relocate Patient", this);
     QPushButton* dischargePatientButton = new QPushButton("Discharge Patient", this);
     QPushButton* viewPatientDetailsButton = new QPushButton("View Patient Details", this);
-    QPushButton* displayStatusButton = new QPushButton("Display Hospital Status", this);
+    QPushButton* displayStatusButton = new QPushButton("Display All Hospital Status", this);
     QPushButton* displayPharmacyButton = new QPushButton("Display Pharmacy Status", this);
     
     buttonLayout->addWidget(addPatientButton);
@@ -107,6 +107,21 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Add patient management widgets to the layout
     patientLayout->addLayout(formLayout);
     patientLayout->addLayout(buttonLayout);
+    
+    // Add a hospital selection combo box and button for viewing single hospital
+    // Moved below the other buttons
+    QHBoxLayout* singleHospitalLayout = new QHBoxLayout();
+    selectedHospitalComboBox = new QComboBox(this);
+    for (auto hospital : hospitalSystem->getAllHospitals()) {
+        selectedHospitalComboBox->addItem(QString::fromStdString(hospital->hospitalName));
+    }
+    QPushButton* displaySelectedHospitalButton = new QPushButton("Display Selected Hospital", this);
+    singleHospitalLayout->addWidget(selectedHospitalComboBox);
+    singleHospitalLayout->addWidget(displaySelectedHospitalButton);
+    
+    // Add the single hospital selection layout below the other buttons
+    patientLayout->addLayout(singleHospitalLayout);
+    
     patientTab->setLayout(patientLayout);
     
     // ===== DOCTOR-PATIENT TAB =====
@@ -305,6 +320,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(billingReportButton, &QPushButton::clicked, this, &MainWindow::showBillingReport);
     connect(doctorListPatientsButton, &QPushButton::clicked, this, &MainWindow::listAllPatients);
     connect(nurseListPatientsButton, &QPushButton::clicked, this, &MainWindow::listAllPatients);
+    connect(displaySelectedHospitalButton, &QPushButton::clicked, this, &MainWindow::displaySelectedHospitalStatus);
 
     // Set up timer for daily updates
     dayUpdateTimer = new QTimer(this);
@@ -1015,4 +1031,91 @@ void MainWindow::updateCurrentTime() {
     statusDisplay->blockSignals(false);
 
     statusDisplay->verticalScrollBar()->setValue(scrollPos); // Restore scroll position
+}
+
+void MainWindow::displaySelectedHospitalStatus() {
+    int hospitalIndex = selectedHospitalComboBox->currentIndex();
+    
+    if (hospitalIndex < 0 || static_cast<size_t>(hospitalIndex) >= hospitalSystem->getAllHospitals().size()) {
+        statusDisplay->append("Error: Invalid hospital selection.");
+        return;
+    }
+    
+    Hospital* hospital = hospitalSystem->getHospital(hospitalIndex);
+    if (!hospital) {
+        statusDisplay->append("Error: Hospital not found.");
+        return;
+    }
+    
+    statusDisplay->clear();
+    statusDisplay->append("=== SELECTED HOSPITAL STATUS ===\n");
+    
+    // Display hospital overview
+    statusDisplay->append("Hospital: " + QString::fromStdString(hospital->hospitalName));
+    statusDisplay->append("ID: " + QString::fromStdString(hospital->hospitalID));
+    statusDisplay->append("Patients Admitted: " + QString::number(hospital->patients.size()) + "/20");
+    statusDisplay->append("Doctors: " + QString::number(hospital->doctors.size()));
+    statusDisplay->append("Nurses: " + QString::number(hospital->nurses.size()));
+    
+    // Add detailed doctor information
+    if (!hospital->doctors.empty()) {
+        statusDisplay->append("\n--- Doctor Details ---");
+        for (auto doctor : hospital->doctors) {
+            statusDisplay->append("ID: " + QString::fromStdString(doctor->getDoctorID()) +
+                                 ", Name: " + QString::fromStdString(doctor->getDoctorName()) +
+                                 ", Patients: " + QString::number(doctor->getPatientIDs().size()));
+        }
+        statusDisplay->append("");  // Changed from "\n" to "" for single line space
+    }
+    
+    // Add detailed nurse information
+    if (!hospital->nurses.empty()) {
+        statusDisplay->append("--- Nurse Details ---");
+        for (auto nurse : hospital->nurses) {
+            statusDisplay->append("ID: " + QString::fromStdString(nurse->getNurseID()) +
+                                 ", Name: " + QString::fromStdString(nurse->getNurseName()) +
+                                 ", Patients: " + QString::number(nurse->getPatientIDs().size()) + "/2");
+        }
+        statusDisplay->append("");  // Changed from "\n" to "" for single line space
+    }
+    
+    // Display patient information with improved formatting
+    if (!hospital->patients.empty()) {
+        statusDisplay->append("=================== PATIENT DETAILS ===================");  // Removed "\n"
+        
+        for (auto patient : hospital->patients) {
+            statusDisplay->append("PATIENT INFORMATION");
+            statusDisplay->append("Name:   \t\t" + QString::fromStdString(patient->getPatientName()));
+            statusDisplay->append("ID:   \t\t" + QString::fromStdString(patient->getPatientID()));
+            statusDisplay->append("Phone:   \t\t" + QString::fromStdString(patient->getPhoneNumber()));
+            statusDisplay->append("Days Admitted:\t " + QString::number(patient->getDaysAdmitted()));
+            statusDisplay->append("");
+            
+            statusDisplay->append("MEDICAL INFORMATION");
+            statusDisplay->append("Diagnosis:      " + QString::fromStdString(patient->getDisease()));
+            statusDisplay->append("Treatment:      " + QString::fromStdString(patient->getTreatment()));
+            statusDisplay->append("");
+            
+            statusDisplay->append("MEDICAL STAFF");
+            statusDisplay->append("Primary Doctor: " + QString::fromStdString(patient->getPrimaryDoctorID()));
+            
+            if (!patient->getAttendingDoctorIDs().empty()) {
+                statusDisplay->append("Attending Doctors:");
+                for (auto& docID : patient->getAttendingDoctorIDs()) {
+                    statusDisplay->append("  • " + QString::fromStdString(docID));
+                }
+            }
+            
+            if (!patient->getAttendingNursesIDs().empty()) {
+                statusDisplay->append("Attending Nurses:");
+                for (auto& nurseID : patient->getAttendingNursesIDs()) {
+                    statusDisplay->append("  • " + QString::fromStdString(nurseID));
+                }
+            }
+            
+            statusDisplay->append("======================================================\n");
+        }
+    } else {
+        statusDisplay->append("No Patients Currently Admitted To This Hospital!");
+    }
 }

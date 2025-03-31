@@ -46,6 +46,7 @@ private slots:
     void showPharmacyBillingReport();
     void clearStatusDisplay();
     void updateCurrentTime(); // New slot for updating time
+    void displaySelectedHospitalStatus(); // New function to display selected hospital
 
 private:
     // Patient management tab
@@ -98,6 +99,8 @@ private:
     // Helper method to check if a doctor works at a specific hospital
     bool isDoctorInHospital(const string& doctorID, int hospitalIndex);
     bool isNurseInHospital(const string& nurseID, int hospitalIndex);
+
+    QComboBox* selectedHospitalComboBox; // New combo box for hospital selection
 };
 
 #endif // MAINWINDOW_H
