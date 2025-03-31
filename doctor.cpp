@@ -4,6 +4,22 @@
 
 using namespace std;
 
+string Doctor::getDoctorID() const {
+    return doctorID;
+}
+
+string Doctor::getDoctorName() const {
+    return doctorName;
+}
+
+string Doctor::getHospitalID() const {
+    return hospitalID;
+}
+
+vector<string> Doctor::getPatientIDs() const {
+    return patientIDs;
+}
+
 Doctor::Doctor(string id, string n, string hospID) {
     doctorID = id;
     doctorName = n;

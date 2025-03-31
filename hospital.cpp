@@ -127,7 +127,7 @@ bool Hospital::requestPatientDischarge(string doctorID, string patientID) {
     // Find the doctor
     Doctor* doctor = nullptr;
     for (auto doc : doctors) {
-        if (doc->doctorID == doctorID) {
+        if (doc->getDoctorID() == doctorID) {
             doctor = doc;
             break;
         }

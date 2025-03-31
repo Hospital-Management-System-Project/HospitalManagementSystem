@@ -382,7 +382,7 @@ bool MainWindow::isDoctorInHospital(const string& doctorID, int hospitalIndex) {
     }
     
     // Check if the doctor's hospital ID matches the selected hospital's ID
-    return doctor->hospitalID == hospital->hospitalID;
+    return doctor->getHospitalID() == hospital->hospitalID;
 }
 
 bool MainWindow::isNurseInHospital(const string& nurseID, int hospitalIndex) {
@@ -633,7 +633,7 @@ void MainWindow::assignDoctorToPatient(bool isPrimary) {
         return;
     }
     
-    if (doctor->hospitalID != patientHospital->hospitalID) {
+    if (doctor->getHospitalID() != patientHospital->hospitalID) {
         statusDisplay->append("Error: Doctor " + QString::fromStdString(doctorID) + 
                              " does not work at " + QString::fromStdString(patientHospital->hospitalName) + 
                              " where the patient is admitted.");

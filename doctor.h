@@ -7,14 +7,21 @@
 using namespace std;
 
 class Doctor {
-public:
+private:
     string doctorID;
     string doctorName;
     string hospitalID;
-    vector<string> patientIDs; // Patients this doctor treats
+    vector<string> patientIDs;
 
+public:
     Doctor(string id, string doctorName, string hospID);
-    
+
+    // Getters
+    string getDoctorID() const;
+    string getDoctorName() const;
+    string getHospitalID() const;
+    vector<string> getPatientIDs() const;
+
     // Patient management
     void addPatient(string patientID);
     void removePatient(string patientID);

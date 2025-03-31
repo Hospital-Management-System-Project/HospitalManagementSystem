@@ -148,7 +148,7 @@ bool HospitalSystem::admitPatient(Patient* patient, int hospitalIndex) {
         findNurse(assignedNurseID)->patientIDs.push_back(patient->patientID);
 
         // add patient to 'patientIDs' vector for the doctor
-        findDoctor(patient->primaryDoctorID)->patientIDs.push_back(patient->patientID);
+        findDoctor(patient->primaryDoctorID)->getPatientIDs().push_back(patient->patientID);
         
         return true;
     }
@@ -279,7 +279,7 @@ bool HospitalSystem::assignDoctorToPatient(string doctorID, string patientID, bo
     Hospital* doctorHospital = nullptr;
     for (auto hospital : hospitals) {
         for (auto doc : hospital->doctors) {
-            if (doc->doctorID == doctorID) {
+            if (doc->getDoctorID() == doctorID) {
                 doctorHospital = hospital;
                 break;
             }
@@ -346,7 +346,7 @@ bool HospitalSystem::requestPatientDischarge(string doctorID, string patientID) 
     // Find which hospital the doctor is in
     for (auto hospital : hospitals) {
         for (auto doctor : hospital->doctors) {
-            if (doctor->doctorID == doctorID) {
+            if (doctor->getDoctorID() == doctorID) {
                 return hospital->requestPatientDischarge(doctorID, patientID);
             }
         }
@@ -378,9 +378,9 @@ string HospitalSystem::getHospitalStatus() {
         if (!hospital->doctors.empty()) {
             status << "--- Doctor Details ---\n";
             for (auto doctor : hospital->doctors) {
-                status << "ID: " << doctor->doctorID 
-                       << ", Name: " << doctor->doctorName 
-                       << ", Patients: " << doctor->patientIDs.size() << "\n";
+                status << "ID: " << doctor->getDoctorID()
+                       << ", Name: " << doctor->getDoctorName()
+                       << ", Patients: " << doctor->getPatientIDs().size() << "\n";
             }
             status << "\n";
         }
