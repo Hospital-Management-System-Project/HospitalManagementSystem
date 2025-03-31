@@ -89,31 +89,47 @@ void HospitalSystem::initializeNurses() {
         delete pair.second;
     }
     nurses.clear();
-    
-    // Create at least 5 nurses per hospital (25 total for 5 hospitals)
-    const string NURSE_NAMES[25] = {
+
+    srand(time(nullptr)); // Seed random generator
+
+    // Nurse names (60 total)
+    vector<string> nurseNames = {
         "Nurse Adams", "Nurse Baker", "Nurse Clark", "Nurse Davis", "Nurse Evans",
-        "Nurse Foster", "Nurse Green", "Nurse Harris", "Nurse Cam", "Nurse Jones",
+        "Nurse Foster", "Nurse Green", "Nurse Harris", "Nurse Ivy", "Nurse Jones",
         "Nurse Klein", "Nurse Lewis", "Nurse Moore", "Nurse Nelson", "Nurse Owens",
         "Nurse Peters", "Nurse Quinn", "Nurse Roberts", "Nurse Smith", "Nurse Thomas",
-        "Nurse Rose", "Nurse Ahmad", "Nurse White", "Nurse Xiong", "Nurse Nafiz"
+        "Nurse Underwood", "Nurse Vega", "Nurse Wolfe", "Nurse Xu", "Nurse Young",
+        "Nurse Zane", "Nurse Allen", "Nurse Brooks", "Nurse Carter", "Nurse Diaz",
+        "Nurse Ellis", "Nurse Flores", "Nurse Graham", "Nurse Hunt", "Nurse Irwin",
+        "Nurse Jenkins", "Nurse Knight", "Nurse Long", "Nurse Miller", "Nurse Neal",
+        "Nurse Ortiz", "Nurse Patel", "Nurse Quinnie", "Nurse Ramirez", "Nurse Stone",
+        "Nurse Tran", "Nurse Usman", "Nurse Valentine", "Nurse Washington", "Nurse Xiong",
+        "Nurse Yates", "Nurse Zahra", "Nurse Bell", "Nurse Chang", "Nurse Dalton",
+        "Nurse Edmonds", "Nurse Fong", "Nurse Garcia", "Nurse Harper", "Nurse Nafiz"
     };
-    
+
     int nurseIndex = 0;
-    for (size_t i = 0; i < hospitals.size(); i++) {
-        Hospital* hospital = hospitals[i];
-        
-        // Add 5 nurses to each hospital
-        for (int j = 0; j < 5; j++) {
+    int numHospitals = hospitals.size();
+
+    // Step 1: Add 5 nurses per hospital (guaranteed minimum)
+    for (int i = 0; i < numHospitals; ++i) {
+        for (int j = 0; j < 5; ++j) {
             string nurseID = "N" + to_string(nurseIndex + 1);
-            Nurse* nurse = new Nurse(nurseID, NURSE_NAMES[nurseIndex], hospital->hospitalID);
-            
-            // Add nurse to system and hospital
+            Nurse* nurse = new Nurse(nurseID, nurseNames[nurseIndex], hospitals[i]->hospitalID);
             nurses[nurseID] = nurse;
-            hospital->addNurse(nurse);
-            
-            nurseIndex++;
+            hospitals[i]->addNurse(nurse);
+            ++nurseIndex;
         }
+    }
+
+    // Step 2: Randomly assign the rest to any hospital
+    while (nurseIndex < 60) {
+        int randomHospitalIndex = rand() % numHospitals;
+        string nurseID = "N" + to_string(nurseIndex + 1);
+        Nurse* nurse = new Nurse(nurseID, nurseNames[nurseIndex], hospitals[randomHospitalIndex]->hospitalID);
+        nurses[nurseID] = nurse;
+        hospitals[randomHospitalIndex]->addNurse(nurse);
+        ++nurseIndex;
     }
 }
 
