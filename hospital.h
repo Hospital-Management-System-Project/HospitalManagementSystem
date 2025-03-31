@@ -14,7 +14,7 @@ using namespace std;
 class Pharmacy;
 
 class Hospital {
-public:
+private:
     string hospitalID;
     string hospitalName;
     vector<Patient*> patients;
@@ -25,12 +25,21 @@ public:
     double collectedPayments;
     map<string, double> patientPayments; // Track payments per patient
     
+public:
     Hospital(string id, string n);
     bool admitPatient(Patient* patient);
     bool relocatePatient(Patient* patient, Hospital* newHospital);
     void dischargePatient(Patient* patient);
     void addDoctor(Doctor* doctor);
     void addNurse(Nurse* nurse);
+
+    // Getters and setters
+    string getHospitalID() const;
+    string getHospitalName() const;
+
+    vector<Patient*> getPatients() const;
+    vector<Doctor*> getDoctors() const;
+    vector<Nurse*> getNurses()const;   
     
     // Pharmacy-related methods
     double getPaidPharmacyBills() const;

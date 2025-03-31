@@ -59,6 +59,26 @@ void Hospital::addNurse(Nurse* nurse) {
     nurses.push_back(nurse);
 }
 
+string Hospital::getHospitalID() const {
+    return hospitalID;
+}
+
+string Hospital::getHospitalName() const {
+    return hospitalName;
+}
+
+vector<Patient*> Hospital::getPatients() const {
+    return patients;
+}
+
+vector<Doctor*> Hospital::getDoctors() const {
+    return doctors;
+}
+
+vector<Nurse*> Hospital::getNurses()const {
+    return nurses;
+}
+
 void Hospital::updatePatientDays() {
     // Increment days for all admitted patients
     for (auto patient : patients) {

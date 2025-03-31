@@ -65,7 +65,7 @@ void HospitalSystem::initializeDoctors() {
     for (int i = 0; i < numHospitals; ++i) {
         for (int j = 0; j < 3; ++j) {
             string doctorID = "D" + to_string(doctorIndex + 1);
-            Doctor* doctor = new Doctor(doctorID, doctorNames[doctorIndex], hospitals[i]->hospitalID);
+            Doctor* doctor = new Doctor(doctorID, doctorNames[doctorIndex], hospitals[i]->getHospitalID());
             doctors[doctorID] = doctor;
             hospitals[i]->addDoctor(doctor);
             ++doctorIndex;
@@ -76,7 +76,7 @@ void HospitalSystem::initializeDoctors() {
     while (doctorIndex < 50) {
         int randomHospitalIndex = rand() % numHospitals;
         string doctorID = "D" + to_string(doctorIndex + 1);
-        Doctor* doctor = new Doctor(doctorID, doctorNames[doctorIndex], hospitals[randomHospitalIndex]->hospitalID);
+        Doctor* doctor = new Doctor(doctorID, doctorNames[doctorIndex], hospitals[randomHospitalIndex]->getHospitalID());
         doctors[doctorID] = doctor;
         hospitals[randomHospitalIndex]->addDoctor(doctor);
         ++doctorIndex;
@@ -115,7 +115,7 @@ void HospitalSystem::initializeNurses() {
     for (int i = 0; i < numHospitals; ++i) {
         for (int j = 0; j < 5; ++j) {
             string nurseID = "N" + to_string(nurseIndex + 1);
-            Nurse* nurse = new Nurse(nurseID, nurseNames[nurseIndex], hospitals[i]->hospitalID);
+            Nurse* nurse = new Nurse(nurseID, nurseNames[nurseIndex], hospitals[i]->getHospitalID());
             nurses[nurseID] = nurse;
             hospitals[i]->addNurse(nurse);
             ++nurseIndex;
@@ -126,7 +126,7 @@ void HospitalSystem::initializeNurses() {
     while (nurseIndex < 60) {
         int randomHospitalIndex = rand() % numHospitals;
         string nurseID = "N" + to_string(nurseIndex + 1);
-        Nurse* nurse = new Nurse(nurseID, nurseNames[nurseIndex], hospitals[randomHospitalIndex]->hospitalID);
+        Nurse* nurse = new Nurse(nurseID, nurseNames[nurseIndex], hospitals[randomHospitalIndex]->getHospitalID());
         nurses[nurseID] = nurse;
         hospitals[randomHospitalIndex]->addNurse(nurse);
         ++nurseIndex;
@@ -222,8 +222,8 @@ Hospital* HospitalSystem::findPatientHospital(string patientID) {
     }
     
     for (auto hospital : hospitals) {
-        auto it = find(hospital->patients.begin(), hospital->patients.end(), patient);
-        if (it != hospital->patients.end()) {
+        auto it = find(hospital->getPatients().begin(), hospital->getPatients().end(), patient);
+        if (it != hospital->getPatients().end()) {
             return hospital;
         }
     }
@@ -274,7 +274,7 @@ bool HospitalSystem::assignDoctorToPatient(string doctorID, string patientID, bo
     // Find which hospital the doctor is in
     Hospital* doctorHospital = nullptr;
     for (auto hospital : hospitals) {
-        for (auto doc : hospital->doctors) {
+        for (auto doc : hospital->getDoctors()) {
             if (doc->getDoctorID() == doctorID) {
                 doctorHospital = hospital;
                 break;
@@ -294,7 +294,7 @@ bool HospitalSystem::assignDoctorToPatient(string doctorID, string patientID, bo
     }
     
     // Doctors can only be assigned to patients in the same hospital
-    if (doctorHospital->hospitalID != patientHospital->hospitalID) {
+    if (doctorHospital->getHospitalID() != patientHospital->getHospitalID()) {
         return false;
     }
     
@@ -341,7 +341,7 @@ bool HospitalSystem::setPatientPrimaryDoctor(string patientID, string doctorID) 
 bool HospitalSystem::requestPatientDischarge(string doctorID, string patientID) {
     // Find which hospital the doctor is in
     for (auto hospital : hospitals) {
-        for (auto doctor : hospital->doctors) {
+        for (auto doctor : hospital->getDoctors()) {
             if (doctor->getDoctorID() == doctorID) {
                 return hospital->requestPatientDischarge(doctorID, patientID);
             }
@@ -365,15 +365,15 @@ string HospitalSystem::getHospitalStatus() {
     stringstream status;
     
     for (auto hospital : hospitals) {
-        status << "Hospital: " << hospital->hospitalName << "\n";
-        status << "Patients Admitted: " << hospital->patients.size() << "/20\n";
-        status << "Doctors: " << hospital->doctors.size() << "\n";
-        status << "Nurses: " << hospital->nurses.size() << "\n\n";
+        status << "Hospital: " << hospital->getHospitalName() << "\n";
+        status << "Patients Admitted: " << hospital->getPatients().size() << "/20\n";
+        status << "Doctors: " << hospital->getDoctors().size() << "\n";
+        status << "Nurses: " << hospital->getNurses().size() << "\n\n";
         
         // Add detailed doctor information
-        if (!hospital->doctors.empty()) {
+        if (!hospital->getDoctors().empty()) {
             status << "--- Doctor Details ---\n";
-            for (auto doctor : hospital->doctors) {
+            for (auto doctor : hospital->getDoctors()) {
                 status << "ID: " << doctor->getDoctorID()
                        << ", Name: " << doctor->getDoctorName()
                        << ", Patients: " << doctor->getPatientIDs().size() << "\n";
@@ -382,9 +382,9 @@ string HospitalSystem::getHospitalStatus() {
         }
         
         // Add detailed nurse information
-        if (!hospital->nurses.empty()) {
+        if (!hospital->getNurses().empty()) {
             status << "--- Nurse Details ---\n";
-            for (auto nurse : hospital->nurses) {
+            for (auto nurse : hospital->getNurses()) {
                 status << "ID: " << nurse->getNurseID()
                        << ", Name: " << nurse->getNurseName()
                        << ", Patients: " << nurse->getPatientIDs().size() << "/2\n";
@@ -393,10 +393,10 @@ string HospitalSystem::getHospitalStatus() {
         }
         
         // Display patient information with improved formatting
-        if (!hospital->patients.empty()) {
+        if (!hospital->getPatients().empty()) {
             status << "=================== PATIENT DETAILS ===================\n\n";
             
-            for (auto patient : hospital->patients) {
+            for (auto patient : hospital->getPatients()) {
                 status << "PATIENT INFORMATION\n";
                 status << "Name:   \t\t" << patient->getPatientName() << "\n";
                 status << "ID:   \t\t" << patient->getPatientID() << "\n";

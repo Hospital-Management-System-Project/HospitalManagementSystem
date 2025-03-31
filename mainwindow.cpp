@@ -77,14 +77,14 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Hospital selection for admitting patients
     hospitalComboBox = new QComboBox(this);
     for (auto hospital : hospitalSystem->getAllHospitals()) {
-        hospitalComboBox->addItem(QString::fromStdString(hospital->hospitalName));
+        hospitalComboBox->addItem(QString::fromStdString(hospital->getHospitalName()));
     }
     formLayout->addRow("Admit to Hospital:", hospitalComboBox);
     
     // Add a second combo box for relocation
     relocateHospitalComboBox = new QComboBox(this);
     for (auto hospital : hospitalSystem->getAllHospitals()) {
-        relocateHospitalComboBox->addItem(QString::fromStdString(hospital->hospitalName));
+        relocateHospitalComboBox->addItem(QString::fromStdString(hospital->getHospitalName()));
     }
     formLayout->addRow("Relocate to Hospital:", relocateHospitalComboBox);
 
@@ -113,7 +113,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     QHBoxLayout* singleHospitalLayout = new QHBoxLayout();
     selectedHospitalComboBox = new QComboBox(this);
     for (auto hospital : hospitalSystem->getAllHospitals()) {
-        selectedHospitalComboBox->addItem(QString::fromStdString(hospital->hospitalName));
+        selectedHospitalComboBox->addItem(QString::fromStdString(hospital->getHospitalName()));
     }
     QPushButton* displaySelectedHospitalButton = new QPushButton("Display Selected Hospital", this);
     singleHospitalLayout->addWidget(selectedHospitalComboBox);
@@ -254,7 +254,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     drugHospitalComboBox = new QComboBox(this);
     auto allHospitals = hospitalSystem->getAllHospitals();
     for (auto hospital : allHospitals) {
-        drugHospitalComboBox->addItem(QString::fromStdString(hospital->hospitalName));
+        drugHospitalComboBox->addItem(QString::fromStdString(hospital->getHospitalName()));
     }
     drugFormLayout->addRow("Select Hospital:", drugHospitalComboBox);
 
@@ -422,7 +422,7 @@ bool MainWindow::isDoctorInHospital(const string& doctorID, int hospitalIndex) {
     }
     
     // Check if the doctor's hospital ID matches the selected hospital's ID
-    return doctor->getHospitalID() == hospital->hospitalID;
+    return doctor->getHospitalID() == hospital->getHospitalID();
 }
 
 bool MainWindow::isNurseInHospital(const string& nurseID, int hospitalIndex) {
@@ -441,7 +441,7 @@ bool MainWindow::isNurseInHospital(const string& nurseID, int hospitalIndex) {
     }
     
     // Check if the nurse's hospital ID matches the selected hospital's ID
-    return nurse->getHospitalID() == hospital->hospitalID;
+    return nurse->getHospitalID() == hospital->getHospitalID();
 }
 
 void MainWindow::addPatient() {
@@ -538,7 +538,7 @@ void MainWindow::relocatePatient() {
     }
 
     // Remove all doctor assignments from current hospital
-    for (auto doctor : currentHospital->doctors) {
+    for (auto doctor : currentHospital->getDoctors()) {
         doctor->removePatient(patientID);
     }
     patient->getAttendingDoctorIDs().clear();
@@ -609,7 +609,7 @@ void MainWindow::viewPatientDetails() {
     }
     
     // Display hospital information with patient details
-    statusDisplay->append("Hospital: " + QString::fromStdString(hospital->hospitalName));
+    statusDisplay->append("Hospital: " + QString::fromStdString(hospital->getHospitalName()));
     
     // Get and display the remaining balance
     double remainingBalance = hospitalSystem->getPatientRemainingBalance(patientID);
@@ -673,9 +673,9 @@ void MainWindow::assignDoctorToPatient(bool isPrimary) {
         return;
     }
     
-    if (doctor->getHospitalID() != patientHospital->hospitalID) {
+    if (doctor->getHospitalID() != patientHospital->getHospitalID()) {
         statusDisplay->append("Error: Doctor " + QString::fromStdString(doctorID) + 
-                             " does not work at " + QString::fromStdString(patientHospital->hospitalName) + 
+                             " does not work at " + QString::fromStdString(patientHospital->getHospitalName()) + 
                              " where the patient is admitted.");
         return;
     }
@@ -723,9 +723,9 @@ void MainWindow::assignNurseToPatient() {
         return;
     }    
 
-    if (nurse->getHospitalID() != patientHospital->hospitalID) {
+    if (nurse->getHospitalID() != patientHospital->getHospitalID()) {
         statusDisplay->append("Error: Nurse " + QString::fromStdString(nurseID) + 
-                             " does not work at " + QString::fromStdString(patientHospital->hospitalName) + 
+                             " does not work at " + QString::fromStdString(patientHospital->getHospitalName()) + 
                              " where the patient is admitted.");
         return;
     }
@@ -850,10 +850,10 @@ void MainWindow::showPharmacyBillingReport() {
     // Aggregate unpaid bills for each hospital
     for (auto pharmacy : allPharmacies) {
         for (auto hospital : allHospitals) {
-            std::vector<Bill> bills = pharmacy->getBillsForHospital(hospital->hospitalID);
+            std::vector<Bill> bills = pharmacy->getBillsForHospital(hospital->getHospitalID());
             for (const auto& bill : bills) {
                 if (!bill.paid) {
-                    hospitalTotals[hospital->hospitalName] += bill.amount;
+                    hospitalTotals[hospital->getHospitalName()] += bill.amount;
                 }
             }
         }
@@ -917,7 +917,7 @@ void MainWindow::listAllPatients() {
         Hospital* hospital = hospitalSystem->findPatientHospital(patient->getPatientID());
         
         if (hospital) {
-            patientsByHospital[hospital->hospitalName].push_back(patient);
+            patientsByHospital[hospital->getHospitalName()].push_back(patient);
         }
     }
     
@@ -991,10 +991,10 @@ void MainWindow::requestDrugDelivery() {
     drug selectedDrug = ps->getAllDrugs()[drugIndex];  // Changed Drug to drug to match the actual class name
 
     // Just bill the hospital for this drug
-    std::string billID = pharmacy->billHospitalForDrug(hospital->hospitalID, selectedDrug.getDrugName(), selectedDrug.getPrice());
+    std::string billID = pharmacy->billHospitalForDrug(hospital->getHospitalID(), selectedDrug.getDrugName(), selectedDrug.getPrice());
 
     statusDisplay->append("Drug \"" + QString::fromStdString(selectedDrug.getDrugName()) +
-                          "\" billed to " + QString::fromStdString(hospital->hospitalName) +
+                          "\" billed to " + QString::fromStdString(hospital->getHospitalName()) +
                           " for $" + QString::number(selectedDrug.getPrice(), 'f', 2) +
                           " (Bill ID: " + QString::fromStdString(billID) + ")");
 }
@@ -1051,16 +1051,16 @@ void MainWindow::displaySelectedHospitalStatus() {
     statusDisplay->append("=== SELECTED HOSPITAL STATUS ===\n");
     
     // Display hospital overview
-    statusDisplay->append("Hospital: " + QString::fromStdString(hospital->hospitalName));
-    statusDisplay->append("ID: " + QString::fromStdString(hospital->hospitalID));
-    statusDisplay->append("Patients Admitted: " + QString::number(hospital->patients.size()) + "/20");
-    statusDisplay->append("Doctors: " + QString::number(hospital->doctors.size()));
-    statusDisplay->append("Nurses: " + QString::number(hospital->nurses.size()));
+    statusDisplay->append("Hospital: " + QString::fromStdString(hospital->getHospitalName()));
+    statusDisplay->append("ID: " + QString::fromStdString(hospital->getHospitalID()));
+    statusDisplay->append("Patients Admitted: " + QString::number(hospital->getPatients().size()) + "/20");
+    statusDisplay->append("Doctors: " + QString::number(hospital->getDoctors().size()));
+    statusDisplay->append("Nurses: " + QString::number(hospital->getNurses().size()));
     
     // Add detailed doctor information
-    if (!hospital->doctors.empty()) {
+    if (!hospital->getDoctors().empty()) {
         statusDisplay->append("\n--- Doctor Details ---");
-        for (auto doctor : hospital->doctors) {
+        for (auto doctor : hospital->getDoctors()) {
             statusDisplay->append("ID: " + QString::fromStdString(doctor->getDoctorID()) +
                                  ", Name: " + QString::fromStdString(doctor->getDoctorName()) +
                                  ", Patients: " + QString::number(doctor->getPatientIDs().size()));
@@ -1069,9 +1069,9 @@ void MainWindow::displaySelectedHospitalStatus() {
     }
     
     // Add detailed nurse information
-    if (!hospital->nurses.empty()) {
+    if (!hospital->getNurses().empty()) {
         statusDisplay->append("--- Nurse Details ---");
-        for (auto nurse : hospital->nurses) {
+        for (auto nurse : hospital->getNurses()) {
             statusDisplay->append("ID: " + QString::fromStdString(nurse->getNurseID()) +
                                  ", Name: " + QString::fromStdString(nurse->getNurseName()) +
                                  ", Patients: " + QString::number(nurse->getPatientIDs().size()) + "/2");
@@ -1080,10 +1080,10 @@ void MainWindow::displaySelectedHospitalStatus() {
     }
     
     // Display patient information with improved formatting
-    if (!hospital->patients.empty()) {
+    if (!hospital->getPatients().empty()) {
         statusDisplay->append("=================== PATIENT DETAILS ===================");  // Removed "\n"
         
-        for (auto patient : hospital->patients) {
+        for (auto patient : hospital->getPatients()) {
             statusDisplay->append("PATIENT INFORMATION");
             statusDisplay->append("Name:   \t\t" + QString::fromStdString(patient->getPatientName()));
             statusDisplay->append("ID:   \t\t" + QString::fromStdString(patient->getPatientID()));
