@@ -142,7 +142,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     QPushButton* requestDischargeButton = new QPushButton("Request Discharge", this);
     dischargeFormLayout->addRow("", requestDischargeButton);
     dischargeGroupBox->setLayout(dischargeFormLayout);
-    
+
     doctorPatientLayout->addWidget(dischargeGroupBox);
     doctorPatientTab->setLayout(doctorPatientLayout);
 
@@ -466,7 +466,7 @@ void MainWindow::dischargePatient() {
         return;
     }
     if (hospitalSystem->dischargePatient(patientID)) {
-        statusDisplay->append("Patient " + QString::fromStdString(patientID) + 
+        statusDisplay->append("Patient " + QString::fromStdString(patientID) +
                              " discharged successfully.");
     } else {
         statusDisplay->append("Patient not found.");
