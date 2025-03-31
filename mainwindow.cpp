@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <QTime>  // Add the missing QTime header
 #include "hospitalsystem.h"
+#include <QApplication>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Get the hospital system instance
@@ -273,7 +274,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     centralWidget->setLayout(mainLayout);
     setCentralWidget(centralWidget);
     setWindowTitle("Hospital Management System");
-    resize(800, 600);
+
+    resize(900, 700);
 
     // Connect buttons to slots
     connect(addPatientButton, &QPushButton::clicked, this, &MainWindow::addPatient);
@@ -302,6 +304,55 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     statusDisplay->append("Current Time: " + currentTime.toString());
     statusDisplay->append("System initialized. Daily updates will occur every 24 hours.");
     statusDisplay->append("Welcome to the Hospital Management System!");
+
+    qApp->setStyleSheet(R"(
+    QWidget {
+            background-color: #2b2b2b;
+            color: #f0f0f0;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 13px;
+        }
+
+        QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit {
+            background-color: #3c3f41;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 4px;
+        }
+
+        QPushButton {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+        }
+        QPushButton:hover {
+            background-color: #357ABD;
+        }
+
+        QLabel {
+            font-weight: bold;
+        }
+
+        QTabWidget::pane {
+            border: 1px solid #555;
+            padding: 6px;
+        }
+
+        QTabBar::tab {
+            background: #3a3a3a;
+            padding: 8px;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            margin-right: 2px;
+        }
+
+        QTabBar::tab:selected {
+            background: #4a90e2;
+            color: white;
+        }
+    )");
 }
 
 // Add this helper method to check if a doctor belongs to a specific hospital
