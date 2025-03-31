@@ -273,7 +273,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     tabWidget->addTab(billingTab, "Billing");
     tabWidget->addTab(drugDeliveryTab, "Drug Delivery");
     
-    // Add status display
+    // Create status display
     statusDisplay = new QTextEdit(this);
     statusDisplay->setReadOnly(true);
 
@@ -314,6 +314,23 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     statusDisplay->append("Current Time: " + currentTime.toString());
     statusDisplay->append("System initialized. Daily updates will occur every 24 hours.");
     statusDisplay->append("Welcome to the Hospital Management System!");
+    statusDisplay->append("---------------------------------------------");
+
+    QPushButton* clearDisplayButton = new QPushButton("Clear Display", this);
+    clearDisplayButton->setStyleSheet(R"(
+        QPushButton {
+            background-color: #e74c3c;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        QPushButton:hover {
+            background-color: #c0392b;
+        }
+    )");
+    mainLayout->addWidget(clearDisplayButton);
+    connect(clearDisplayButton, &QPushButton::clicked, this, &MainWindow::clearStatusDisplay);
 
     qApp->setStyleSheet(R"(
     QWidget {
@@ -943,4 +960,8 @@ void MainWindow::requestDrugDelivery() {
                           "\" billed to " + QString::fromStdString(hospital->hospitalName) +
                           " for $" + QString::number(selectedDrug.price, 'f', 2) +
                           " (Bill ID: " + QString::fromStdString(billID) + ")");
+}
+
+void MainWindow::clearStatusDisplay() {
+    statusDisplay->clear();
 }

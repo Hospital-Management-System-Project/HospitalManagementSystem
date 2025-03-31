@@ -44,6 +44,7 @@ private slots:
     void listAllPatients();
     void requestDrugDelivery();
     void showPharmacyBillingReport();
+    void clearStatusDisplay();
 
 private:
     // Patient management tab
