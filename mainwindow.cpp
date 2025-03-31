@@ -310,8 +310,14 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(dayUpdateTimer, &QTimer::timeout, this, &MainWindow::updateDayCounter);
     dayUpdateTimer->start(86400000); // 24 hours in milliseconds
     hospitalSystem->updateAllPatientDays(); // Initial update    
-    QTime currentTime = QTime::currentTime();
-    statusDisplay->append("Current Time: " + currentTime.toString());
+    
+    // Set up timer for time updates
+    timeUpdateTimer = new QTimer(this);
+    connect(timeUpdateTimer, &QTimer::timeout, this, &MainWindow::updateCurrentTime);
+    timeUpdateTimer->start(1000); // Update every second
+    
+    updateCurrentTime(); // Initial time update
+    
     statusDisplay->append("System initialized. Daily updates will occur every 24 hours.");
     statusDisplay->append("Welcome to the Hospital Management System!");
     statusDisplay->append("---------------------------------------------");
@@ -964,4 +970,38 @@ void MainWindow::requestDrugDelivery() {
 
 void MainWindow::clearStatusDisplay() {
     statusDisplay->clear();
+}
+
+void MainWindow::updateCurrentTime() {
+    QTime currentTime = QTime::currentTime();
+    // Format time in 12-hour format with AM/PM
+    QString timeText = "Current Time: " + currentTime.toString("h:mm:ss AP");
+    
+    // Update the status display with current time
+    QString text = statusDisplay->toPlainText();
+    QStringList lines = text.split("\n");
+    
+    bool timeLineUpdated = false;
+    for (int i = 0; i < lines.size(); i++) {
+        if (lines[i].startsWith("Current Time:")) {
+            lines[i] = timeText;
+            timeLineUpdated = true;
+            break;
+        }
+    }
+    
+    if (!timeLineUpdated) {
+        // Insert at the beginning if not found
+        lines.prepend(timeText);
+    }
+    
+    // Remove any empty lines between the time and the next non-empty line
+    for (int i = 0; i < lines.size() - 1; i++) {
+        if (lines[i].startsWith("Current Time:") && lines[i+1].isEmpty()) {
+            lines.removeAt(i+1);
+            break;
+        }
+    }
+    statusDisplay->clear();
+    statusDisplay->setPlainText(lines.join("\n"));
 }

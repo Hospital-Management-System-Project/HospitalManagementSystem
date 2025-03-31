@@ -45,6 +45,7 @@ private slots:
     void requestDrugDelivery();
     void showPharmacyBillingReport();
     void clearStatusDisplay();
+    void updateCurrentTime(); // New slot for updating time
 
 private:
     // Patient management tab
@@ -90,6 +91,9 @@ private:
     
     // Timer for daily updates
     QTimer* dayUpdateTimer;
+    
+    // Timer for time updates
+    QTimer* timeUpdateTimer;
     
     // Helper method to check if a doctor works at a specific hospital
     bool isDoctorInHospital(const string& doctorID, int hospitalIndex);
