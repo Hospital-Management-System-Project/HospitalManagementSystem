@@ -4,13 +4,20 @@
 #include <string>
 
 class drug {
-public:
+private:
     std::string drugName;
     double price;
 
-    drug(const std::string& name, double p){
-        drugName = name;
-        price = p;
+public:
+    drug(const std::string& name, double p) : drugName(name), price(p) {}
+
+    // Getters
+    std::string getDrugName() const {
+        return drugName;
+    }
+
+    double getPrice() const {
+        return price;
     }
 };
 

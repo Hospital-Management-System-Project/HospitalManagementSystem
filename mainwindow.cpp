@@ -254,7 +254,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     drugComboBox = new QComboBox(this);
     auto allDrugs = PharmacySystem::getInstance()->getAllDrugs();
     for (auto &d : allDrugs) {
-        drugComboBox->addItem(QString::fromStdString(d.drugName));
+        drugComboBox->addItem(QString::fromStdString(d.getDrugName()));
     }
     drugFormLayout->addRow("Select Drug:", drugComboBox);
 
@@ -954,11 +954,11 @@ void MainWindow::requestDrugDelivery() {
     drug selectedDrug = ps->getAllDrugs()[drugIndex];  // Changed Drug to drug to match the actual class name
 
     // Just bill the hospital for this drug
-    std::string billID = pharmacy->billHospitalForDrug(hospital->hospitalID, selectedDrug.drugName, selectedDrug.price);
+    std::string billID = pharmacy->billHospitalForDrug(hospital->hospitalID, selectedDrug.getDrugName(), selectedDrug.getPrice());
 
-    statusDisplay->append("Drug \"" + QString::fromStdString(selectedDrug.drugName) +
+    statusDisplay->append("Drug \"" + QString::fromStdString(selectedDrug.getDrugName()) +
                           "\" billed to " + QString::fromStdString(hospital->hospitalName) +
-                          " for $" + QString::number(selectedDrug.price, 'f', 2) +
+                          " for $" + QString::number(selectedDrug.getPrice(), 'f', 2) +
                           " (Bill ID: " + QString::fromStdString(billID) + ")");
 }
 
