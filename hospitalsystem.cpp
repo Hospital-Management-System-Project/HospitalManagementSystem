@@ -41,31 +41,45 @@ void HospitalSystem::initializeDoctors() {
         delete pair.second;
     }
     doctors.clear();
-    
-    // Create at least 3 doctors per hospital (15 total)
-    const string DOCTOR_NAMES[15] = {
-        "Dr. Smith", "Dr. Johnson", "Dr. Williams",
-        "Dr. Brown", "Dr. Jones", "Dr. Miller",
-        "Dr. Davis", "Dr. Garcia", "Dr. Rodriguez",
-        "Dr. Wilson", "Dr. Martinez", "Dr. Anderson",
-        "Dr. Taylor", "Dr. Thomas", "Dr. Hernandez"
+
+    srand(time(nullptr)); // Seed random generator
+
+    // Doctor names (50 total)
+    vector<string> doctorNames = {
+        "Dr. Smith", "Dr. Johnson", "Dr. Williams", "Dr. Brown", "Dr. Jones",
+        "Dr. Miller", "Dr. Davis", "Dr. Garcia", "Dr. Rodriguez", "Dr. Wilson",
+        "Dr. Martinez", "Dr. Anderson", "Dr. Taylor", "Dr. Thomas", "Dr. Hernandez",
+        "Dr. Moore", "Dr. Jackson", "Dr. Martin", "Dr. Lee", "Dr. Perez",
+        "Dr. Thompson", "Dr. White", "Dr. Harris", "Dr. Sanchez", "Dr. Clark",
+        "Dr. Ramirez", "Dr. Lewis", "Dr. Robinson", "Dr. Walker", "Dr. Young",
+        "Dr. Allen", "Dr. King", "Dr. Wright", "Dr. Scott", "Dr. Torres",
+        "Dr. Nguyen", "Dr. Hill", "Dr. Flores", "Dr. Green", "Dr. Adams",
+        "Dr. Nelson", "Dr. Baker", "Dr. Hall", "Dr. Rivera", "Dr. Campbell",
+        "Dr. Mitchell", "Dr. Carter", "Dr. Roberts", "Dr. Gomez", "Dr. Morgan"
     };
-    
+
     int doctorIndex = 0;
-    for (size_t i = 0; i < hospitals.size(); i++) {
-        Hospital* hospital = hospitals[i];
-        
-        // Add 3 doctors to each hospital
-        for (int j = 0; j < 3; j++) {
+    int numHospitals = hospitals.size();
+
+    // Step 1: Add 3 doctors per hospital (guaranteed minimum)
+    for (int i = 0; i < numHospitals; ++i) {
+        for (int j = 0; j < 3; ++j) {
             string doctorID = "D" + to_string(doctorIndex + 1);
-            Doctor* doctor = new Doctor(doctorID, DOCTOR_NAMES[doctorIndex], hospital->hospitalID);
-            
-            // Add doctor to system and hospital
+            Doctor* doctor = new Doctor(doctorID, doctorNames[doctorIndex], hospitals[i]->hospitalID);
             doctors[doctorID] = doctor;
-            hospital->addDoctor(doctor);
-            
-            doctorIndex++;
+            hospitals[i]->addDoctor(doctor);
+            ++doctorIndex;
         }
+    }
+
+    // Step 2: Randomly assign the rest to any hospital
+    while (doctorIndex < 50) {
+        int randomHospitalIndex = rand() % numHospitals;
+        string doctorID = "D" + to_string(doctorIndex + 1);
+        Doctor* doctor = new Doctor(doctorID, doctorNames[doctorIndex], hospitals[randomHospitalIndex]->hospitalID);
+        doctors[doctorID] = doctor;
+        hospitals[randomHospitalIndex]->addDoctor(doctor);
+        ++doctorIndex;
     }
 }
 
