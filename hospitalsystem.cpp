@@ -142,13 +142,9 @@ bool HospitalSystem::admitPatient(Patient* patient, int hospitalIndex) {
     // Check if hospital has capacity
     if (hospitals[hospitalIndex]->admitPatient(patient)) {
         patients[patient->getPatientID()] = patient;
-
-        // add patient to 'patientIDs' vector for the nurse
         string assignedNurseID = patient->getAttendingNursesIDs().at(0);
-        findNurse(assignedNurseID)->patientIDs.push_back(patient->getPatientID());
-
-        // add patient to 'patientIDs' vector for the doctor
-        findDoctor(patient->getPrimaryDoctorID())->getPatientIDs().push_back(patient->getPatientID());
+        findNurse(assignedNurseID)->assignPatient(patient->getPatientID());
+        findDoctor(patient->getPrimaryDoctorID())->addPatient(patient->getPatientID());
         
         return true;
     }
