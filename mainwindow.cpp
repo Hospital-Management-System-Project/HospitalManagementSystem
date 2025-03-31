@@ -6,13 +6,23 @@
 #include <QLabel>
 #include <QTabWidget>
 #include <QTimer>
-#include <QTime>  // Add the missing QTime header
+#include <QTime>
+#include <QIcon>
 #include "hospitalsystem.h"
 #include <QApplication>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Get the hospital system instance
     hospitalSystem = HospitalSystem::getInstance();
+    
+    // Set the window icon
+    QIcon icon(":/images/hospital_icon.png");
+    if (!icon.isNull()) {
+        setWindowIcon(icon);
+        QApplication::setWindowIcon(icon); // Also set application-wide icon
+    } else {
+        qDebug("Failed to load icon image");
+    }
     
     // Set up UI
     QWidget* centralWidget = new QWidget(this);
