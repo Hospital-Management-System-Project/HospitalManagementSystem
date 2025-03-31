@@ -60,7 +60,8 @@ private:
     
     // Doctor-patient tab
     QLineEdit* doctorAssignmentIDInput;
-    QLineEdit* patientAssignmentIDInput;
+    QLineEdit* doctorPatientAssignmentIDInput;
+    QLineEdit* nursePatientAssignmentIDInput;
     QLineEdit* doctorDischargeIDInput;
     QLineEdit* patientDischargeIDInput;
 

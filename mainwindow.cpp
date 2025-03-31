@@ -107,9 +107,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     doctorAssignmentIDInput->setPlaceholderText("Enter Doctor ID");
     doctorFormLayout->addRow("Doctor ID:", doctorAssignmentIDInput);
     
-    patientAssignmentIDInput = new QLineEdit(this);
-    patientAssignmentIDInput->setPlaceholderText("Enter Patient ID");
-    doctorFormLayout->addRow("Patient ID:", patientAssignmentIDInput);
+    doctorPatientAssignmentIDInput = new QLineEdit(this);
+    doctorPatientAssignmentIDInput->setPlaceholderText("Enter Patient ID");
+    doctorFormLayout->addRow("Patient ID:", doctorPatientAssignmentIDInput);
     
     // Add the List All Patients button before doctor assignment buttons
     QPushButton* listPatientsButton = new QPushButton("List All Patients", this);
@@ -158,9 +158,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     nurseAssignmentIDInput->setPlaceholderText("Enter Nurse ID");
     nurseFormLayout->addRow("Nurse ID:", nurseAssignmentIDInput);
 
-    patientAssignmentIDInput = new QLineEdit(this);
-    patientAssignmentIDInput->setPlaceholderText("Enter Patient ID");
-    nurseFormLayout->addRow("Patient ID:", patientAssignmentIDInput);
+    nursePatientAssignmentIDInput = new QLineEdit(this);
+    nursePatientAssignmentIDInput->setPlaceholderText("Enter Patient ID");
+    nurseFormLayout->addRow("Patient ID:", nursePatientAssignmentIDInput);
 
     // Add assignment buttons in their own layout
     QHBoxLayout* nurseButtonLayout = new QHBoxLayout();
@@ -551,7 +551,7 @@ void MainWindow::viewPatientBillingHistory() {
 
 void MainWindow::assignDoctorToPatient(bool isPrimary) {
     string doctorID = doctorAssignmentIDInput->text().toStdString();
-    string patientID = patientAssignmentIDInput->text().toStdString();
+    string patientID = doctorPatientAssignmentIDInput->text().toStdString();
     
     if (doctorID.empty() || patientID.empty()) {
         statusDisplay->append("Error: Both Doctor ID and Patient ID are required.");
@@ -601,7 +601,7 @@ void MainWindow::assignDoctorToPatient(bool isPrimary) {
 
 void MainWindow::assignNurseToPatient() {
     string nurseID = nurseAssignmentIDInput->text().toStdString();
-    string patientID = patientAssignmentIDInput->text().toStdString();
+    string patientID = nursePatientAssignmentIDInput->text().toStdString();
 
     if (nurseID.empty() || patientID.empty()) {
         statusDisplay->append("Error: Both Nurse ID and Patient ID are required.");
