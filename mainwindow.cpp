@@ -857,8 +857,22 @@ void MainWindow::updateDayCounter() {
     // This is called periodically to simulate the passage of time
     hospitalSystem->updateAllPatientDays();
     
+    // Display a notification about the update
+    statusDisplay->append("Daily update completed. Patient days incremented.");
+    
+    // Check for any rate increases and display them
+    for (auto& pair : hospitalSystem->getAllPatients()) {
+        Patient* patient = pair.second;
+        if (patient->daysAdmitted % 3 == 0) { // Match the condition in incrementDaysAdmitted
+            statusDisplay->append("Rate increase applied for patient " + 
+                                QString::fromStdString(patient->patientID) + 
+                                ". New daily rate: $" + 
+                                QString::number(patient->billingRatePerDay, 'f', 2));
+        }
+    }
+    
     // If the current tab is the billing tab, update the displayed bill
-    if (tabWidget->currentIndex() == 2) { // Billing tab is index 2
+    if (tabWidget->currentIndex() == 3) { // Billing tab is index 3
         string patientID = billingPatientIDInput->text().toStdString();
         if (!patientID.empty()) {
             calculateBill();

@@ -43,9 +43,18 @@ bool Patient::addAttendingNurse(string nurseID) {
     return true;
 }
 
+// Add this method to apply a rate increase
+void Patient::applyRateIncrease(double percentage) {
+    billingRatePerDay *= (1.0 + percentage);
+}
+
+// Modify the incrementDaysAdmitted method to potentially include rate increases
 void Patient::incrementDaysAdmitted() {
-    if (!discharged) {
-        daysAdmitted++;
+    daysAdmitted++;
+    
+    // Apply a rate increase every 3 days
+    if (daysAdmitted % 3 == 0) {
+        applyRateIncrease(0.03); // 3% increase every 3 days
     }
 }
 

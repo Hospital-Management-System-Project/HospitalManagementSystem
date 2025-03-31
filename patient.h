@@ -34,6 +34,7 @@ public:
   string getAdmissionDateString() const;
   string getStatus() const;
   string getFullDescription() const; // New method to get comprehensive patient details
+  void applyRateIncrease(double percentage = 0.05); // Add method to increase rate by a percentage
 };
 
 #endif // PATIENT_H
