@@ -10,6 +10,7 @@
 #include <QIcon>
 #include "hospitalsystem.h"
 #include <QApplication>
+#include <QScrollBar>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Get the hospital system instance
@@ -988,34 +989,30 @@ void MainWindow::clearStatusDisplay() {
 
 void MainWindow::updateCurrentTime() {
     QTime currentTime = QTime::currentTime();
-    // Format time in 12-hour format with AM/PM
     QString timeText = "Current Time: " + currentTime.toString("h:mm:ss AP");
-    
-    // Update the status display with current time
+
+    QTextCursor cursor = statusDisplay->textCursor();
+    int scrollPos = statusDisplay->verticalScrollBar()->value(); // Save scroll position
+
     QString text = statusDisplay->toPlainText();
     QStringList lines = text.split("\n");
-    
+
     bool timeLineUpdated = false;
-    for (int i = 0; i < lines.size(); i++) {
+    for (int i = 0; i < lines.size(); ++i) {
         if (lines[i].startsWith("Current Time:")) {
             lines[i] = timeText;
             timeLineUpdated = true;
             break;
         }
     }
-    
+
     if (!timeLineUpdated) {
-        // Insert at the beginning if not found
         lines.prepend(timeText);
     }
-    
-    // Remove any empty lines between the time and the next non-empty line
-    for (int i = 0; i < lines.size() - 1; i++) {
-        if (lines[i].startsWith("Current Time:") && lines[i+1].isEmpty()) {
-            lines.removeAt(i+1);
-            break;
-        }
-    }
-    statusDisplay->clear();
+
+    statusDisplay->blockSignals(true); // prevent triggering anything while updating
     statusDisplay->setPlainText(lines.join("\n"));
+    statusDisplay->blockSignals(false);
+
+    statusDisplay->verticalScrollBar()->setValue(scrollPos); // Restore scroll position
 }
