@@ -6,23 +6,22 @@
 
 using namespace std;
 
-Patient::Patient(string id, string name, string phone, string d, string t, string docID, string nurseID){
+Patient::Patient(string id, string name, string phone, string patientDisease, string treatmentType, string docID, string nurseID){
     patientID = id;
     patientName = name;
     phoneNumber = phone;
-    disease = d;
-    treatment = t;
+    disease = patientDisease;
+    treatment = treatmentType;
     daysAdmitted = 0;
     primaryDoctorID = docID;
     attendingNursesIDs.push_back(nurseID);
     discharged = false;
     dischargeRequested = (false);
-    billingRatePerDay = 100.0; // Default daily rate
-    admissionDate = time(nullptr); // Current time
+    billingRatePerDay = 100.0; 
+    admissionDate = time(nullptr); 
 }
 
 void Patient::addAttendingDoctor(string docID) {
-    // Don't add the primary doctor as an attending doctor
     if (docID == primaryDoctorID) {
         return;
     }
@@ -137,4 +136,93 @@ string Patient::getAdmissionDateString() const {
 
 string Patient::getStatus() const {
     return discharged ? "Discharged" : "Admitted";
+}
+
+// Getter and setter implementations
+string Patient::getPatientID() const {
+    return patientID;
+}
+
+void Patient::setPatientID(const string& id) {
+    patientID = id;
+}
+
+string Patient::getPatientName() const {
+    return patientName;
+}
+
+void Patient::setPatientName(const string& name) {
+    patientName = name;
+}
+
+string Patient::getDisease() const {
+    return disease;
+}
+
+void Patient::setDisease(const string& currentDisease) {
+    disease = currentDisease;
+}
+
+int Patient::getDaysAdmitted() const {
+    return daysAdmitted;
+}
+
+void Patient::setDaysAdmitted(int days) {
+    daysAdmitted = days;
+}
+
+string Patient::getPrimaryDoctorID() const {
+    return primaryDoctorID;
+}
+
+void Patient::setPrimaryDoctorID(const string& docID) {
+    primaryDoctorID = docID;
+}
+
+vector<string>& Patient::getAttendingDoctorIDs() {
+    return attendingDoctorIDs;
+}
+
+vector<string>& Patient::getAttendingNursesIDs() {
+    return attendingNursesIDs;
+}
+
+const vector<string>& Patient::getAttendingDoctorIDs() const {
+    return attendingDoctorIDs;
+}
+
+const vector<string>& Patient::getAttendingNursesIDs() const {
+    return attendingNursesIDs;
+}
+
+double Patient::getBillingRatePerDay() const {
+    return billingRatePerDay;
+}
+
+void Patient::setBillingRatePerDay(double rate) {
+    billingRatePerDay = rate;
+}
+
+bool Patient::isDischarged() const {
+    return discharged;
+}
+
+void Patient::setDischarged(bool status) {
+    discharged = status;
+}
+
+bool Patient::isDischargeRequested() const {
+    return dischargeRequested;
+}
+
+void Patient::setDischargeRequested(bool status) {
+    dischargeRequested = status;
+}
+
+string Patient::getPhoneNumber() const {
+    return phoneNumber;
+}
+
+string Patient::getTreatment() const {
+    return treatment;
 }

@@ -525,8 +525,8 @@ void MainWindow::relocatePatient() {
     for (auto doctor : currentHospital->doctors) {
         doctor->removePatient(patientID);
     }
-    patient->attendingDoctorIDs.clear();
-    patient->primaryDoctorID = "";
+    patient->getAttendingDoctorIDs().clear();
+    patient->setPrimaryDoctorID("");
 
     // Attempt to relocate the patient
     if (hospitalSystem->relocatePatient(patientID, newHospitalIndex)) {
@@ -625,10 +625,10 @@ void MainWindow::viewPatientBillingHistory() {
     
     statusDisplay->clear();
     statusDisplay->append("=== PATIENT BILLING HISTORY ===");
-    statusDisplay->append("Patient ID: " + QString::fromStdString(patient->patientID));
-    statusDisplay->append("Name: " + QString::fromStdString(patient->patientName));
-    statusDisplay->append("Days Admitted: " + QString::number(patient->daysAdmitted));
-    statusDisplay->append("Daily Rate: $" + QString::number(patient->billingRatePerDay, 'f', 2));
+    statusDisplay->append("Patient ID: " + QString::fromStdString(patient->getPatientID()));
+    statusDisplay->append("Name: " + QString::fromStdString(patient->getPatientName()));
+    statusDisplay->append("Days Admitted: " + QString::number(patient->getDaysAdmitted()));
+    statusDisplay->append("Daily Rate: $" + QString::number(patient->getBillingRatePerDay(), 'f', 2));
     statusDisplay->append("Current Total: $" + QString::number(patient->calculateCurrentBill(), 'f', 2));
     statusDisplay->append("Status: " + QString::fromStdString(patient->getStatus()));
     statusDisplay->append("\nNote: Additional charges for medications and services may apply.");
@@ -864,11 +864,11 @@ void MainWindow::updateDayCounter() {
     // Check for any rate increases and display them
     for (auto& pair : hospitalSystem->getAllPatients()) {
         Patient* patient = pair.second;
-        if (patient->daysAdmitted % 3 == 0) { // Match the condition in incrementDaysAdmitted
+        if (patient->getDaysAdmitted() % 3 == 0) { // Match the condition in incrementDaysAdmitted
             statusDisplay->append("Rate increase applied for patient " + 
-                                QString::fromStdString(patient->patientID) + 
+                                QString::fromStdString(patient->getPatientID()) + 
                                 ". New daily rate: $" + 
-                                QString::number(patient->billingRatePerDay, 'f', 2));
+                                QString::number(patient->getBillingRatePerDay(), 'f', 2));
         }
     }
     
@@ -898,7 +898,7 @@ void MainWindow::listAllPatients() {
     
     for (const auto& pair : allPatients) {
         Patient* patient = pair.second;
-        Hospital* hospital = hospitalSystem->findPatientHospital(patient->patientID);
+        Hospital* hospital = hospitalSystem->findPatientHospital(patient->getPatientID());
         
         if (hospital) {
             patientsByHospital[hospital->hospitalName].push_back(patient);
@@ -910,18 +910,18 @@ void MainWindow::listAllPatients() {
         statusDisplay->append("\n--- " + QString::fromStdString(pair.first) + " ---");
         
         for (const Patient* patient : pair.second) {
-            statusDisplay->append("Patient ID: " + QString::fromStdString(patient->patientID));
-            statusDisplay->append("Name: " + QString::fromStdString(patient->patientName));
-            statusDisplay->append("Disease: " + QString::fromStdString(patient->disease));
-            statusDisplay->append("Days Admitted: " + QString::number(patient->daysAdmitted));
-            statusDisplay->append("Primary Doctor: " + QString::fromStdString(patient->primaryDoctorID));
+            statusDisplay->append("Patient ID: " + QString::fromStdString(patient->getPatientID()));
+            statusDisplay->append("Name: " + QString::fromStdString(patient->getPatientName()));
+            statusDisplay->append("Disease: " + QString::fromStdString(patient->getDisease()));
+            statusDisplay->append("Days Admitted: " + QString::number(patient->getDaysAdmitted()));
+            statusDisplay->append("Primary Doctor: " + QString::fromStdString(patient->getPrimaryDoctorID()));
             
             // Show attending nurses if any
-            if (!patient->attendingNursesIDs.empty()) {
+            if (!patient->getAttendingNursesIDs().empty()) {
                 QString attendingNurses = "Assigned Nurses: ";
-                for (size_t i = 0; i < patient->attendingNursesIDs.size(); i++) {
-                    attendingNurses += QString::fromStdString(patient->attendingNursesIDs[i]);
-                    if (i < patient->attendingNursesIDs.size() - 1) {
+                for (size_t i = 0; i < patient->getAttendingNursesIDs().size(); i++) {
+                    attendingNurses += QString::fromStdString(patient->getAttendingNursesIDs()[i]);
+                    if (i < patient->getAttendingNursesIDs().size() - 1) {
                         attendingNurses += ", ";
                     }
                 }
@@ -929,11 +929,11 @@ void MainWindow::listAllPatients() {
             }
             
             // Show attending doctors if any
-            if (!patient->attendingDoctorIDs.empty()) {
+            if (!patient->getAttendingDoctorIDs().empty()) {
                 QString attendingDocs = "Attending Doctors: ";
-                for (size_t i = 0; i < patient->attendingDoctorIDs.size(); i++) {
-                    attendingDocs += QString::fromStdString(patient->attendingDoctorIDs[i]);
-                    if (i < patient->attendingDoctorIDs.size() - 1) {
+                for (size_t i = 0; i < patient->getAttendingDoctorIDs().size(); i++) {
+                    attendingDocs += QString::fromStdString(patient->getAttendingDoctorIDs()[i]);
+                    if (i < patient->getAttendingDoctorIDs().size() - 1) {
                         attendingDocs += ", ";
                     }
                 }

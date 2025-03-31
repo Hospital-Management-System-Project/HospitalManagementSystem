@@ -141,14 +141,14 @@ bool HospitalSystem::admitPatient(Patient* patient, int hospitalIndex) {
     
     // Check if hospital has capacity
     if (hospitals[hospitalIndex]->admitPatient(patient)) {
-        patients[patient->patientID] = patient;
+        patients[patient->getPatientID()] = patient;
 
         // add patient to 'patientIDs' vector for the nurse
-        string assignedNurseID = patient->attendingNursesIDs.at(0);
-        findNurse(assignedNurseID)->getPatientIDs().push_back(patient->patientID);
+        string assignedNurseID = patient->getAttendingNursesIDs().at(0);
+        findNurse(assignedNurseID)->patientIDs.push_back(patient->getPatientID());
 
         // add patient to 'patientIDs' vector for the doctor
-        findDoctor(patient->primaryDoctorID)->getPatientIDs().push_back(patient->patientID);
+        findDoctor(patient->getPrimaryDoctorID())->getPatientIDs().push_back(patient->getPatientID());
         
         return true;
     }
@@ -181,7 +181,7 @@ bool HospitalSystem::dischargePatient(string patientID) {
         return false;
     }
 
-    if (!patient->dischargeRequested) {
+    if (!patient->isDischargeRequested()) {
         // The doctor never requested discharge, so do not allow it.
         return false;
     }
@@ -307,7 +307,7 @@ bool HospitalSystem::assignDoctorToPatient(string doctorID, string patientID, bo
     
     // Set as primary if required
     if (isPrimary) {
-        patient->primaryDoctorID = doctorID;
+        patient->setPrimaryDoctorID(doctorID);
     } else {
         patient->addAttendingDoctor(doctorID);
     }
@@ -402,28 +402,28 @@ string HospitalSystem::getHospitalStatus() {
             
             for (auto patient : hospital->patients) {
                 status << "PATIENT INFORMATION\n";
-                status << "Name:   \t\t" << patient->patientName << "\n";
-                status << "ID:   \t\t" << patient->patientID << "\n";
-                status << "Phone:   \t\t" << patient->phoneNumber << "\n";
-                status << "Days Admitted:\t " << patient->daysAdmitted << "\n\n";
+                status << "Name:   \t\t" << patient->getPatientName() << "\n";
+                status << "ID:   \t\t" << patient->getPatientID() << "\n";
+                status << "Phone:   \t\t" << patient->getPhoneNumber() << "\n";
+                status << "Days Admitted:\t " << patient->getDaysAdmitted() << "\n\n";
                 
                 status << "MEDICAL INFORMATION\n";
-                status << "Diagnosis:      " << patient->disease << "\n";
-                status << "Treatment:      " << patient->treatment << "\n\n";
+                status << "Diagnosis:      " << patient->getDisease() << "\n";
+                status << "Treatment:      " << patient->getTreatment() << "\n\n";
                 
                 status << "MEDICAL STAFF\n";
-                status << "Primary Doctor: " << patient->primaryDoctorID << "\n";
+                status << "Primary Doctor: " << patient->getPrimaryDoctorID() << "\n";
                 
-                if (!patient->attendingDoctorIDs.empty()) {
+                if (!patient->getAttendingDoctorIDs().empty()) {
                     status << "Attending Doctors:\n";
-                    for (auto& docID : patient->attendingDoctorIDs) {
+                    for (auto& docID : patient->getAttendingDoctorIDs()) {
                         status << "  • " << docID << "\n";
                     }
                 }
                 
-                if (!patient->attendingNursesIDs.empty()) {
+                if (!patient->getAttendingNursesIDs().empty()) {
                     status << "Attending Nurses:\n";
-                    for (auto& nurseID : patient->attendingNursesIDs) {
+                    for (auto& nurseID : patient->getAttendingNursesIDs()) {
                         status << "  • " << nurseID << "\n";
                     }
                 }

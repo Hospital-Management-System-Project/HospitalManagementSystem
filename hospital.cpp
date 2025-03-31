@@ -32,19 +32,19 @@ bool Hospital::relocatePatient(Patient* patient, Hospital* newHospital) {
 
 void Hospital::dischargePatient(Patient* patient) {
     // Mark the patient as discharged
-    patient->discharged = true;
+    patient->setDischarged(true);
     
     // Final billing
     totalPatientBillings += patient->calculateCurrentBill();
     
     // Update doctor assignments
     for (auto doctor : doctors) {
-        doctor->removePatient(patient->patientID);
+        doctor->removePatient(patient->getPatientID());
     }
     
     // Update nurse assignments
     for (auto nurse : nurses) {
-        nurse->removePatient(patient->patientID);
+        nurse->removePatient(patient->getPatientID());
     }
     
     // Remove from patient list
@@ -62,7 +62,7 @@ void Hospital::addNurse(Nurse* nurse) {
 void Hospital::updatePatientDays() {
     // Increment days for all admitted patients
     for (auto patient : patients) {
-        if (!patient->discharged) {
+        if (!patient->getStatus().compare("Discharged")) {
             patient->incrementDaysAdmitted();
         }
     }
@@ -78,7 +78,7 @@ double Hospital::getTotalPatientBills() const {
 
 bool Hospital::collectPaymentFromPatient(string patientID, double amount) {
     for (auto patient : patients) {
-        if (patient->patientID == patientID) {
+        if (patient->getPatientID() == patientID) {
             double bill = patient->calculateCurrentBill();
             double alreadyPaid = 0.0;
             
@@ -108,7 +108,7 @@ bool Hospital::collectPaymentFromPatient(string patientID, double amount) {
 
 double Hospital::getPatientRemainingBalance(string patientID) const {
     for (auto patient : patients) {
-        if (patient->patientID == patientID) {
+        if (patient->getPatientID() == patientID) {
             double bill = patient->calculateCurrentBill();
             
             // Check for payments
@@ -149,9 +149,9 @@ string Hospital::getPatientBillingReport() const {
     report << string(80, '-') << "\n";
     
     for (auto patient : patients) {
-        report << left << setw(15) << patient->patientID 
-               << setw(25) << patient->patientName 
-               << setw(10) << patient->daysAdmitted 
+        report << left << setw(15) << patient->getPatientID() 
+               << setw(25) << patient->getPatientName() 
+               << setw(10) << patient->getDaysAdmitted() 
                << "$" << setw(14) << fixed << setprecision(2) << patient->calculateCurrentBill()
                << setw(15) << patient->getStatus() << "\n";
     }

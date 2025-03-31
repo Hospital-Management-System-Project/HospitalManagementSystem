@@ -8,7 +8,7 @@
 using namespace std;
 
 class Patient {
-public:
+private:
   string patientID;
   string patientName;
   string phoneNumber;
@@ -23,8 +23,8 @@ public:
   double billingRatePerDay;
   time_t admissionDate;
 
+public:
   Patient(string id, string name, string phone, string patientDisease, string treatmentType, string docID, string nurseID);
-
   void addAttendingDoctor(string docID);
   bool addAttendingNurse(string nurseID);
   void incrementDaysAdmitted();
@@ -33,8 +33,41 @@ public:
   bool canBeDischargedBy(string doctorID) const;
   string getAdmissionDateString() const;
   string getStatus() const;
-  string getFullDescription() const; // New method to get comprehensive patient details
-  void applyRateIncrease(double percentage = 0.05); // Add method to increase rate by a percentage
-};
+  string getFullDescription() const; 
+  void applyRateIncrease(double percentage = 0.05);
 
-#endif // PATIENT_H
+  // Getters and Setters for Encapsulated Variables
+  string getPatientID() const;
+  void setPatientID(const string& id);
+
+  string getPatientName() const;
+  void setPatientName(const string& name);
+
+  string getDisease() const;
+  void setDisease(const string& currentDisease);
+
+  int getDaysAdmitted() const;
+  void setDaysAdmitted(int daysAdmitted);
+
+  string getPrimaryDoctorID() const;
+  void setPrimaryDoctorID(const string& docID);
+
+  vector<string>& getAttendingDoctorIDs();
+  const vector<string>& getAttendingDoctorIDs() const;
+  
+  vector<string>& getAttendingNursesIDs();
+  const vector<string>& getAttendingNursesIDs() const;
+
+  double getBillingRatePerDay() const;
+  void setBillingRatePerDay(double rate);
+
+  bool isDischarged() const;
+  void setDischarged(bool status);
+
+  bool isDischargeRequested() const;
+  void setDischargeRequested(bool status);
+
+  string getPhoneNumber() const;
+  string getTreatment() const;
+};
+#endif

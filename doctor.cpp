@@ -48,7 +48,7 @@ bool Doctor::requestPatientDischarge(string patientID) {
     
     // Check if doctor can discharge this patient
     if (patient->canBeDischargedBy(doctorID)) {
-        patient->dischargeRequested = true;
+        patient->setDischargeRequested(true);
         return true;
     }
     
