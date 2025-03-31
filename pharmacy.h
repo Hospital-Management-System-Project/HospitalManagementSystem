@@ -54,17 +54,10 @@ public:
     Pharmacy(string id, string n);
     Pharmacy(string id, string n, string addr, string phone);
     
-    // Prescription management
-    bool receivePrescription(string prescriptionID, string patientID, string medication, double price);
-    bool deliverMedication(string prescriptionID);
-    
     // Billing functions
-    string billHospital(string hospitalID, string prescriptionID);
     string billHospitalForDrug(string hospitalID, string drugName, double price);
-    bool receivePayment(string billID);
     
     // Reporting
-    double getTotalRevenue() const;
     double getPendingPayments() const;
     vector<Bill> getBillsForHospital(string hospitalID) const;
 };

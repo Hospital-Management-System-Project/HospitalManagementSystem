@@ -18,7 +18,6 @@ public:
     // Patient management
     void addPatient(string patientID);
     void removePatient(string patientID);
-    bool isAssignedToPatient(string patientID);
     bool requestPatientDischarge(string patientID);
 };
 

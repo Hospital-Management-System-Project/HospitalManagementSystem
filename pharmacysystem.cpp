@@ -48,49 +48,8 @@ Pharmacy* PharmacySystem::getPharmacy(int index) {
     return nullptr;
 }
 
-Pharmacy* PharmacySystem::findPharmacyByID(string pharmacyID) {
-    for (auto pharmacy : pharmacies) {
-        if (pharmacy->pharmacyID == pharmacyID) {
-            return pharmacy;
-        }
-    }
-    return nullptr;
-}
-
 vector<Pharmacy*> PharmacySystem::getAllPharmacies() {
     return pharmacies;
-}
-
-bool PharmacySystem::addPrescription(string pharmacyID, string prescriptionID, string patientID, string medication, double price) {
-    Pharmacy* pharmacy = findPharmacyByID(pharmacyID);
-    if (pharmacy) {
-        return pharmacy->receivePrescription(prescriptionID, patientID, medication, price);
-    }
-    return false;
-}
-
-bool PharmacySystem::deliverMedication(string pharmacyID, string prescriptionID) {
-    Pharmacy* pharmacy = findPharmacyByID(pharmacyID);
-    if (pharmacy) {
-        return pharmacy->deliverMedication(prescriptionID);
-    }
-    return false;
-}
-
-string PharmacySystem::createBill(string pharmacyID, string hospitalID, string prescriptionID) {
-    Pharmacy* pharmacy = findPharmacyByID(pharmacyID);
-    if (pharmacy) {
-        return pharmacy->billHospital(hospitalID, prescriptionID);
-    }
-    return "";
-}
-
-bool PharmacySystem::payBill(string pharmacyID, string billID) {
-    Pharmacy* pharmacy = findPharmacyByID(pharmacyID);
-    if (pharmacy) {
-        return pharmacy->receivePayment(billID);
-    }
-    return false;
 }
 
 string PharmacySystem::getPharmacyStatus() {

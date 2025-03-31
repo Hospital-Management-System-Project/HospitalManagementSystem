@@ -21,10 +21,6 @@ void Doctor::removePatient(string patientID) {
     patientIDs.erase(remove(patientIDs.begin(), patientIDs.end(), patientID), patientIDs.end());
 }
 
-bool Doctor::isAssignedToPatient(string patientID) {
-    return find(patientIDs.begin(), patientIDs.end(), patientID) != patientIDs.end();
-}
-
 bool Doctor::requestPatientDischarge(string patientID) {
     // Get the patient from the hospital system
     HospitalSystem* hospitalSystem = HospitalSystem::getInstance();

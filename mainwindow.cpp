@@ -143,8 +143,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     dischargeFormLayout->addRow("", requestDischargeButton);
     dischargeGroupBox->setLayout(dischargeFormLayout);
     
-    doctorPatientLayout->addLayout(doctorFormLayout);
-    doctorPatientLayout->addLayout(doctorButtonLayout);
     doctorPatientLayout->addWidget(dischargeGroupBox);
     doctorPatientTab->setLayout(doctorPatientLayout);
 

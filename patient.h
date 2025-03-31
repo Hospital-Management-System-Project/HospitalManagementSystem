@@ -31,9 +31,7 @@ public:
   double calculateCurrentBill() const;
   void setDailyRate(double rate);
   bool canBeDischargedBy(string doctorID) const;
-  void markAsDischargedBy(string doctorID);
   string getAdmissionDateString() const;
-  int getDaysAdmitted() const;
   string getStatus() const;
   string getFullDescription() const; // New method to get comprehensive patient details
 };

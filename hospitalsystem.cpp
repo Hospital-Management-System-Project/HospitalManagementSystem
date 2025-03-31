@@ -205,104 +205,10 @@ Nurse* HospitalSystem::findNurse(string nurseID) {
     return (it != nurses.end()) ? it->second : nullptr;
 }
 
-bool HospitalSystem::addDoctor(Doctor* doctor) {
-    // Check if we've reached the maximum number of doctors
-    if (doctors.size() >= 50) {
-        return false;
-    }
-    
-    // Make sure doctor ID is unique
-    if (doctors.find(doctor->doctorID) != doctors.end()) {
-        return false;
-    }
-    
-    // Find the hospital
-    Hospital* hospital = nullptr;
-    for (auto h : hospitals) {
-        if (h->hospitalID == doctor->hospitalID) {
-            hospital = h;
-            break;
-        }
-    }
-    
-    if (!hospital) {
-        return false;
-    }
-    
-    // Add doctor to system and hospital
-    doctors[doctor->doctorID] = doctor;
-    hospital->addDoctor(doctor);
-    
-    return true;
-}
-
-bool HospitalSystem::addNurse(Nurse* nurse) {
-    // Check if we've reached the maximum number of nurses
-    if (nurses.size() >= 60) {
-        return false;
-    }
-    
-    // Make sure nurse ID is unique
-    if (nurses.find(nurse->nurseID) != nurses.end()) {
-        return false;
-    }
-    
-    // Find the hospital
-    Hospital* hospital = nullptr;
-    for (auto h : hospitals) {
-        if (h->hospitalID == nurse->hospitalID) {
-            hospital = h;
-            break;
-        }
-    }
-    
-    if (!hospital) {
-        return false;
-    }
-    
-    // Add nurse to system and hospital
-    nurses[nurse->nurseID] = nurse;
-    hospital->addNurse(nurse);
-    
-    return true;
-}
-
-string HospitalSystem::orderPrescription(int hospitalIndex, string patientID, string pharmacyID, string medication, double price) {
-    if (hospitalIndex < 0 || static_cast<size_t>(hospitalIndex) >= hospitals.size()) {
-        return "";
-    }
-    
-    Hospital* hospital = hospitals[hospitalIndex];
-    return hospital->orderPrescription(pharmacyID, patientID, medication, price);
-}
-
-bool HospitalSystem::payPharmacyBill(int hospitalIndex, string pharmacyID, string billID) {
-    if (hospitalIndex < 0 || static_cast<size_t>(hospitalIndex) >= hospitals.size()) {
-        return false;
-    }
-    
-    Hospital* hospital = hospitals[hospitalIndex];
-    return hospital->payPharmacyBill(pharmacyID, billID);
-}
-
 void HospitalSystem::updateAllPatientDays() {
     for (auto hospital : hospitals) {
         hospital->updatePatientDays();
     }
-}
-
-double HospitalSystem::calculatePatientBill(string patientID) {
-    Patient* patient = findPatient(patientID);
-    if (!patient) {
-        return 0.0;
-    }
-    
-    Hospital* hospital = findPatientHospital(patientID);
-    if (!hospital) {
-        return 0.0;
-    }
-    
-    return hospital->calculatePatientBill(patientID);
 }
 
 bool HospitalSystem::collectPatientPayment(string patientID, double amount) {

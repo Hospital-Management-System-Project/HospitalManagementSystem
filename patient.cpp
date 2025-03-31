@@ -119,21 +119,11 @@ string Patient::getFullDescription() const {
     return description.str();
 }
 
-void Patient::markAsDischargedBy(string doctorID) {
-    if (canBeDischargedBy(doctorID)) {
-        discharged = true;
-    }
-}
-
 string Patient::getAdmissionDateString() const {
     char buffer[30];
     struct tm* timeinfo = localtime(&admissionDate);
     strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M", timeinfo);
     return string(buffer);
-}
-
-int Patient::getDaysAdmitted() const {
-    return daysAdmitted;
 }
 
 string Patient::getStatus() const {

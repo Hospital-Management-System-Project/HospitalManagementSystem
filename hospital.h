@@ -33,15 +33,11 @@ public:
     void addNurse(Nurse* nurse);
     
     // Pharmacy-related methods
-    string orderPrescription(string pharmacyID, string patientID, string medication, double price);
-    bool payPharmacyBill(string pharmacyID, string billID);
-    double getTotalPharmacyBills() const;
     double getPaidPharmacyBills() const;
     double getPendingPharmacyBills() const;
     
     // Patient billing methods
     void updatePatientDays(); // Call this daily to increment days
-    double calculatePatientBill(string patientID) const;
     double getTotalPatientBills() const;
     bool collectPaymentFromPatient(string patientID, double amount);
     double getPatientRemainingBalance(string patientID) const;
@@ -51,7 +47,6 @@ public:
     bool requestPatientDischarge(string doctorID, string patientID);
     
     // Nurse-patient relationship
-    Nurse* findNurse(string nurseID);
     bool assignNurseToPatient(string nurseID, string patientID);
     
     // Reporting

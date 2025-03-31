@@ -38,13 +38,8 @@ public:
     Hospital* findPatientHospital(string patientID);
     string getHospitalStatus();
     
-    // Pharmacy-related methods
-    string orderPrescription(int hospitalIndex, string patientID, string pharmacyID, string medication, double price);
-    bool payPharmacyBill(int hospitalIndex, string pharmacyID, string billID);
-    
     // Patient billing methods
     void updateAllPatientDays();
-    double calculatePatientBill(string patientID);
     bool collectPatientPayment(string patientID, double amount);
     
     // Add a method to get remaining balance
@@ -62,13 +57,11 @@ public:
     Doctor* findDoctor(string doctorID);
     bool assignDoctorToPatient(string doctorID, string patientID, bool isPrimary = false);
     bool setPatientPrimaryDoctor(string patientID, string doctorID);
-    bool addDoctor(Doctor* doctor);
     
     // Nurse management
     void initializeNurses();
     Nurse* findNurse(string nurseID);
     bool assignNurseToPatient(string nurseID, string patientID);
-    bool addNurse(Nurse* nurse);
 };
 
 #endif
