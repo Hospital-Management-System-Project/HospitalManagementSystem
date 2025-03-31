@@ -247,7 +247,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     auto allPharmacies = PharmacySystem::getInstance()->getAllPharmacies();
     for (auto pharmacy : allPharmacies) {
         drugPharmacyComboBox->addItem(
-            QString::fromStdString(pharmacy->parmacyName + " (" + pharmacy->pharmacyID + ")")
+            QString::fromStdString(pharmacy->getPharmacyName() + " (" + pharmacy->getPharmacyID() + ")")
             );
     }
     drugFormLayout->addRow("Select Pharmacy:", drugPharmacyComboBox);

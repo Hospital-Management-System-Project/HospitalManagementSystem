@@ -5,16 +5,40 @@ using namespace std;
 
 Pharmacy::Pharmacy(string id, string n) {
     pharmacyID = id;
-    parmacyName = n;
+    pharmacyName = n;
     address = "";
     phoneNumber = "";
 }
 
 Pharmacy::Pharmacy(string id, string n, string addr, string phone) {
     pharmacyID = id;
-    parmacyName = n;
+    pharmacyName = n;
     address = addr;
     phoneNumber = phone;
+}
+
+string Pharmacy::getPharmacyID() const {
+    return pharmacyID;
+}
+
+string Pharmacy::getPharmacyName() const {
+    return pharmacyName;
+}
+
+string Pharmacy::getAddress() const {
+    return address;
+}
+
+string Pharmacy::getPhoneNumber() const {
+    return phoneNumber;
+}
+
+const vector<Prescription>& Pharmacy::getPrescriptions() const {
+    return prescriptions;
+}
+
+const vector<Bill>& Pharmacy::getBills() const {
+    return bills;
 }
 
 double Pharmacy::getPendingPayments() const {
