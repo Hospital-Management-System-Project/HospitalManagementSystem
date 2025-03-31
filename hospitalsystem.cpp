@@ -112,8 +112,17 @@ bool HospitalSystem::admitPatient(Patient* patient, int hospitalIndex) {
     // Check if hospital has capacity
     if (hospitals[hospitalIndex]->admitPatient(patient)) {
         patients[patient->patientID] = patient;
+
+        // add patient to 'patientIDs' vector for the nurse
+        string assignedNurseID = patient->attendingNursesIDs.at(0);
+        findNurse(assignedNurseID)->patientIDs.push_back(patient->patientID);
+
+        // add patient to 'patientIDs' vector for the doctor
+        findDoctor(patient->primaryDoctorID)->patientIDs.push_back(patient->patientID);
+        
         return true;
     }
+
     return false;
 }
 
@@ -284,6 +293,10 @@ bool HospitalSystem::assignNurseToPatient(string nurseID, string patientID) {
     
     Patient* patient = findPatient(patientID);
     if (!patient) {
+        return false;
+    }
+
+    if (std::find(nurse->patientIDs.begin(), nurse->patientIDs.end(), patientID) != nurse->patientIDs.end()) {
         return false;
     }
 
