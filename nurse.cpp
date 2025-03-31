@@ -9,6 +9,22 @@ Nurse::Nurse(string id, string name, string hospID) {
   hospitalID = hospID;
 }
 
+string Nurse::getNurseID() const {
+    return nurseID;
+}
+
+string Nurse::getNurseName() const {
+    return nurseName;
+}
+
+string Nurse::getHospitalID() const {
+    return hospitalID;
+}
+
+vector<string> Nurse::getPatientIDs() const {
+    return patientIDs;
+}
+
 bool Nurse::assignPatient(string patientID) {
   if (patientIDs.size() < 2) {
     patientIDs.push_back(patientID);

@@ -145,7 +145,7 @@ bool HospitalSystem::admitPatient(Patient* patient, int hospitalIndex) {
 
         // add patient to 'patientIDs' vector for the nurse
         string assignedNurseID = patient->attendingNursesIDs.at(0);
-        findNurse(assignedNurseID)->patientIDs.push_back(patient->patientID);
+        findNurse(assignedNurseID)->getPatientIDs().push_back(patient->patientID);
 
         // add patient to 'patientIDs' vector for the doctor
         findDoctor(patient->primaryDoctorID)->getPatientIDs().push_back(patient->patientID);
@@ -326,7 +326,7 @@ bool HospitalSystem::assignNurseToPatient(string nurseID, string patientID) {
         return false;
     }
 
-    if (std::find(nurse->patientIDs.begin(), nurse->patientIDs.end(), patientID) != nurse->patientIDs.end()) {
+    if (std::find(nurse->getPatientIDs().begin(), nurse->getPatientIDs().end(), patientID) != nurse->getPatientIDs().end()) {
         return false;
     }
 
@@ -389,9 +389,9 @@ string HospitalSystem::getHospitalStatus() {
         if (!hospital->nurses.empty()) {
             status << "--- Nurse Details ---\n";
             for (auto nurse : hospital->nurses) {
-                status << "ID: " << nurse->nurseID 
-                       << ", Name: " << nurse->nurseName 
-                       << ", Patients: " << nurse->patientIDs.size() << "/2\n";
+                status << "ID: " << nurse->getNurseID()
+                       << ", Name: " << nurse->getNurseName()
+                       << ", Patients: " << nurse->getPatientIDs().size() << "/2\n";
             }
             status << "\n";
         }
