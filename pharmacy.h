@@ -48,10 +48,7 @@ public:
     // Getters
     string getPharmacyID() const;
     string getPharmacyName() const;
-    string getAddress() const;
-    string getPhoneNumber() const;
     const vector<Prescription>& getPrescriptions() const;
-    const vector<Bill>& getBills() const;
 
     // Billing functions
     string billHospitalForDrug(string hospitalID, string drugName, double price);

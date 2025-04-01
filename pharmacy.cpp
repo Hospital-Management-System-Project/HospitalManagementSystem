@@ -25,20 +25,8 @@ string Pharmacy::getPharmacyName() const {
     return pharmacyName;
 }
 
-string Pharmacy::getAddress() const {
-    return address;
-}
-
-string Pharmacy::getPhoneNumber() const {
-    return phoneNumber;
-}
-
 const vector<Prescription>& Pharmacy::getPrescriptions() const {
     return prescriptions;
-}
-
-const vector<Bill>& Pharmacy::getBills() const {
-    return bills;
 }
 
 double Pharmacy::getPendingPayments() const {

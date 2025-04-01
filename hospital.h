@@ -41,10 +41,6 @@ public:
     vector<Doctor*> getDoctors() const;
     vector<Nurse*> getNurses()const;   
     
-    // Pharmacy-related methods
-    double getPaidPharmacyBills() const;
-    double getPendingPharmacyBills() const;
-    
     // Patient billing methods
     void updatePatientDays(); // Call this daily to increment days
     double getTotalPatientBills() const;
@@ -52,11 +48,7 @@ public:
     double getPatientRemainingBalance(string patientID) const;
     
     // Doctor-patient relationship
-    bool assignDoctorToPatient(string doctorID, string patientID);
     bool requestPatientDischarge(string doctorID, string patientID);
-    
-    // Nurse-patient relationship
-    bool assignNurseToPatient(string nurseID, string patientID);
     
     // Reporting
     string getPatientBillingReport() const;

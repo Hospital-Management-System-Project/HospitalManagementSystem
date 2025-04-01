@@ -38,16 +38,12 @@ public:
 
   // Getters and Setters for Encapsulated Variables
   string getPatientID() const;
-  void setPatientID(const string& id);
 
   string getPatientName() const;
-  void setPatientName(const string& name);
 
   string getDisease() const;
-  void setDisease(const string& currentDisease);
 
   int getDaysAdmitted() const;
-  void setDaysAdmitted(int daysAdmitted);
 
   string getPrimaryDoctorID() const;
   void setPrimaryDoctorID(const string& docID);
@@ -59,9 +55,7 @@ public:
   const vector<string>& getAttendingNursesIDs() const;
 
   double getBillingRatePerDay() const;
-  void setBillingRatePerDay(double rate);
 
-  bool isDischarged() const;
   void setDischarged(bool status);
 
   bool isDischargeRequested() const;
