@@ -156,6 +156,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Add doctor management widgets to the layout
     doctorLayout->addLayout(docManagementFormLayout);
 
+    // Add List All Doctors button above the other doctor management buttons
+    QPushButton* listAllDoctorsButton = new QPushButton("List All Doctors", this);
+    doctorLayout->addWidget(listAllDoctorsButton);
+
     QHBoxLayout* docButtonLayout = new QHBoxLayout();
     QPushButton* addDoctorButton = new QPushButton("Add Doctor", this);
     QPushButton* relocateDoctorButton = new QPushButton("Relocate Doctor", this);
@@ -197,6 +201,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     nurseManagementFormLayout->addRow("Reassign to Hospital:", nurseChangeHospitalComboBox);
 
     nurseLayout->addLayout(nurseManagementFormLayout);
+
+    // Add List All Nurses button above the other nurse management buttons
+    QPushButton* listAllNursesButton = new QPushButton("List All Nurses", this);
+    nurseLayout->addWidget(listAllNursesButton);
 
     // Buttons
     QHBoxLayout* nurseManagementButtonLayout  = new QHBoxLayout();
@@ -423,6 +431,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(doctorListPatientsButton, &QPushButton::clicked, this, &MainWindow::listAllPatients);
     connect(nurseListPatientsButton, &QPushButton::clicked, this, &MainWindow::listAllPatients);
     connect(displaySelectedHospitalButton, &QPushButton::clicked, this, &MainWindow::displaySelectedHospitalStatus);
+
+    connect(listAllDoctorsButton, &QPushButton::clicked, this, &MainWindow::listAllDoctors);
+    connect(listAllNursesButton, &QPushButton::clicked, this, &MainWindow::listAllNurses);
 
     // Set up timer for daily updates
     dayUpdateTimer = new QTimer(this);
@@ -1502,3 +1513,120 @@ void MainWindow::viewNurseDetails() {
     statusDisplay->append("Working in Hospital: " + QString::fromStdString(hospital->getHospitalName()));
 }
 
+void MainWindow::listAllDoctors() {
+    statusDisplay->clear();
+    statusDisplay->append("=== ALL DOCTORS IN SYSTEM ===");
+    
+    map<string, Doctor*> doctorMap;
+    
+    // Get all doctors from all hospitals
+    for (auto hospital : hospitalSystem->getAllHospitals()) {
+        for (auto doctor : hospital->getDoctors()) {
+            doctorMap[doctor->getDoctorID()] = doctor;
+        }
+    }
+    // Check if there are no doctors in the system
+    if (doctorMap.empty()) {
+        statusDisplay->append("No Doctors In The System!");
+        return;
+    }
+    
+    // Group doctors by hospital for better organization
+    map<string, vector<Doctor*>> doctorsByHospital;
+    
+    for (const auto& pair : doctorMap) {
+        Doctor* doctor = pair.second;
+        Hospital* hospital = hospitalSystem->findDoctorHospital(doctor->getDoctorID());
+        // Check if the hospital is valid
+        if (hospital) {
+            doctorsByHospital[hospital->getHospitalName()].push_back(doctor);
+        }
+    }
+    
+    // Display doctors grouped by hospital
+    for (const auto& pair : doctorsByHospital) {
+        statusDisplay->append("\n=== " + QString::fromStdString(pair.first) + " ===");
+        
+        for (const Doctor* doctor : pair.second) {
+            statusDisplay->append("\nDoctor ID: " + QString::fromStdString(doctor->getDoctorID()));
+            statusDisplay->append("Name: " + QString::fromStdString(doctor->getDoctorName()));
+            statusDisplay->append("Patients: " + QString::number(doctor->getPatientIDs().size()));
+            
+            // Show patient IDs if any
+            if (!doctor->getPatientIDs().empty()) {
+                QString patientList = "Patient IDs: ";
+                for (size_t i = 0; i < doctor->getPatientIDs().size(); i++) {
+                    patientList += QString::fromStdString(doctor->getPatientIDs()[i]);
+                    if (i < doctor->getPatientIDs().size() - 1) {
+                        patientList += ", ";
+                    }
+                }
+                statusDisplay->append(patientList);
+            } else {
+                statusDisplay->append("No Assigned Patients");
+            }
+            statusDisplay->append("-----------------------------------");
+        }
+    }
+    // Show count at the end
+    statusDisplay->append("\nTotal Doctors: " + QString::number(doctorMap.size()));
+}
+
+void MainWindow::listAllNurses() {
+    statusDisplay->clear();
+    statusDisplay->append("=== ALL NURSES IN SYSTEM ===");
+    
+    map<string, Nurse*> nurseMap;
+    
+    // Get all nurses from all hospitals
+    for (auto hospital : hospitalSystem->getAllHospitals()) {
+        for (auto nurse : hospital->getNurses()) {
+            nurseMap[nurse->getNurseID()] = nurse;
+        }
+    }
+    // Check if there are no nurses in the system
+    if (nurseMap.empty()) {
+        statusDisplay->append("No nurses in the system.");
+        return;
+    }
+    
+    // Group nurses by hospital for better organization
+    map<string, vector<Nurse*>> nursesByHospital;
+    
+    for (const auto& pair : nurseMap) {
+        Nurse* nurse = pair.second;
+        Hospital* hospital = hospitalSystem->findNurseHospital(nurse->getNurseID());
+        // Check if the hospital is valid
+        if (hospital) {
+            nursesByHospital[hospital->getHospitalName()].push_back(nurse);
+        }
+    }
+    
+    // Display nurses grouped by hospital
+    for (const auto& pair : nursesByHospital) {
+        statusDisplay->append("\n=== " + QString::fromStdString(pair.first) + " ===");
+        
+        for (const Nurse* nurse : pair.second) {
+            statusDisplay->append("\nNurse ID: " + QString::fromStdString(nurse->getNurseID()));
+            statusDisplay->append("Name: " + QString::fromStdString(nurse->getNurseName()));
+            statusDisplay->append("Patients: " + QString::number(nurse->getPatientIDs().size()) + "/2");
+            
+            // Show patient IDs if any
+            if (!nurse->getPatientIDs().empty()) {
+                QString patientList = "Patient IDs: ";
+                for (size_t i = 0; i < nurse->getPatientIDs().size(); i++) {
+                    patientList += QString::fromStdString(nurse->getPatientIDs()[i]);
+                    if (i < nurse->getPatientIDs().size() - 1) {
+                        patientList += ", ";
+                    }
+                }
+                statusDisplay->append(patientList);
+            } else {
+                statusDisplay->append("No Assigned Patients");
+            }
+            statusDisplay->append("-----------------------------------");
+        }
+    }
+    // Show count at the end
+    statusDisplay->append("\nTotal Nurses: " + QString::number(nurseMap.size()));
+}
