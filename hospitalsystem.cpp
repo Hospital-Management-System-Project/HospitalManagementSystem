@@ -74,7 +74,7 @@ void HospitalSystem::initializeDoctors() {
     }
 
     // Step 2: Randomly assign the rest to any hospital
-    while (doctorIndex < 50) {
+    while (doctorIndex < 49) { //1 less than 50 for testing
         int randomHospitalIndex = rand() % numHospitals;
         string doctorID = "D" + to_string(doctorIndex + 1);
         Doctor* doctor = new Doctor(doctorID, doctorNames[doctorIndex], hospitals[randomHospitalIndex]->getHospitalID());
@@ -124,7 +124,7 @@ void HospitalSystem::initializeNurses() {
     }
 
     // Step 2: Randomly assign the rest to any hospital
-    while (nurseIndex < 60) {
+    while (nurseIndex < 59) { //1 less than 60 for testing
         int randomHospitalIndex = rand() % numHospitals;
         string nurseID = "N" + to_string(nurseIndex + 1);
         Nurse* nurse = new Nurse(nurseID, nurseNames[nurseIndex], hospitals[randomHospitalIndex]->getHospitalID());

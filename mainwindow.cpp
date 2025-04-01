@@ -1418,7 +1418,7 @@ void MainWindow::addNurse() {
         nurseManageIDInput->clear();
         nurseNameInput->clear();
     } else {
-        statusDisplay->append("Error: There are already 20 nurses in this hospital.");
+        statusDisplay->append("Error: There are already 60 nurses.");
         delete nurse;
     }
 }
