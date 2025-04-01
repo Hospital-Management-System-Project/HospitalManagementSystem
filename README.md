@@ -83,6 +83,8 @@ make
 
 ### Tab Overview
 - **Patient Management**: Add, relocate, and discharge patients
+- **Doctor Management**: View, add, remove, and relocate doctors
+- **Nurse Management:**: View, add, remove, and relocate nurses
 - **Doctor-Patient**: Assign doctors and handle discharge requests
 - **Nurse-Patient**: Assign nurses to patients
 - **Billing**: Calculate and collect payments, generate billing reports
