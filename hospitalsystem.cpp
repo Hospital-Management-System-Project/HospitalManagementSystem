@@ -56,7 +56,7 @@ void HospitalSystem::initializeDoctors() {
         "Dr. Allen", "Dr. King", "Dr. Wright", "Dr. Scott", "Dr. Torres",
         "Dr. Nguyen", "Dr. Hill", "Dr. Flores", "Dr. Green", "Dr. Adams",
         "Dr. Nelson", "Dr. Baker", "Dr. Hall", "Dr. Rivera", "Dr. Campbell",
-        "Dr. Mitchell", "Dr. Carter", "Dr. Roberts"
+        "Dr. Mitchell", "Dr. Carter", "Dr. Roberts", "Dr. Yacoub", "Dr. Griffin"
     };
 
     int doctorIndex = 0;
@@ -74,7 +74,7 @@ void HospitalSystem::initializeDoctors() {
     }
 
     // Step 2: Randomly assign the rest to any hospital
-    while (doctorIndex < 48) {
+    while (doctorIndex < 50) {
         int randomHospitalIndex = rand() % numHospitals;
         string doctorID = "D" + to_string(doctorIndex + 1);
         Doctor* doctor = new Doctor(doctorID, doctorNames[doctorIndex], hospitals[randomHospitalIndex]->getHospitalID());
@@ -236,6 +236,7 @@ bool HospitalSystem::relocateDoctor(string doctorID, int newHospitalIndex) {
 bool HospitalSystem::removeDoctor(string doctorID) {
     Doctor* doctor = findDoctor(doctorID);
     if (!doctor) {
+        // Doctor doesn't exist or has already been removed
         return false;
     }    
 
@@ -244,8 +245,31 @@ bool HospitalSystem::removeDoctor(string doctorID) {
         return false;
     }
     
-    currentHospital->removeDoctor(doctor);
-    return true;
+    // Check if the hospital has enough doctors before removing
+    if (currentHospital->getDoctors().size() <= 3) {
+        // Instead of just returning false, throw an exception with a clear message
+        throw std::runtime_error("Cannot remove doctor: Hospital must maintain at least 3 doctors");
+    }
+    
+    // Check if the doctor has patients
+    if (!doctor->getPatientIDs().empty()) {
+        throw std::runtime_error("Cannot remove doctor with assigned patients");
+    }
+    
+    try {
+        // Remove the doctor from the hospital
+        currentHospital->removeDoctor(doctor);
+        // Also remove the doctor from the system's map
+        doctors.erase(doctorID);
+        delete doctor;
+        return true;
+    } catch (const std::runtime_error& e) {
+        // Rethrow any exceptions from the hospital's removeDoctor
+        throw;
+    } catch (...) {
+        // Catch any other unexpected exceptions
+        return false;
+    }
 }
 
 Hospital* HospitalSystem::getHospital(int index) {

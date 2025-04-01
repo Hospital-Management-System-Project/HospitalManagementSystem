@@ -38,7 +38,7 @@ private slots:
     void addDoctor();
     void relocateDoctor();
     void removeDoctor();
-    // void viewDoctorDetails();
+    void viewDoctorDetails();
 
     void assignDoctorToPatient(bool isPrimary = false);
     void assignNurseToPatient();

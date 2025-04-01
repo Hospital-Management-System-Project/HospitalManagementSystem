@@ -361,7 +361,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(addDoctorButton, &QPushButton::clicked, this, &MainWindow::addDoctor);
     connect(relocateDoctorButton, &QPushButton::clicked, this, &MainWindow::relocateDoctor);
     connect(removeDoctorButton, &QPushButton::clicked, this, &MainWindow::removeDoctor);
-    // connect(viewDoctorDetailsButton, &QPushButton::clicked, this, &MainWindow::viewDoctorDetails);
+    connect(viewDoctorDetailsButton, &QPushButton::clicked, this, &MainWindow::viewDoctorDetails);
 
     connect(assignDoctorButton, &QPushButton::clicked, this, &MainWindow::assignDoctorToPatient);
     connect(setPrimaryDoctorButton, &QPushButton::clicked, this, [this]() {
@@ -788,24 +788,70 @@ void MainWindow::removeDoctor() {
     }
 
     Doctor* doctor = hospitalSystem->findDoctor(docID);
-    qDebug() << doctor->getDoctorID();
-
     if (!doctor) {
-        statusDisplay->append("Error: Doctor not found.");
+        statusDisplay->append("Error: Doctor Not Found or Already Removed.");
+        return;
+    }
+
+    Hospital* currentHospital = hospitalSystem->findDoctorHospital(docID);
+    if (!currentHospital) {
+        statusDisplay->append("Error: Cannot Determine Doctor's Hospital.");
+        return;
+    }
+
+    // Check explicitly here for the minimum doctor requirement
+    if (currentHospital->getDoctors().size() <= 3) {
+        statusDisplay->append("Error: Cannot Remove Doctor. Hospital Must Maintain At Least 3 Doctors!");
         return;
     }
 
     if (!doctor->getPatientIDs().empty()) {
-        statusDisplay->append("Error: Doctor has assigned patients and can't be removed. Either assign the patients to another doctor or discharge them when they're done.");
+        statusDisplay->append("Error: Doctor Has Assigned Patients and Can't Be Removed. Either Assign the Patients to Another Doctor or Discharge Them When They're Done.");
         return;          
     }
 
-    if (hospitalSystem->removeDoctor(docID)) {
-        statusDisplay->append("Doctor " + QString::fromStdString(docID) +
-        " removed from system.");            
-    } else {
-        statusDisplay->append("Error: Unexpected");
+    try {
+        if (hospitalSystem->removeDoctor(docID)) {
+            statusDisplay->append("Doctor " + QString::fromStdString(docID) +
+            " Removed From System.");            
+        } else {
+            statusDisplay->append("Error: Could Not Remove Doctor!");
+        }
+    } catch (const std::runtime_error& e) {
+        // Display the specific exception message
+        statusDisplay->append("Error: " + QString(e.what()));
+    } catch (...) {
+        statusDisplay->append("Error: An Unexpected Error Occurred!");
     }
+}
+
+void MainWindow::viewDoctorDetails() {
+    string doctorID = docManageIDInput->text().toStdString();
+    
+    if (doctorID.empty()) {
+        statusDisplay->append("Error: Enter Patient ID to view details.");
+        return;
+    }
+    
+    Doctor* doctor = hospitalSystem->findDoctor(doctorID);
+    if (!doctor) {
+        statusDisplay->append("Doctor not found.");
+        return;
+    }
+    
+    // Get the hospital information to display
+    Hospital* hospital = hospitalSystem->findDoctorHospital(doctorID);
+    if (!hospital) {
+        statusDisplay->append("Error: Cannot locate patient's hospital.");
+        return;
+    }
+
+    // Display patient details
+    statusDisplay->append(QString::fromStdString(doctor->getFullDescription()));
+    
+    // Display hospital information with patient details
+    statusDisplay->append("Working in Hospital: " + QString::fromStdString(hospital->getHospitalName()));
+    statusDisplay->append("\n");
 }
 
 void MainWindow::assignDoctorToPatient(bool isPrimary) {
