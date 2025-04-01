@@ -1500,3 +1500,4 @@ void MainWindow::viewNurseDetails() {
     statusDisplay->append(QString::fromStdString(nurse->getFullDescription()));
     statusDisplay->append("Working in Hospital: " + QString::fromStdString(hospital->getHospitalName()));
 }
+

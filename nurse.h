@@ -21,6 +21,10 @@ public:
     string getNurseName() const;
     string getHospitalID() const;
     vector<string> getPatientIDs() const;
+    string getFullDescription() const;
+
+    // Setters
+    void setHospitalID(string hosID);
 
     // Patient assignment
     bool assignPatient(string patientID);

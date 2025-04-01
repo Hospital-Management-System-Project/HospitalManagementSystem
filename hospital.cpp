@@ -77,7 +77,17 @@ void Hospital::removeDoctor(Doctor* doctor) {
 }
 
 void Hospital::addNurse(Nurse* nurse) {
+    nurse->setHospitalID(getHospitalID());
     nurses.push_back(nurse);
+}
+
+void Hospital::removeNurse(Nurse* nurse) {
+    // Check if the nurse has any patients before removing
+    if (!nurse->getPatientIDs().empty()) {
+        throw std::runtime_error("Cannot remove nurse with assigned patients");
+    }
+    
+    nurses.erase(remove(nurses.begin(), nurses.end(), nurse), nurses.end());
 }
 
 string Hospital::getHospitalID() const {

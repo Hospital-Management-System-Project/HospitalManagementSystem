@@ -36,6 +36,7 @@ public:
     bool relocateDoctor(Doctor* doctor, Hospital* newHospital);
     void removeDoctor(Doctor* doctor);
     void addNurse(Nurse* nurse);
+    void removeNurse(Nurse* nurse);
 
     // Getters and setters
     string getHospitalID() const;
