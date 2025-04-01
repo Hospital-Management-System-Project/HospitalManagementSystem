@@ -22,6 +22,11 @@ public:
     string getHospitalID() const;
     vector<string> getPatientIDs() const;
 
+    string getFullDescription() const;
+
+    // Setters
+    void setHospitalID(string hospID);
+
     // Patient management
     void addPatient(string patientID);
     void removePatient(string patientID);

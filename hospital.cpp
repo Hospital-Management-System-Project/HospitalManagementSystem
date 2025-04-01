@@ -3,6 +3,7 @@
 #include "pharmacysystem.h"
 #include <sstream>
 #include <iomanip>
+#include <qDebug>
 
 using namespace std;
 
@@ -52,7 +53,27 @@ void Hospital::dischargePatient(Patient* patient) {
 }
 
 void Hospital::addDoctor(Doctor* doctor) {
+    doctor->setHospitalID(getHospitalID());
     doctors.push_back(doctor);
+}
+
+bool Hospital::relocateDoctor(Doctor* doctor, Hospital* newHospital) {
+    newHospital->addDoctor(doctor);
+    doctors.erase(remove(doctors.begin(), doctors.end(), doctor), doctors.end());
+    return true;
+}
+
+void Hospital::removeDoctor(Doctor* doctor) {
+    // Check if removing this doctor would leave fewer than 3 doctors in the hospital
+    if (doctors.size() <= 3) {
+        throw std::runtime_error("Cannot Remove Doctor: Hospital Must Have At Least 3 Doctors");
+    }
+    // Check if the doctor has any patients before removing
+    if (!doctor->getPatientIDs().empty()) {
+        throw std::runtime_error("Cannot Remove Doctor With Assigned Patients");
+    }
+    
+    doctors.erase(remove(doctors.begin(), doctors.end(), doctor), doctors.end());    
 }
 
 void Hospital::addNurse(Nurse* nurse) {

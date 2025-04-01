@@ -1,5 +1,6 @@
 #include "doctor.h"
 #include <algorithm>
+#include <sstream>
 #include "hospitalsystem.h"
 
 using namespace std;
@@ -16,8 +17,38 @@ string Doctor::getHospitalID() const {
     return hospitalID;
 }
 
+string Doctor::getFullDescription() const {
+    stringstream description;
+
+    // doctor info
+    description << "=== DOCTOR DETAILS ===\n";
+    description << "Doctor ID: " << getDoctorID() << "\n";
+    description << "Name: " << getDoctorName() << "\n";
+
+    // assigned patients
+    description << "=== DOCTOR'S PATIENTS ===\n";
+    if (!getPatientIDs().empty()) {
+        description << "Assigned Patients: ";
+        for (size_t i = 0; i < getPatientIDs().size(); i++) {
+            description << getPatientIDs()[i];
+            if (i < getPatientIDs().size() - 1) {
+                description << ", ";
+            }
+        }
+        description << "\n";
+    } else {
+        description << "No assigned patients at this time" << "\n";
+    }
+
+    return description.str();
+}
+
 vector<string> Doctor::getPatientIDs() const {
     return patientIDs;
+}
+
+void Doctor::setHospitalID(string hospID) {
+    this->hospitalID = hospID;
 }
 
 Doctor::Doctor(string id, string n, string hospID) {

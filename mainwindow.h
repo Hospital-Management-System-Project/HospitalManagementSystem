@@ -34,6 +34,12 @@ private slots:
     void displayPharmacyStatus();
     void viewPatientDetails();
     void viewPatientBillingHistory();
+
+    void addDoctor();
+    void relocateDoctor();
+    void removeDoctor();
+    void viewDoctorDetails();
+
     void assignDoctorToPatient(bool isPrimary = false);
     void assignNurseToPatient();
     void requestPatientDischarge();
@@ -60,7 +66,13 @@ private:
     QDoubleSpinBox* dailyRateInput;
     QComboBox* hospitalComboBox;
     QComboBox* relocateHospitalComboBox;
-    
+
+    // Doctor management tab
+    QLineEdit* docManageIDInput;
+    QLineEdit* doctorNameInput;
+    QComboBox* docHospitalComboBox;
+    QComboBox* docChangeHospitalComboBox;
+
     // Doctor-patient tab
     QLineEdit* doctorAssignmentIDInput;
     QLineEdit* doctorPatientAssignmentIDInput;

@@ -31,11 +31,13 @@ public:
     bool admitPatient(Patient* patient, int hospitalIndex);
     bool relocatePatient(string patientID, int newHospitalIndex);
     bool dischargePatient(string patientID);
+
     Hospital* getHospital(int index);
     vector<Hospital*> getAllHospitals();
     map<string, Patient*>& getAllPatients();
     Patient* findPatient(string patientID);
     Hospital* findPatientHospital(string patientID);
+    Hospital* findDoctorHospital(string doctorID);
     string getHospitalStatus();
     
     // Patient billing methods
@@ -55,6 +57,9 @@ public:
     // Doctor management
     void initializeDoctors();
     Doctor* findDoctor(string doctorID);
+    bool addDoctor(Doctor* doctor, int hospitalIndex);
+    bool relocateDoctor(string doctorID, int newHospitalIndex);
+    bool removeDoctor(string doctorID);
     bool assignDoctorToPatient(string doctorID, string patientID, bool isPrimary = false);
     bool setPatientPrimaryDoctor(string patientID, string doctorID);
     
