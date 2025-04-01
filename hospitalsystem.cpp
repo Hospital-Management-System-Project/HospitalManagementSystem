@@ -153,7 +153,7 @@ bool HospitalSystem::admitPatient(Patient* patient, int hospitalIndex) {
     return false;
 }
 
-// TODO: FIX
+// Fix the relocatePatient method to properly handle all aspects of relocation
 bool HospitalSystem::relocatePatient(string patientID, int newHospitalIndex) {
     // Validate hospital index
     if (newHospitalIndex < 0 || static_cast<size_t>(newHospitalIndex) >= hospitals.size()) {
@@ -170,7 +170,60 @@ bool HospitalSystem::relocatePatient(string patientID, int newHospitalIndex) {
         return false;
     }
     
-    return currentHospital->relocatePatient(patient, hospitals[newHospitalIndex]);
+    Hospital* newHospital = hospitals[newHospitalIndex];
+    
+    // Verify patient is not already in the target hospital
+    if (currentHospital->getHospitalID() == newHospital->getHospitalID()) {
+        return false; // Already in this hospital
+    }
+    
+    // 1. Unassign all doctors from the patient in the old hospital
+    vector<string> doctorIDs = patient->getAttendingDoctorIDs();
+    string primaryDoctorID = patient->getPrimaryDoctorID();
+    
+    // Handle primary doctor
+    if (!primaryDoctorID.empty()) {
+        Doctor* primaryDoctor = findDoctor(primaryDoctorID);
+        if (primaryDoctor) {
+            primaryDoctor->removePatient(patientID);
+        }
+    }
+    
+    // Handle attending doctors
+    for (const string& docID : doctorIDs) {
+        Doctor* doctor = findDoctor(docID);
+        if (doctor) {
+            doctor->removePatient(patientID);
+        }
+    }
+    
+    // 2. Unassign all nurses from the patient in the old hospital
+    vector<string> nurseIDs = patient->getAttendingNursesIDs();
+    for (const string& nurseID : nurseIDs) {
+        Nurse* nurse = findNurse(nurseID);
+        if (nurse) {
+            nurse->removePatient(patientID);
+        }
+    }
+    
+    // 3. Clear patient's staff assignments
+    patient->getAttendingDoctorIDs().clear();
+    patient->getAttendingNursesIDs().clear();
+    patient->setPrimaryDoctorID("");
+    
+    // 4. Remove patient from current hospital
+    if (!currentHospital->removePatient(patient)) {
+        return false;
+    }
+    
+    // 5. Add patient to new hospital
+    if (!newHospital->admitPatient(patient)) {
+        // If new hospital couldn't admit, re-add to original hospital
+        currentHospital->admitPatient(patient);
+        return false;
+    }
+    
+    return true;
 }
 
 bool HospitalSystem::dischargePatient(string patientID) {
