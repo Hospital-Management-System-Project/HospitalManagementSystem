@@ -20,6 +20,10 @@ vector<string> Doctor::getPatientIDs() const {
     return patientIDs;
 }
 
+void Doctor::setHospitalID(string hospID) {
+    this->hospitalID = hospID;
+}
+
 Doctor::Doctor(string id, string n, string hospID) {
     doctorID = id;
     doctorName = n;

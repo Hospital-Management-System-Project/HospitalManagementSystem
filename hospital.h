@@ -27,10 +27,14 @@ private:
     
 public:
     Hospital(string id, string n);
+    
     bool admitPatient(Patient* patient);
     bool relocatePatient(Patient* patient, Hospital* newHospital);
     void dischargePatient(Patient* patient);
+    
     void addDoctor(Doctor* doctor);
+    bool relocateDoctor(Doctor* doctor, Hospital* newHospital);
+    void removeDoctor(Doctor* doctor);
     void addNurse(Nurse* nurse);
 
     // Getters and setters

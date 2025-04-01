@@ -3,6 +3,7 @@
 #include "pharmacysystem.h"
 #include <sstream>
 #include <iomanip>
+#include <qDebug>
 
 using namespace std;
 
@@ -52,7 +53,18 @@ void Hospital::dischargePatient(Patient* patient) {
 }
 
 void Hospital::addDoctor(Doctor* doctor) {
+    doctor->setHospitalID(getHospitalID());
     doctors.push_back(doctor);
+}
+
+bool Hospital::relocateDoctor(Doctor* doctor, Hospital* newHospital) {
+    newHospital->addDoctor(doctor);
+    doctors.erase(remove(doctors.begin(), doctors.end(), doctor), doctors.end());
+    return true;
+}
+
+void Hospital::removeDoctor(Doctor* doctor) {
+    doctors.erase(remove(doctors.begin(), doctors.end(), doctor), doctors.end());    
 }
 
 void Hospital::addNurse(Nurse* nurse) {

@@ -11,6 +11,7 @@
 #include "hospitalsystem.h"
 #include <QApplication>
 #include <QScrollBar>
+#include <qDebug>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Get the hospital system instance
@@ -123,6 +124,51 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     patientLayout->addLayout(singleHospitalLayout);
     
     patientTab->setLayout(patientLayout);
+
+    // ===== DOCTOR MANAGEMENT TAB =====
+    QWidget* doctorTab = new QWidget(this);
+    QVBoxLayout* doctorLayout = new QVBoxLayout(doctorTab);    
+
+    // Create a form layout for input fields
+    QFormLayout* docManagementFormLayout = new QFormLayout();
+
+    docManageIDInput = new QLineEdit(this);
+    docManageIDInput->setPlaceholderText("Enter Doctor ID");
+    docManagementFormLayout->addRow("Doctor ID:", docManageIDInput);
+
+    doctorNameInput = new QLineEdit(this);
+    doctorNameInput->setPlaceholderText("Enter Doctor Name");
+    docManagementFormLayout->addRow("Name:", doctorNameInput); 
+
+    // Hospital selection for adding or reassigning a doctor
+    docHospitalComboBox = new QComboBox(this);
+    for (auto hospital : hospitalSystem->getAllHospitals()) {
+        docHospitalComboBox->addItem(QString::fromStdString(hospital->getHospitalName()));
+    }
+    docManagementFormLayout->addRow("Assign to Hospital:", docHospitalComboBox);
+
+    docChangeHospitalComboBox = new QComboBox(this);
+    for (auto hospital : hospitalSystem->getAllHospitals()) {
+        docChangeHospitalComboBox->addItem(QString::fromStdString(hospital->getHospitalName()));
+    }
+    docManagementFormLayout->addRow("Reassign to Hospital:", docChangeHospitalComboBox);
+    
+    // Add doctor management widgets to the layout
+    doctorLayout->addLayout(docManagementFormLayout);
+
+    QHBoxLayout* docButtonLayout = new QHBoxLayout();
+    QPushButton* addDoctorButton = new QPushButton("Add Doctor", this);
+    QPushButton* relocateDoctorButton = new QPushButton("Relocate Doctor", this);
+    QPushButton* removeDoctorButton = new QPushButton("Remove Doctor", this);
+    QPushButton* viewDoctorDetailsButton = new QPushButton("View Doctor Details", this);  
+    
+    docButtonLayout->addWidget(addDoctorButton);
+    docButtonLayout->addWidget(relocateDoctorButton);
+    docButtonLayout->addWidget(removeDoctorButton);
+    docButtonLayout->addWidget(viewDoctorDetailsButton);
+
+    doctorLayout->addLayout(docButtonLayout);
+    doctorTab->setLayout(doctorLayout);
     
     // ===== DOCTOR-PATIENT TAB =====
     QWidget* doctorPatientTab = new QWidget(this);
@@ -284,6 +330,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     // Add the tabs to the tab widget
     tabWidget->addTab(patientTab, "Patient Management");
+    tabWidget->addTab(doctorTab, "Doctor Management");
     tabWidget->addTab(doctorPatientTab, "Doctor-Patient");
     tabWidget->addTab(nursePatientTab, "Nurse-Patient");
     tabWidget->addTab(billingTab, "Billing");
@@ -310,6 +357,12 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(displayStatusButton, &QPushButton::clicked, this, &MainWindow::displayHospitalStatus);
     connect(displayPharmacyButton, &QPushButton::clicked, this, &MainWindow::displayPharmacyStatus);
     connect(viewPatientDetailsButton, &QPushButton::clicked, this, &MainWindow::viewPatientDetails);
+
+    connect(addDoctorButton, &QPushButton::clicked, this, &MainWindow::addDoctor);
+    connect(relocateDoctorButton, &QPushButton::clicked, this, &MainWindow::relocateDoctor);
+    connect(removeDoctorButton, &QPushButton::clicked, this, &MainWindow::removeDoctor);
+    // connect(viewDoctorDetailsButton, &QPushButton::clicked, this, &MainWindow::viewDoctorDetails);
+
     connect(assignDoctorButton, &QPushButton::clicked, this, &MainWindow::assignDoctorToPatient);
     connect(setPrimaryDoctorButton, &QPushButton::clicked, this, [this]() {
         // Lambda to call assignDoctorToPatient with isPrimary=true
@@ -648,6 +701,111 @@ void MainWindow::viewPatientBillingHistory() {
     statusDisplay->append("Current Total: $" + QString::number(patient->calculateCurrentBill(), 'f', 2));
     statusDisplay->append("Status: " + QString::fromStdString(patient->getStatus()));
     statusDisplay->append("\nNote: Additional charges for medications and services may apply.");
+}
+
+void MainWindow::addDoctor() {
+
+    string docID = docManageIDInput->text().toStdString();
+    string docName = doctorNameInput->text().toStdString();
+    int hospitalIndex = docHospitalComboBox->currentIndex();
+
+    // Validate inputs
+    if (docID.empty() || docName.empty()) {
+        statusDisplay->append("Error: All fields must be filled out.");
+        return;
+    }
+    
+    // Check if doctor already exists
+    if (hospitalSystem->findDoctor(docID)) {
+        statusDisplay->append("Error: Doctor ID already exists.");
+        return;
+    }
+
+    Doctor* doctor = new Doctor(docID, docName, hospitalSystem->getHospital(hospitalIndex)->getHospitalID());
+
+    if (hospitalSystem->addDoctor(doctor, hospitalIndex)) {
+        statusDisplay->append("Doctor added successfully to " + 
+            docHospitalComboBox->currentText());        
+        docManageIDInput->clear();
+        doctorNameInput->clear();
+    } else {
+        statusDisplay->append("Error: There are already 50 doctors");
+        delete doctor;
+        return;
+    }
+
+}
+
+void MainWindow::relocateDoctor() {
+    
+    string docID = docManageIDInput->text().toStdString();
+    int newHospitalIndex = docChangeHospitalComboBox->currentIndex();
+
+    if (docID.empty()) {
+        statusDisplay->append("Error: Doctor ID must be provided.");
+        return;
+    }
+
+    Doctor* doctor = hospitalSystem->findDoctor(docID);
+
+    if (!doctor) {
+        statusDisplay->append("Error: Doctor not found.");
+        return;
+    }    
+
+    Hospital* currentHospital = hospitalSystem->findDoctorHospital(docID);
+    Hospital* newHospital = hospitalSystem->getHospital(newHospitalIndex);
+    
+    if (!currentHospital || !newHospital) {
+        statusDisplay->append("Error: Hospital selection is invalid.");
+        return;
+    }
+
+    if (currentHospital->getHospitalID() == newHospital->getHospitalID()) {
+        statusDisplay->append("Error: Doctor is already in the hospital you selected.");
+        return;        
+    }
+
+    if (!doctor->getPatientIDs().empty()) {
+        statusDisplay->append("Error: Doctor has assigned patients and can't be moved. Either assign the patients to another doctor or discharge them when they're done.");
+        return;          
+    }
+
+    if (hospitalSystem->relocateDoctor(docID, newHospitalIndex)) {
+        statusDisplay->append("Doctor " + QString::fromStdString(docID) +
+        " relocated to " + docChangeHospitalComboBox->currentText());        
+    } else {
+        statusDisplay->append("Error: Unexpected"); 
+    }
+}
+
+void MainWindow::removeDoctor() {
+    string docID = docManageIDInput->text().toStdString();
+
+    if (docID.empty()) {
+        statusDisplay->append("Error: Doctor ID must be provided.");
+        return;
+    }
+
+    Doctor* doctor = hospitalSystem->findDoctor(docID);
+    qDebug() << doctor->getDoctorID();
+
+    if (!doctor) {
+        statusDisplay->append("Error: Doctor not found.");
+        return;
+    }
+
+    if (!doctor->getPatientIDs().empty()) {
+        statusDisplay->append("Error: Doctor has assigned patients and can't be removed. Either assign the patients to another doctor or discharge them when they're done.");
+        return;          
+    }
+
+    if (hospitalSystem->removeDoctor(docID)) {
+        statusDisplay->append("Doctor " + QString::fromStdString(docID) +
+        " removed from system.");            
+    } else {
+        statusDisplay->append("Error: Unexpected");
+    }
 }
 
 void MainWindow::assignDoctorToPatient(bool isPrimary) {

@@ -3,6 +3,7 @@
 #include <sstream>
 #include <iomanip>
 #include "pharmacysystem.h"
+#include <qDebug>
 
 using namespace std;
 
@@ -55,7 +56,7 @@ void HospitalSystem::initializeDoctors() {
         "Dr. Allen", "Dr. King", "Dr. Wright", "Dr. Scott", "Dr. Torres",
         "Dr. Nguyen", "Dr. Hill", "Dr. Flores", "Dr. Green", "Dr. Adams",
         "Dr. Nelson", "Dr. Baker", "Dr. Hall", "Dr. Rivera", "Dr. Campbell",
-        "Dr. Mitchell", "Dr. Carter", "Dr. Roberts", "Dr. Gomez", "Dr. Morgan"
+        "Dr. Mitchell", "Dr. Carter", "Dr. Roberts"
     };
 
     int doctorIndex = 0;
@@ -73,7 +74,7 @@ void HospitalSystem::initializeDoctors() {
     }
 
     // Step 2: Randomly assign the rest to any hospital
-    while (doctorIndex < 50) {
+    while (doctorIndex < 48) {
         int randomHospitalIndex = rand() % numHospitals;
         string doctorID = "D" + to_string(doctorIndex + 1);
         Doctor* doctor = new Doctor(doctorID, doctorNames[doctorIndex], hospitals[randomHospitalIndex]->getHospitalID());
@@ -195,6 +196,58 @@ bool HospitalSystem::dischargePatient(string patientID) {
     return true;
 }
 
+bool HospitalSystem::addDoctor(Doctor* doctor, int hospitalIndex) {
+    
+    // Validate hospital index
+    if (hospitalIndex < 0 || static_cast<size_t>(hospitalIndex) >= hospitals.size()) {
+        return false;
+    }
+    
+    // Check if there are more than 50 doctors
+    if (doctors.size() >= 50) {
+        return false;
+    }
+
+    Hospital* hospitalToAssign = getHospital(hospitalIndex);
+    hospitalToAssign->addDoctor(doctor);
+    doctors.insert({doctor->getDoctorID(), doctor});
+    return true;
+}
+
+bool HospitalSystem::relocateDoctor(string doctorID, int newHospitalIndex) {
+    // Validate hospital index
+    if (newHospitalIndex < 0 || static_cast<size_t>(newHospitalIndex) >= hospitals.size()) {
+        return false;
+    }
+    
+    Doctor* doctor = findDoctor(doctorID);
+    if (!doctor) {
+        return false;
+    }
+    
+    Hospital* currentHospital = findDoctorHospital(doctorID);
+    if (!currentHospital) {
+        return false;
+    }
+    
+    return currentHospital->relocateDoctor(doctor, hospitals[newHospitalIndex]);
+}
+
+bool HospitalSystem::removeDoctor(string doctorID) {
+    Doctor* doctor = findDoctor(doctorID);
+    if (!doctor) {
+        return false;
+    }    
+
+    Hospital* currentHospital = findDoctorHospital(doctorID);
+    if (!currentHospital) {
+        return false;
+    }
+    
+    currentHospital->removeDoctor(doctor);
+    return true;
+}
+
 Hospital* HospitalSystem::getHospital(int index) {
     if (index >= 0 && static_cast<size_t>(index) < hospitals.size()) {
         return hospitals[index];
@@ -227,6 +280,23 @@ Hospital* HospitalSystem::findPatientHospital(string patientID) {
             return hospital;
         }
     }
+    return nullptr;
+}
+
+Hospital* HospitalSystem::findDoctorHospital(string doctorID) {
+    Doctor* doctor = findDoctor(doctorID);
+    if (!doctor) {
+        return nullptr;
+    }
+
+    for (auto hospital: hospitals) {
+        for (Doctor* doc: hospital->getDoctors()) {
+            if (doctor->getDoctorID() == doc->getDoctorID()) {
+                return hospital;
+            }
+        } 
+    }
+
     return nullptr;
 }
 
