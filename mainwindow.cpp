@@ -624,11 +624,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     sizes << 700 << 300;
     mainSplitter->setSizes(sizes);
     
-    // Add a horizontal line separator between the main areas
-    QFrame* line = new QFrame();
-    line->setFrameShape(QFrame::HLine);
-    line->setFrameShadow(QFrame::Sunken);
-
     // Create a clear button for the status display
     QPushButton* clearDisplayButton = new QPushButton("Clear Display");
     clearDisplayButton->setStyleSheet(R"(
@@ -647,7 +642,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     // Add widgets to the main layout
     mainLayout->addWidget(mainSplitter, 1);
-    mainLayout->addWidget(line);
     mainLayout->addWidget(clearDisplayButton);
 
     centralWidget->setLayout(mainLayout);
@@ -880,6 +874,117 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
             color: #f0f0f0;
             border: 1px solid #555;
             padding: 3px;
+        }
+
+        QComboBox QAbstractItemView {
+            background-color: #3c3f41;
+            color: #f0f0f0;
+            border: 1px solid #555;
+        }
+
+        QComboBox::down-arrow {
+            image: url(:/images/down.png);
+            width: 12px;
+            height: 12px;
+        }
+
+        QComboBox::drop-down {
+            border: none;
+            width: 20px;
+            subcontrol-position: center right;
+            subcontrol-origin: padding;
+            padding-right: 5px;
+            background-color: transparent;
+        }
+
+        QSpinBox::up-button, QDoubleSpinBox::up-button {
+            image: url(:/images/up.png);
+            width: 8px;
+            height: 8px;
+            subcontrol-position: top right;
+            subcontrol-origin: margin;
+            margin: 2px;
+            padding: 4px;
+            border: none;
+            background-color: transparent;
+        }
+
+        QSpinBox::down-button, QDoubleSpinBox::down-button {
+            image: url(:/images/down.png);
+            width: 12px;
+            height: 12px;
+            subcontrol-position: bottom right;
+            subcontrol-origin: margin;
+            margin: 2px;
+            padding: 2px;
+            border: none;
+            background-color: transparent;
+        }
+
+        QPushButton {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+        }
+        QPushButton:hover {
+            background-color: #357ABD;
+        }
+        QPushButton:pressed {
+            background-color: #2868A0;
+        }
+        QPushButton:disabled {
+            background-color: #555555;
+            color: #aaaaaa;
+        }
+
+        /* Improved tab styling for a clean, professional look */
+        QTabWidget::pane {
+            border: 1px solid #444;
+            border-top-width: 0px;
+            border-radius: 0 0 4px 4px;
+            padding: 10px;
+            background-color: #2d2d2d;
+            top: -1px;
+        }
+
+        QTabBar {
+            background-color: transparent;
+            margin-top: 10px; /* Add margin to move tabs down */
+        }
+
+        QTabWidget::tab-bar {
+            alignment: left;
+            background: transparent;
+            margin-top: 8px; /* Add margin to move tabs down */
+        }
+
+        QTabBar::tab {
+            background: #323232;
+            color: #b8b8b8;
+            padding: 12px 20px;
+            border: 1px solid #444;
+            border-bottom: none;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            min-width: 130px;
+            font-weight: bold;
+            margin-right: 3px;
+            transition: background-color 0.3s;
+        }
+
+        QTabBar::tab:hover {
+            background-color: #3a3a3a;
+            color: #ffffff;
+        }
+
+        QTabBar::tab:selected {
+            background: #4a90e2;
+            color: white;
+            border-bottom: none;
+            margin-bottom: -1px;
+            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.3);
         }
     )");
 }
