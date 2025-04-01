@@ -44,7 +44,8 @@ public:
 
     vector<Patient*> getPatients() const;
     vector<Doctor*> getDoctors() const;
-    vector<Nurse*> getNurses()const;   
+    vector<Nurse*> getNurses()const;
+    vector<Nurse*>& getNurses();
     
     // Patient billing methods
     void updatePatientDays(); // Call this daily to increment days

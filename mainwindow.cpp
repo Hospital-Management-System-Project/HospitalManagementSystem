@@ -374,6 +374,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Add the tabs to the tab widget
     tabWidget->addTab(patientTab, "Patient Management");
     tabWidget->addTab(doctorTab, "Doctor Management");
+    tabWidget->addTab(nurseTab, "Nurse Management");
     tabWidget->addTab(doctorPatientTab, "Doctor-Patient");
     tabWidget->addTab(nursePatientTab, "Nurse-Patient");
     tabWidget->addTab(billingTab, "Billing");

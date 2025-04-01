@@ -34,20 +34,20 @@ bool Hospital::relocatePatient(Patient* patient, Hospital* newHospital) {
 void Hospital::dischargePatient(Patient* patient) {
     // Mark the patient as discharged
     patient->setDischarged(true);
-    
+
     // Final billing
     totalPatientBillings += patient->calculateCurrentBill();
-    
+
     // Update doctor assignments
     for (auto doctor : doctors) {
         doctor->removePatient(patient->getPatientID());
     }
-    
+
     // Update nurse assignments
     for (auto nurse : nurses) {
         nurse->removePatient(patient->getPatientID());
     }
-    
+
     // Remove from patient list
     patients.erase(remove(patients.begin(), patients.end(), patient), patients.end());
 }
@@ -72,8 +72,8 @@ void Hospital::removeDoctor(Doctor* doctor) {
     if (!doctor->getPatientIDs().empty()) {
         throw std::runtime_error("Cannot Remove Doctor With Assigned Patients");
     }
-    
-    doctors.erase(remove(doctors.begin(), doctors.end(), doctor), doctors.end());    
+
+    doctors.erase(remove(doctors.begin(), doctors.end(), doctor), doctors.end());
 }
 
 void Hospital::addNurse(Nurse* nurse) {
@@ -86,7 +86,7 @@ void Hospital::removeNurse(Nurse* nurse) {
     if (!nurse->getPatientIDs().empty()) {
         throw std::runtime_error("Cannot remove nurse with assigned patients");
     }
-    
+
     nurses.erase(remove(nurses.begin(), nurses.end(), nurse), nurses.end());
 }
 
@@ -107,6 +107,10 @@ vector<Doctor*> Hospital::getDoctors() const {
 }
 
 vector<Nurse*> Hospital::getNurses()const {
+    return nurses;
+}
+
+vector<Nurse*>& Hospital::getNurses() {
     return nurses;
 }
 
@@ -132,22 +136,22 @@ bool Hospital::collectPaymentFromPatient(string patientID, double amount) {
         if (patient->getPatientID() == patientID) {
             double bill = patient->calculateCurrentBill();
             double alreadyPaid = 0.0;
-            
+
             // Get any existing payments
             auto it = patientPayments.find(patientID);
             if (it != patientPayments.end()) {
                 alreadyPaid = it->second;
             }
-            
+
             // Calculate remaining balance
             double remainingBalance = bill - alreadyPaid;
-            
+
             // Check if payment exceeds remaining bill
-            // Allow paying the exact amount (changed from > to >) 
+            // Allow paying the exact amount (changed from > to >)
             if (amount > remainingBalance) {
                 return false; // Payment exceeds remaining bill
             }
-            
+
             // Update payment records
             collectedPayments += amount;
             patientPayments[patientID] = alreadyPaid + amount;
@@ -161,13 +165,13 @@ double Hospital::getPatientRemainingBalance(string patientID) const {
     for (auto patient : patients) {
         if (patient->getPatientID() == patientID) {
             double bill = patient->calculateCurrentBill();
-            
+
             // Check for payments
             auto it = patientPayments.find(patientID);
             if (it != patientPayments.end()) {
                 return bill - it->second;
             }
-            
+
             return bill; // No payments yet
         }
     }
@@ -183,32 +187,32 @@ bool Hospital::requestPatientDischarge(string doctorID, string patientID) {
             break;
         }
     }
-    
+
     if (!doctor) {
         return false; // Doctor not found
     }
-    
+
     return doctor->requestPatientDischarge(patientID);
 }
 
 string Hospital::getPatientBillingReport() const {
     stringstream report;
-    
+
     report << "===== " << hospitalName << " Patient Billing Report =====\n\n";
-    report << left << setw(15) << "Patient ID" << setw(25) << "Name" 
+    report << left << setw(15) << "Patient ID" << setw(25) << "Name"
            << setw(10) << "Days" << setw(15) << "Amount Due" << setw(15) << "Status" << "\n";
     report << string(80, '-') << "\n";
-    
+
     for (auto patient : patients) {
-        report << left << setw(15) << patient->getPatientID() 
-               << setw(25) << patient->getPatientName() 
-               << setw(10) << patient->getDaysAdmitted() 
+        report << left << setw(15) << patient->getPatientID()
+               << setw(25) << patient->getPatientName()
+               << setw(10) << patient->getDaysAdmitted()
                << "$" << setw(14) << fixed << setprecision(2) << patient->calculateCurrentBill()
                << setw(15) << patient->getStatus() << "\n";
     }
-    
+
     report << "\n";
     report << "Total Billing: $" << fixed << setprecision(2) << getTotalPatientBills() << "\n";
-    
+
     return report.str();
 }

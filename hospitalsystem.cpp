@@ -311,7 +311,7 @@ bool HospitalSystem::relocateNurse(const std::string& nurseID, int newHospitalIn
     }
     
     // Remove from current hospital's nurse list
-    auto& currentNurses = const_cast<vector<Nurse*>&>(currentHospital->getNurses());
+    auto& currentNurses = currentHospital->getNurses();
     currentNurses.erase(remove(currentNurses.begin(), currentNurses.end(), nurse), currentNurses.end());
     
     // Update nurse's hospital ID
@@ -323,7 +323,7 @@ bool HospitalSystem::relocateNurse(const std::string& nurseID, int newHospitalIn
     return true;
 }
 
-bool HospitalSystem::removeNurse(string nurseID) {
+bool HospitalSystem::removeNurse(const std::string& nurseID) {
     Nurse* nurse = findNurse(nurseID);
     if (!nurse) {
         return false;
