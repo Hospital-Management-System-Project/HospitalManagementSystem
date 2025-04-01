@@ -33,6 +33,7 @@ make
 
 # Run the application
 ./HospitalManagementSystem         # Linux/macOS
+open HospitalManagementSystem.app  # macOS
 HospitalManagementSystem.exe       # Windows
 ```
 
