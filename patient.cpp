@@ -60,7 +60,7 @@ void Patient::applyRateIncrease(double percentage) {
 void Patient::incrementDaysAdmitted() {
     daysAdmitted++;
     
-    std::cout << "Days admitted for patient " << patientID << " incremented to " << daysAdmitted << std::endl;
+    //std::cout << "Days admitted for patient " << patientID << " incremented to " << daysAdmitted << std::endl;
     
     // Apply a rate increase every 3 days
     if (daysAdmitted % 3 == 0 && daysAdmitted > 0) {
