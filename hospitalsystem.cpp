@@ -153,6 +153,7 @@ bool HospitalSystem::admitPatient(Patient* patient, int hospitalIndex) {
     return false;
 }
 
+// TODO: FIX
 bool HospitalSystem::relocatePatient(string patientID, int newHospitalIndex) {
     // Validate hospital index
     if (newHospitalIndex < 0 || static_cast<size_t>(newHospitalIndex) >= hospitals.size()) {
