@@ -74,7 +74,7 @@ qmake HospitalManagementSystem.pro
 make
 
 # Run the application
-./HospitalManagementSystem   # Or 'HospitalManagementSystem.exe' on Windows
+./HospitalManagementSystem   # Also open HospitalManagementSystem.app for Mac Or 'HospitalManagementSystem.exe' on Windows
 ```
 
 ---
