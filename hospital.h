@@ -36,6 +36,7 @@ public:
     bool relocateDoctor(Doctor* doctor, Hospital* newHospital);
     void removeDoctor(Doctor* doctor);
     void addNurse(Nurse* nurse);
+    void removeNurse(Nurse* nurse);
 
     // Getters and setters
     string getHospitalID() const;
@@ -43,7 +44,8 @@ public:
 
     vector<Patient*> getPatients() const;
     vector<Doctor*> getDoctors() const;
-    vector<Nurse*> getNurses()const;   
+    vector<Nurse*> getNurses()const;
+    vector<Nurse*>& getNurses();
     
     // Patient billing methods
     void updatePatientDays(); // Call this daily to increment days

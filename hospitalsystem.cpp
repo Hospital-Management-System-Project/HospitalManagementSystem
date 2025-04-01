@@ -272,6 +272,89 @@ bool HospitalSystem::removeDoctor(string doctorID) {
     }
 }
 
+bool HospitalSystem::addNurse(Nurse* nurse, int hospitalIndex) {
+    // Validate hospital index
+    if (hospitalIndex < 0 || static_cast<size_t>(hospitalIndex) >= hospitals.size()) {
+        return false;
+    }
+    
+    // Check if there are more than 60 nurses
+    if (nurses.size() >= 60) {
+        return false;
+    }
+
+    Hospital* hospitalToAssign = getHospital(hospitalIndex);
+    hospitalToAssign->addNurse(nurse);
+    nurses.insert({nurse->getNurseID(), nurse});
+    return true;    
+}
+
+bool HospitalSystem::relocateNurse(const std::string& nurseID, int newHospitalIndex) {
+    // Validate hospital index
+    if (newHospitalIndex < 0 || static_cast<size_t>(newHospitalIndex) >= hospitals.size()) {
+        return false;
+    }
+    
+    Nurse* nurse = findNurse(nurseID);
+    if (!nurse) {
+        return false;
+    }
+    
+    Hospital* currentHospital = findNurseHospital(nurseID);
+    if (!currentHospital) {
+        return false;
+    }
+    
+    // Check if nurse has patients
+    if (!nurse->getPatientIDs().empty()) {
+        return false; // Cannot relocate nurse with patients
+    }
+    
+    // Remove from current hospital's nurse list
+    auto& currentNurses = currentHospital->getNurses();
+    currentNurses.erase(remove(currentNurses.begin(), currentNurses.end(), nurse), currentNurses.end());
+    
+    // Update nurse's hospital ID
+    nurse->setHospitalID(hospitals[newHospitalIndex]->getHospitalID());
+    
+    // Add to new hospital
+    hospitals[newHospitalIndex]->addNurse(nurse);
+    
+    return true;
+}
+
+bool HospitalSystem::removeNurse(const std::string& nurseID) {
+    Nurse* nurse = findNurse(nurseID);
+    if (!nurse) {
+        return false;
+    }
+    
+    Hospital* currentHospital = findNurseHospital(nurseID);
+    if (!currentHospital) {
+        return false;
+    }
+    
+    // Check if removing this nurse would leave fewer than 3 nurses in the hospital
+    if (currentHospital->getNurses().size() <= 3) {
+        return false; // Must maintain at least 3 nurses
+    }
+    
+    // Check if nurse has patients
+    if (!nurse->getPatientIDs().empty()) {
+        return false; // Cannot remove nurse with assigned patients
+    }
+    
+    // Remove from current hospital's nurse list
+    auto& currentNurses = const_cast<vector<Nurse*>&>(currentHospital->getNurses());
+    currentNurses.erase(remove(currentNurses.begin(), currentNurses.end(), nurse), currentNurses.end());
+    
+    // Remove from nurses map and delete
+    nurses.erase(nurseID);
+    delete nurse;
+    
+    return true;
+}
+
 Hospital* HospitalSystem::getHospital(int index) {
     if (index >= 0 && static_cast<size_t>(index) < hospitals.size()) {
         return hospitals[index];
@@ -320,7 +403,22 @@ Hospital* HospitalSystem::findDoctorHospital(string doctorID) {
             }
         } 
     }
+    return nullptr;
+}
 
+Hospital* HospitalSystem::findNurseHospital(string nurseID) {
+    Nurse* nurse = findNurse(nurseID);
+    if (!nurse) {
+        return nullptr;
+    }
+
+    for (auto hospital : hospitals) {
+        for (Nurse* nur : hospital->getNurses()) {
+            if (nurse->getNurseID() == nur->getNurseID()) {
+                return hospital;
+            }
+        } 
+    }
     return nullptr;
 }
 

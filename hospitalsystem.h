@@ -38,6 +38,7 @@ public:
     Patient* findPatient(string patientID);
     Hospital* findPatientHospital(string patientID);
     Hospital* findDoctorHospital(string doctorID);
+    Hospital* findNurseHospital(string nurseID);
     string getHospitalStatus();
     
     // Patient billing methods
@@ -59,6 +60,8 @@ public:
     Doctor* findDoctor(string doctorID);
     bool addDoctor(Doctor* doctor, int hospitalIndex);
     bool relocateDoctor(string doctorID, int newHospitalIndex);
+    bool relocateNurse(const std::string& nurseID, int newHospitalIndex);
+    bool removeNurse(const std::string& nurseID);
     bool removeDoctor(string doctorID);
     bool assignDoctorToPatient(string doctorID, string patientID, bool isPrimary = false);
     bool setPatientPrimaryDoctor(string patientID, string doctorID);
@@ -66,6 +69,7 @@ public:
     // Nurse management
     void initializeNurses();
     Nurse* findNurse(string nurseID);
+    bool addNurse(Nurse* nurse, int hospitalIndex);
     bool assignNurseToPatient(string nurseID, string patientID);
 };
 

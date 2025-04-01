@@ -39,6 +39,13 @@ private slots:
     void relocateDoctor();
     void removeDoctor();
     void viewDoctorDetails();
+    void listAllDoctors();
+
+    void addNurse();
+    void relocateNurse();
+    void removeNurse();
+    void viewNurseDetails();
+    void listAllNurses();
 
     void assignDoctorToPatient(bool isPrimary = false);
     void assignNurseToPatient();
@@ -72,6 +79,12 @@ private:
     QLineEdit* doctorNameInput;
     QComboBox* docHospitalComboBox;
     QComboBox* docChangeHospitalComboBox;
+
+    // Nurse management tab
+    QLineEdit* nurseManageIDInput;
+    QLineEdit* nurseNameInput;
+    QComboBox* nurseHospitalComboBox;
+    QComboBox* nurseChangeHospitalComboBox;
 
     // Doctor-patient tab
     QLineEdit* doctorAssignmentIDInput;
