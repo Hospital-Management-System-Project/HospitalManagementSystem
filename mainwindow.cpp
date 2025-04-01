@@ -169,6 +169,49 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
     doctorLayout->addLayout(docButtonLayout);
     doctorTab->setLayout(doctorLayout);
+
+    // ===== NURSE MANAGEMENT TAB =====
+    QWidget* nurseTab = new QWidget(this);
+    QVBoxLayout* nurseLayout = new QVBoxLayout(nurseTab);
+
+    // Form layout for input fields
+    QFormLayout* nurseManagementFormLayout = new QFormLayout();
+
+    nurseManageIDInput = new QLineEdit(this);
+    nurseManageIDInput->setPlaceholderText("Enter Nurse ID");
+    nurseManagementFormLayout->addRow("Nurse ID:", nurseManageIDInput);
+
+    nurseNameInput = new QLineEdit(this);
+    nurseNameInput->setPlaceholderText("Enter Nurse Name");
+    nurseManagementFormLayout->addRow("Name:", nurseNameInput);
+
+    // Hospital selection
+    nurseHospitalComboBox = new QComboBox(this);
+    nurseChangeHospitalComboBox = new QComboBox(this);
+    for (auto hospital : hospitalSystem->getAllHospitals()) {
+        QString name = QString::fromStdString(hospital->getHospitalName());
+        nurseHospitalComboBox->addItem(name);
+        nurseChangeHospitalComboBox->addItem(name);
+    }
+    nurseManagementFormLayout->addRow("Assign to Hospital:", nurseHospitalComboBox);
+    nurseManagementFormLayout->addRow("Reassign to Hospital:", nurseChangeHospitalComboBox);
+
+    nurseLayout->addLayout(nurseManagementFormLayout);
+
+    // Buttons
+    QHBoxLayout* nurseManagementButtonLayout  = new QHBoxLayout();
+    QPushButton* addNurseButton = new QPushButton("Add Nurse", this);
+    QPushButton* relocateNurseButton = new QPushButton("Relocate Nurse", this);
+    QPushButton* removeNurseButton = new QPushButton("Remove Nurse", this);
+    QPushButton* viewNurseDetailsButton = new QPushButton("View Nurse Details", this);
+
+    nurseManagementButtonLayout->addWidget(addNurseButton);
+    nurseManagementButtonLayout->addWidget(relocateNurseButton);
+    nurseManagementButtonLayout->addWidget(removeNurseButton);
+    nurseManagementButtonLayout->addWidget(viewNurseDetailsButton);
+
+    nurseLayout->addLayout(nurseManagementButtonLayout);
+    nurseTab->setLayout(nurseLayout);
     
     // ===== DOCTOR-PATIENT TAB =====
     QWidget* doctorPatientTab = new QWidget(this);
@@ -362,6 +405,11 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(relocateDoctorButton, &QPushButton::clicked, this, &MainWindow::relocateDoctor);
     connect(removeDoctorButton, &QPushButton::clicked, this, &MainWindow::removeDoctor);
     connect(viewDoctorDetailsButton, &QPushButton::clicked, this, &MainWindow::viewDoctorDetails);
+
+    connect(addNurseButton, &QPushButton::clicked, this, &MainWindow::addNurse);
+    connect(relocateNurseButton, &QPushButton::clicked, this, &MainWindow::relocateNurse);
+    connect(removeNurseButton, &QPushButton::clicked, this, &MainWindow::removeNurse);
+    connect(viewNurseDetailsButton, &QPushButton::clicked, this, &MainWindow::viewNurseDetails);
 
     connect(assignDoctorButton, &QPushButton::clicked, this, &MainWindow::assignDoctorToPatient);
     connect(setPrimaryDoctorButton, &QPushButton::clicked, this, [this]() {
@@ -1322,4 +1370,133 @@ void MainWindow::displaySelectedHospitalStatus() {
     } else {
         statusDisplay->append("No Patients Currently Admitted To This Hospital!");
     }
+}
+
+void MainWindow::addNurse() {
+    string nurseID = nurseManageIDInput->text().toStdString();
+    string nurseName = nurseNameInput->text().toStdString();
+    int hospitalIndex = nurseHospitalComboBox->currentIndex();
+
+    if (nurseID.empty() || nurseName.empty()) {
+        statusDisplay->append("Error: All fields must be filled out.");
+        return;
+    }
+
+    if (hospitalSystem->findNurse(nurseID)) {
+        statusDisplay->append("Error: Nurse ID already exists.");
+        return;
+    }
+
+    Nurse* nurse = new Nurse(nurseID, nurseName, hospitalSystem->getHospital(hospitalIndex)->getHospitalID());
+
+    if (hospitalSystem->addNurse(nurse, hospitalIndex)) {
+        statusDisplay->append("Nurse added successfully to " + nurseHospitalComboBox->currentText());
+        nurseManageIDInput->clear();
+        nurseNameInput->clear();
+    } else {
+        statusDisplay->append("Error: There are already 20 nurses in this hospital.");
+        delete nurse;
+    }
+}
+
+void MainWindow::relocateNurse() {
+    string nurseID = nurseManageIDInput->text().toStdString();
+    int newHospitalIndex = nurseChangeHospitalComboBox->currentIndex();
+
+    if (nurseID.empty()) {
+        statusDisplay->append("Error: Nurse ID must be provided.");
+        return;
+    }
+
+    Nurse* nurse = hospitalSystem->findNurse(nurseID);
+    if (!nurse) {
+        statusDisplay->append("Error: Nurse not found.");
+        return;
+    }
+
+    Hospital* currentHospital = hospitalSystem->findNurseHospital(nurseID);
+    Hospital* newHospital = hospitalSystem->getHospital(newHospitalIndex);
+
+    if (!currentHospital || !newHospital) {
+        statusDisplay->append("Error: Hospital selection is invalid.");
+        return;
+    }
+
+    if (currentHospital->getHospitalID() == newHospital->getHospitalID()) {
+        statusDisplay->append("Error: Nurse is already in the selected hospital.");
+        return;
+    }
+
+    if (!nurse->getPatientIDs().empty()) {
+        statusDisplay->append("Error: Nurse is assigned to patients. Reassign or discharge them first.");
+        return;
+    }
+
+    if (hospitalSystem->relocateNurse(nurseID, newHospitalIndex)) {
+        statusDisplay->append("Nurse " + QString::fromStdString(nurseID) +
+                              " relocated to " + nurseChangeHospitalComboBox->currentText());
+    } else {
+        statusDisplay->append("Error: Could not relocate nurse.");
+    }
+}
+
+void MainWindow::removeNurse() {
+    string nurseID = nurseManageIDInput->text().toStdString();
+
+    if (nurseID.empty()) {
+        statusDisplay->append("Error: Nurse ID must be provided.");
+        return;
+    }
+
+    Nurse* nurse = hospitalSystem->findNurse(nurseID);
+    if (!nurse) {
+        statusDisplay->append("Error: Nurse not found or already removed.");
+        return;
+    }
+
+    if (!nurse->getPatientIDs().empty()) {
+        statusDisplay->append("Error: Nurse is assigned to patients and cannot be removed.");
+        return;
+    }
+
+    Hospital* hospital = hospitalSystem->findNurseHospital(nurseID);
+    if (!hospital) {
+        statusDisplay->append("Error: Could not determine nurse's hospital.");
+        return;
+    }
+
+    if (hospital->getNurses().size() <= 3) {
+        statusDisplay->append("Error: Hospital must maintain at least 3 nurses.");
+        return;
+    }
+
+    if (hospitalSystem->removeNurse(nurseID)) {
+        statusDisplay->append("Nurse " + QString::fromStdString(nurseID) + " removed successfully.");
+    } else {
+        statusDisplay->append("Error: Failed to remove nurse.");
+    }
+}
+
+void MainWindow::viewNurseDetails() {
+    string nurseID = nurseManageIDInput->text().toStdString();
+
+    if (nurseID.empty()) {
+        statusDisplay->append("Error: Enter Nurse ID to view details.");
+        return;
+    }
+
+    Nurse* nurse = hospitalSystem->findNurse(nurseID);
+    if (!nurse) {
+        statusDisplay->append("Nurse not found.");
+        return;
+    }
+
+    Hospital* hospital = hospitalSystem->findNurseHospital(nurseID);
+    if (!hospital) {
+        statusDisplay->append("Error: Cannot determine nurse's hospital.");
+        return;
+    }
+
+    statusDisplay->append(QString::fromStdString(nurse->getFullDescription()));
+    statusDisplay->append("Working in Hospital: " + QString::fromStdString(hospital->getHospitalName()));
 }
