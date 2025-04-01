@@ -143,32 +143,16 @@ string Patient::getPatientID() const {
     return patientID;
 }
 
-void Patient::setPatientID(const string& id) {
-    patientID = id;
-}
-
 string Patient::getPatientName() const {
     return patientName;
-}
-
-void Patient::setPatientName(const string& name) {
-    patientName = name;
 }
 
 string Patient::getDisease() const {
     return disease;
 }
 
-void Patient::setDisease(const string& currentDisease) {
-    disease = currentDisease;
-}
-
 int Patient::getDaysAdmitted() const {
     return daysAdmitted;
-}
-
-void Patient::setDaysAdmitted(int days) {
-    daysAdmitted = days;
 }
 
 string Patient::getPrimaryDoctorID() const {
@@ -197,14 +181,6 @@ const vector<string>& Patient::getAttendingNursesIDs() const {
 
 double Patient::getBillingRatePerDay() const {
     return billingRatePerDay;
-}
-
-void Patient::setBillingRatePerDay(double rate) {
-    billingRatePerDay = rate;
-}
-
-bool Patient::isDischarged() const {
-    return discharged;
 }
 
 void Patient::setDischarged(bool status) {
