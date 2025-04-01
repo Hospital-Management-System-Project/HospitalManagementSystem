@@ -25,10 +25,6 @@ string Pharmacy::getPharmacyName() const {
     return pharmacyName;
 }
 
-const vector<Prescription>& Pharmacy::getPrescriptions() const {
-    return prescriptions;
-}
-
 double Pharmacy::getPendingPayments() const {
     double total = 0.0;
     for (const auto& b : bills) {
