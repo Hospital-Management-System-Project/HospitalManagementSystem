@@ -3,7 +3,7 @@
 #include "pharmacysystem.h"
 #include <sstream>
 #include <iomanip>
-#include <qDebug>
+#include <QDebug>
 
 using namespace std;
 
@@ -103,7 +103,7 @@ vector<Nurse*> Hospital::getNurses()const {
 void Hospital::updatePatientDays() {
     // Increment days for all admitted patients
     for (auto patient : patients) {
-        if (!patient->getStatus().compare("Discharged")) {
+        if (patient->getStatus().compare("Discharged") != 0) {
             patient->incrementDaysAdmitted();
         }
     }

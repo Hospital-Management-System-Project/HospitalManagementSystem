@@ -11,7 +11,7 @@
 #include "hospitalsystem.h"
 #include <QApplication>
 #include <QScrollBar>
-#include <qDebug>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Get the hospital system instance
@@ -378,7 +378,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Set up timer for daily updates
     dayUpdateTimer = new QTimer(this);
     connect(dayUpdateTimer, &QTimer::timeout, this, &MainWindow::updateDayCounter);
-    dayUpdateTimer->start(86400000); // 24 hours in milliseconds
+    dayUpdateTimer->start(86400000); // 24 hours in milliseconds (changed from 30000ms testing interval)
     hospitalSystem->updateAllPatientDays(); // Initial update    
     
     // Set up timer for time updates
@@ -1084,16 +1084,28 @@ void MainWindow::updateDayCounter() {
     // Check for any rate increases and display them
     for (auto& pair : hospitalSystem->getAllPatients()) {
         Patient* patient = pair.second;
-        if (patient->getDaysAdmitted() % 3 == 0) { // Match the condition in incrementDaysAdmitted
-            statusDisplay->append("Rate increase applied for patient " + 
-                                QString::fromStdString(patient->getPatientID()) + 
-                                ". New daily rate: $" + 
-                                QString::number(patient->getBillingRatePerDay(), 'f', 2));
+        if (patient->getDaysAdmitted() % 3 == 0 && patient->getDaysAdmitted() > 0) {
+            // Store the previous rate
+            double oldRate = patient->getBillingRatePerDay();
+            
+            // Apply rate increase
+            patient->applyRateIncrease(0.03); // 3% increase
+            
+            // Show the new rate
+            double newRate = patient->getBillingRatePerDay();
+            
+            // Only show the message if the rate actually changed
+            if (newRate > oldRate) {
+                statusDisplay->append("Rate increase applied for patient " + 
+                                    QString::fromStdString(patient->getPatientID()) + 
+                                    ". Rate changed from $" + QString::number(oldRate, 'f', 2) +
+                                    " to $" + QString::number(newRate, 'f', 2));
+            }
         }
     }
     
     // If the current tab is the billing tab, update the displayed bill
-    if (tabWidget->currentIndex() == 3) { // Billing tab is index 3
+    if (tabWidget->currentIndex() == 4) { // Billing tab
         string patientID = billingPatientIDInput->text().toStdString();
         if (!patientID.empty()) {
             calculateBill();

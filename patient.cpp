@@ -42,18 +42,30 @@ bool Patient::addAttendingNurse(string nurseID) {
     return true;
 }
 
-// Add this method to apply a rate increase
+// Keep the debug output in applyRateIncrease but still use normal calculation
 void Patient::applyRateIncrease(double percentage) {
+    // Store old rate for comparison
+    double oldRate = billingRatePerDay;
+    
+    // Apply the increase
     billingRatePerDay *= (1.0 + percentage);
+    
+    // Round to nearest cent
+    billingRatePerDay = round(billingRatePerDay * 100) / 100;
+    
+    std::cout << "Rate increased for patient " << patientID << " from $" << oldRate << " to $" << billingRatePerDay << std::endl;
 }
 
-// Modify the incrementDaysAdmitted method to potentially include rate increases
 void Patient::incrementDaysAdmitted() {
     daysAdmitted++;
     
+    std::cout << "Days admitted for patient " << patientID << " incremented to " << daysAdmitted << std::endl;
+    
     // Apply a rate increase every 3 days
-    if (daysAdmitted % 3 == 0) {
-        applyRateIncrease(0.03); // 3% increase every 3 days
+    if (daysAdmitted % 3 == 0 && daysAdmitted > 0) {
+        std::cout << "Applying rate increase for patient " << patientID << std::endl;
+        // Apply a 3% increase
+        applyRateIncrease(0.03);
     }
 }
 
