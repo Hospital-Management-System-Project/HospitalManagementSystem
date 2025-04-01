@@ -3,7 +3,7 @@
 #include "pharmacysystem.h"
 #include <sstream>
 #include <iomanip>
-#include <qDebug>
+#include <QDebug>
 
 using namespace std;
 

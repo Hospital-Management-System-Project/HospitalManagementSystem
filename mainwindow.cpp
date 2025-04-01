@@ -11,7 +11,7 @@
 #include "hospitalsystem.h"
 #include <QApplication>
 #include <QScrollBar>
-#include <qDebug>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Get the hospital system instance
