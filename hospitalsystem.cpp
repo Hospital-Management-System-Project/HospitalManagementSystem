@@ -182,77 +182,86 @@ bool HospitalSystem::relocatePatient(string patientID, int newHospitalIndex) {
     vector<string> oldNurseIDs = patient->getAttendingNursesIDs();
     string oldPrimaryDoctorID = patient->getPrimaryDoctorID();
 
-    // 1. Unassign all doctors from the patient in the old hospital
-    // Handle primary doctor
-    if (!oldPrimaryDoctorID.empty()) {
-        Doctor* primaryDoctor = findDoctor(oldPrimaryDoctorID);
-        if (primaryDoctor) {
-            primaryDoctor->removePatient(patientID);
-        }
-    }
-    
-    // Handle attending doctors
-    for (const string& docID : oldDoctorIDs) {
-        Doctor* doctor = findDoctor(docID);
-        if (doctor) {
-            doctor->removePatient(patientID);
-        }
-    }
-    
-    // 2. Unassign all nurses from the patient in the old hospital
-    for (const string& nurseID : oldNurseIDs) {
-        Nurse* nurse = findNurse(nurseID);
-        if (nurse) {
-            nurse->removePatient(patientID);
-        }
-    }
-    
-    // 3. Clear patient's staff assignments - temporarily, we'll restore appropriate ones later
-    patient->getAttendingDoctorIDs().clear();
-    patient->getAttendingNursesIDs().clear();
-    patient->setPrimaryDoctorID("");
-    
-    // 4. Remove patient from current hospital
-    if (!currentHospital->removePatient(patient)) {
-        return false;
-    }
-    
-    // 5. Add patient to new hospital
-    if (!newHospital->admitPatient(patient)) {
-        // If new hospital couldn't admit, re-add to original hospital
-        currentHospital->admitPatient(patient);
-        
-        // Restore old relationships
-        patient->setPrimaryDoctorID(oldPrimaryDoctorID);
+    try {
+        // 1. Unassign all doctors from the patient in the old hospital
+        // Handle primary doctor
         if (!oldPrimaryDoctorID.empty()) {
             Doctor* primaryDoctor = findDoctor(oldPrimaryDoctorID);
             if (primaryDoctor) {
-                primaryDoctor->addPatient(patientID);
+                primaryDoctor->removePatient(patientID);
             }
         }
         
+        // Handle attending doctors
         for (const string& docID : oldDoctorIDs) {
-            patient->addAttendingDoctor(docID);
             Doctor* doctor = findDoctor(docID);
             if (doctor) {
-                doctor->addPatient(patientID);
+                doctor->removePatient(patientID);
             }
         }
         
+        // 2. Unassign all nurses from the patient in the old hospital
         for (const string& nurseID : oldNurseIDs) {
-            patient->addAttendingNurse(nurseID);
             Nurse* nurse = findNurse(nurseID);
             if (nurse) {
-                nurse->assignPatient(patientID);
+                nurse->removePatient(patientID);
             }
         }
         
-        return false;
+        // 3. Clear patient's staff assignments - temporarily, we'll restore appropriate ones later
+        patient->getAttendingDoctorIDs().clear();
+        patient->getAttendingNursesIDs().clear();
+        patient->setPrimaryDoctorID("");
+        
+        // 4. Remove patient from current hospital
+        if (!currentHospital->removePatient(patient)) {
+            throw std::runtime_error("Failed to remove patient from current hospital");
+        }
+        
+        // 5. Add patient to new hospital
+        if (!newHospital->admitPatient(patient)) {
+            // If new hospital couldn't admit, re-add to original hospital
+            currentHospital->admitPatient(patient);
+            
+            // Restore old relationships
+            patient->setPrimaryDoctorID(oldPrimaryDoctorID);
+            if (!oldPrimaryDoctorID.empty()) {
+                Doctor* primaryDoctor = findDoctor(oldPrimaryDoctorID);
+                if (primaryDoctor) {
+                    primaryDoctor->addPatient(patientID);
+                }
+            }
+            
+            for (const string& docID : oldDoctorIDs) {
+                patient->addAttendingDoctor(docID);
+                Doctor* doctor = findDoctor(docID);
+                if (doctor) {
+                    doctor->addPatient(patientID);
+                }
+            }
+            
+            for (const string& nurseID : oldNurseIDs) {
+                patient->addAttendingNurse(nurseID);
+                Nurse* nurse = findNurse(nurseID);
+                if (nurse) {
+                    nurse->assignPatient(patientID);
+                }
+            }
+            
+            throw std::runtime_error("Failed to admit patient to new hospital");
+        }
+        
+        // Patient has been successfully relocated
+        return true;
     }
-    
-    // Patient has been successfully relocated
-    // We'll let the caller restore appropriate relationships in the new hospital
-    return true;
+    catch (const std::exception& e) {
+        // Re-throw to caller
+        throw;
+    }
+    catch (...) {
+        // Handle any other unexpected errors
+        throw std::runtime_error("Unknown error during patient relocation");
+    }
 }
 
 bool HospitalSystem::dischargePatient(string patientID) {

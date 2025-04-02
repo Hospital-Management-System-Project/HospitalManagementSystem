@@ -1104,6 +1104,9 @@ void MainWindow::relocatePatient() {
     Patient* patient = hospitalSystem->findPatient(patientID);
     if (!patient) {
         statusDisplay->append("Error: Patient not found.");
+        patientIDInput->clear();
+        doctorIDInput->clear();
+        nurseIDInput->clear();
         return;
     }
 
@@ -1119,6 +1122,19 @@ void MainWindow::relocatePatient() {
     if (currentHospital->getHospitalID() == newHospital->getHospitalID()) {
         statusDisplay->append("Error: Patient " + QString::fromStdString(patientID) + 
                               " is already admitted to " + relocateHospitalComboBox->currentText());
+        
+        // Clear the input fields to prevent repeated attempts with the same data
+        patientIDInput->clear();
+        doctorIDInput->clear();
+        nurseIDInput->clear();
+        return;
+    }
+
+    // Check if trying to relocate to a hospital with the same doctor ID (would cause crash)
+    if (patient->getPrimaryDoctorID() == newPrimaryDoctorID && 
+        !patient->getAttendingNursesIDs().empty() && 
+        patient->getAttendingNursesIDs()[0] == newNurseID) {
+        statusDisplay->append("Error: Cannot relocate patient with the same primary doctor and nurse. Please select different staff.");
         
         // Clear the input fields to prevent repeated attempts with the same data
         patientIDInput->clear();
@@ -1152,9 +1168,20 @@ void MainWindow::relocatePatient() {
 
     // Check if the nurse already has the maximum number of patients
     if (newNurse->getPatientIDs().size() >= 2) {
-        statusDisplay->append("Error: Nurse " + QString::fromStdString(newNurseID) + 
-                            " already has the maximum number of patients (2).");
-        return;
+        // Check if the nurse is already assigned to this patient (could happen with a new relocation)
+        bool alreadyAssigned = false;
+        for (const string& pid : newNurse->getPatientIDs()) {
+            if (pid == patientID) {
+                alreadyAssigned = true;
+                break;
+            }
+        }
+        
+        if (!alreadyAssigned) {
+            statusDisplay->append("Error: Nurse " + QString::fromStdString(newNurseID) + 
+                              " already has the maximum number of patients (2).");
+            return;
+        }
     }
 
     // Wrap the entire operation in a try-catch block
@@ -1177,21 +1204,6 @@ void MainWindow::relocatePatient() {
         newNurse->assignPatient(patientID);
         patient->addAttendingNurse(newNurseID);
         
-        // Make sure the new hospital's doctor and nurse lists reflect these changes
-        for (auto& doctor : newHospital->getDoctors()) {
-            if (doctor->getDoctorID() == newPrimaryDoctorID) {
-                // The doctor list is already updated since we have a pointer to the doctor
-                break;
-            }
-        }
-        
-        for (auto& nurse : newHospital->getNurses()) {
-            if (nurse->getNurseID() == newNurseID) {
-                // The nurse list is already updated since we have a pointer to the nurse
-                break;
-            }
-        }
-        
         // Only show success message after everything worked
         statusDisplay->append("Patient " + QString::fromStdString(patientID) +
                             " relocated to " + relocateHospitalComboBox->currentText() +
@@ -1205,9 +1217,17 @@ void MainWindow::relocatePatient() {
     } 
     catch (const std::exception& e) {
         statusDisplay->append("Error during relocation: " + QString(e.what()));
+        // Clear fields on error to prevent retrying the same operation
+        patientIDInput->clear();
+        doctorIDInput->clear();
+        nurseIDInput->clear();
     }
     catch (...) {
         statusDisplay->append("An unexpected error occurred during patient relocation.");
+        // Clear fields on error to prevent retrying the same operation
+        patientIDInput->clear();
+        doctorIDInput->clear();
+        nurseIDInput->clear();
     }
 }
 
