@@ -60,15 +60,6 @@ HospitalManagementSystem.exe       # Windows
 
 ---
 
-## Contributers 
-
-**Ahmad Munim**: 
-- Main Contributions: Doctor Management Tab, Nurse-Patient Tab
-**Cameron Vandermeersch**: 
-- Main Contributions: Billing Tab, Patient Management Tab, Doctor-Patient Tab
-**Nafiz Hasan**: 
-- Main Contributions: Drug Delivery Tab, Nurse Management Tab
-
 ## System Architecture
 
 The system follows the Model-View-Controller (MVC) pattern:
