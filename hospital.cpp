@@ -1,5 +1,5 @@
 #include "hospital.h"
-#include <algorithm> // For std::remove
+#include <algorithm>
 #include "pharmacysystem.h"
 #include <sstream>
 #include <iomanip>
@@ -7,6 +7,7 @@
 
 using namespace std;
 
+// The constructor initializes the hospital ID and name thats passed in
 Hospital::Hospital(string id, string hospName) {
     hospitalID = id;
     hospitalName = hospName;
@@ -14,14 +15,16 @@ Hospital::Hospital(string id, string hospName) {
     collectedPayments = 0.0;
 }
 
+// The admitPatient method checks if the hospital has space for a new patient
 bool Hospital::admitPatient(Patient* patient) {
-    if (patients.size() < 20) {
+    if (patients.size() < 20) { // Requirements say max 20 patients
         patients.push_back(patient);
         return true;
     }
     return false;
 }
 
+// The relocatePatient method checks if the new hospital has space for the patient
 bool Hospital::relocatePatient(Patient* patient, Hospital* newHospital) {
     if (newHospital->admitPatient(patient)) {
         // Use remove and erase to remove the patient from the current hospital
@@ -31,19 +34,17 @@ bool Hospital::relocatePatient(Patient* patient, Hospital* newHospital) {
     return false;
 }
 
+// The dischargePatient method marks the patient as discharged and updates the billing
 void Hospital::dischargePatient(Patient* patient) {
-    // Mark the patient as discharged
-    patient->setDischarged(true);
+    patient->setDischarged(true);  // We start by marking the patient as discharged
+    totalPatientBillings += patient->calculateCurrentBill(); // Update total billings
 
-    // Final billing
-    totalPatientBillings += patient->calculateCurrentBill();
-
-    // Update doctor assignments
+    // Next we need to remove the patient from the doctors and nurses
     for (auto doctor : doctors) {
         doctor->removePatient(patient->getPatientID());
     }
 
-    // Update nurse assignments
+    // Need to remove the patient from all nurses
     for (auto nurse : nurses) {
         nurse->removePatient(patient->getPatientID());
     }
@@ -52,39 +53,42 @@ void Hospital::dischargePatient(Patient* patient) {
     patients.erase(remove(patients.begin(), patients.end(), patient), patients.end());
 }
 
+// The removePatient method checks if the patient is in the hospital and removes them
 bool Hospital::removePatient(Patient* patient) {
-    auto it = find(patients.begin(), patients.end(), patient);
+    auto it = find(patients.begin(), patients.end(), patient); // Create an iterator to find the patient
     if (it != patients.end()) {
-        patients.erase(it);
+        patients.erase(it); // Remove the patient from the list
         return true;
     }
     return false;
 }
 
+// The addDoctor method adds a doctor to the hospital and sets their hospital ID
 void Hospital::addDoctor(Doctor* doctor) {
     doctor->setHospitalID(getHospitalID());
     doctors.push_back(doctor);
 }
 
+// The relocateDoctor method checks if the new hospital has space for the doctor
 bool Hospital::relocateDoctor(Doctor* doctor, Hospital* newHospital) {
-    newHospital->addDoctor(doctor);
-    doctors.erase(remove(doctors.begin(), doctors.end(), doctor), doctors.end());
+    newHospital->addDoctor(doctor); // Add the doctor to the new hospital
+    doctors.erase(remove(doctors.begin(), doctors.end(), doctor), doctors.end()); // Remove from the current hospital
     return true;
 }
 
 void Hospital::removeDoctor(Doctor* doctor) {
     // Check if removing this doctor would leave fewer than 3 doctors in the hospital
     if (doctors.size() <= 3) {
-        throw std::runtime_error("Cannot Remove Doctor: Hospital Must Have At Least 3 Doctors");
+        throw std::runtime_error("Cannot Remove Doctor: Hospital Must Have At Least 3 Doctors!");
     }
     // Check if the doctor has any patients before removing
     if (!doctor->getPatientIDs().empty()) {
         throw std::runtime_error("Cannot Remove Doctor With Assigned Patients");
     }
-
     doctors.erase(remove(doctors.begin(), doctors.end(), doctor), doctors.end());
 }
 
+// The addNurse method adds a nurse to the hospital and sets their hospital ID
 void Hospital::addNurse(Nurse* nurse) {
     nurse->setHospitalID(getHospitalID());
     nurses.push_back(nurse);
@@ -95,10 +99,10 @@ void Hospital::removeNurse(Nurse* nurse) {
     if (!nurse->getPatientIDs().empty()) {
         throw std::runtime_error("Cannot remove nurse with assigned patients");
     }
-
     nurses.erase(remove(nurses.begin(), nurses.end(), nurse), nurses.end());
 }
 
+// The Getter and Setter methods are used to access the private variables
 string Hospital::getHospitalID() const {
     return hospitalID;
 }
@@ -123,6 +127,7 @@ vector<Nurse*>& Hospital::getNurses() {
     return nurses;
 }
 
+// The updatePatientDays method increments the days for all admitted patients
 void Hospital::updatePatientDays() {
     // Increment days for all admitted patients
     for (auto patient : patients) {
@@ -132,35 +137,31 @@ void Hospital::updatePatientDays() {
     }
 }
 
+// The getTotalPatientBills method calculates the total billings for all patients
 double Hospital::getTotalPatientBills() const {
     double total = 0.0;
     for (auto patient : patients) {
-        total += patient->calculateCurrentBill();
+        total += patient->calculateCurrentBill(); // Calculate the current bill for each patient
     }
     return total;
 }
 
+// The collectPaymentFromPatient method collects payment from a patient
 bool Hospital::collectPaymentFromPatient(string patientID, double amount) {
     for (auto patient : patients) {
         if (patient->getPatientID() == patientID) {
             double bill = patient->calculateCurrentBill();
-            double alreadyPaid = 0.0;
-
+            double alreadyPaid = 0.0;   // Track already paid amount
             // Get any existing payments
             auto it = patientPayments.find(patientID);
             if (it != patientPayments.end()) {
                 alreadyPaid = it->second;
             }
-
-            // Calculate remaining balance
-            double remainingBalance = bill - alreadyPaid;
-
+            double remainingBalance = bill - alreadyPaid;   // Calculate remaining balance
             // Check if payment exceeds remaining bill
-            // Allow paying the exact amount (changed from > to >)
             if (amount > remainingBalance) {
                 return false; // Payment exceeds remaining bill
             }
-
             // Update payment records
             collectedPayments += amount;
             patientPayments[patientID] = alreadyPaid + amount;
@@ -170,48 +171,45 @@ bool Hospital::collectPaymentFromPatient(string patientID, double amount) {
     return false; // Patient not found
 }
 
+// The getPatientRemainingBalance method calculates the remaining balance for a patient
 double Hospital::getPatientRemainingBalance(string patientID) const {
     for (auto patient : patients) {
         if (patient->getPatientID() == patientID) {
             double bill = patient->calculateCurrentBill();
-
-            // Check for payments
+            // Need to see if there are any payments made
             auto it = patientPayments.find(patientID);
             if (it != patientPayments.end()) {
-                return bill - it->second;
+                return bill - it->second;   // Return remaining balance
             }
-
             return bill; // No payments yet
         }
     }
     return 0.0; // Patient not found
 }
 
+// The requestPatientDischarge method checks if the doctor can discharge the patient
 bool Hospital::requestPatientDischarge(string doctorID, string patientID) {
-    // Find the doctor
-    Doctor* doctor = nullptr;
-    for (auto doc : doctors) {
-        if (doc->getDoctorID() == doctorID) {
-            doctor = doc;
+    Doctor* doctor = nullptr;   // Pointer to the doctor
+    for (auto doc : doctors) {  // Loop through all doctors
+        if (doc->getDoctorID() == doctorID) {   // Check if the doctor ID matches
+            doctor = doc;   // Set the doctor pointer
             break;
         }
     }
-
     if (!doctor) {
         return false; // Doctor not found
     }
-
     return doctor->requestPatientDischarge(patientID);
 }
 
+// The getPatientBillingReport method generates a report of all patients and their billing status
 string Hospital::getPatientBillingReport() const {
     stringstream report;
-
     report << "===== " << hospitalName << " Patient Billing Report =====\n\n";
     report << left << setw(15) << "Patient ID" << setw(25) << "Name"
-           << setw(10) << "Days" << setw(15) << "Amount Due" << setw(15) << "Status" << "\n";
+    << setw(10) << "Days" << setw(15) << "Amount Due" << setw(15) << "Status" << "\n";
     report << string(80, '-') << "\n";
-
+    // Loop through all patients and generate the report
     for (auto patient : patients) {
         report << left << setw(15) << patient->getPatientID()
                << setw(25) << patient->getPatientName()
@@ -219,9 +217,7 @@ string Hospital::getPatientBillingReport() const {
                << "$" << setw(14) << fixed << setprecision(2) << patient->calculateCurrentBill()
                << setw(15) << patient->getStatus() << "\n";
     }
-
     report << "\n";
     report << "Total Billing: $" << fixed << setprecision(2) << getTotalPatientBills() << "\n";
-
     return report.str();
 }
