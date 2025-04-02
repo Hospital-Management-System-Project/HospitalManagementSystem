@@ -62,7 +62,7 @@ string Nurse::getFullDescription() const {
         }
         description << "\n";
     } else {
-        description << "No Assigned Patients At This Time!" endl;
+        description << "No Assigned Patients At This Time!" << endl;
     }
     return description.str();
 }
