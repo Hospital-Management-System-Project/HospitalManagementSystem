@@ -4,6 +4,27 @@ The Hospital Management System is a Qt-based C++ application for managing patien
 
 ---
 
+## GitHub Repository
+
+The project is available on GitHub at [Hospital Management System](https://github.com/Hospital-Management-System-Project/HospitalManagementSystem).
+
+### Clone the Repository
+```bash
+# Clone the repository
+git clone https://github.com/Hospital-Management-System-Project/HospitalManagementSystem.git
+
+# Navigate to the project directory
+cd HospitalManagementSystem
+```
+
+### Setup and Configuration
+1. Make sure Qt is installed on your system
+2. Open the project using Qt Creator or your preferred IDE
+3. Configure the build settings according to your environment
+4. Build the project using the instructions below
+
+---
+
 ## Getting Started
 
 ### Prerequisites
