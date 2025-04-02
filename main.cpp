@@ -4,11 +4,10 @@
 #include "pharmacysystem.h"
 
 int main(int argc, char* argv[]) {
+    // This will initialize the Qt application
     QApplication app(argc, argv);
-    
-    // Initialize the hospital system
-    HospitalSystem* hospitalSystem = HospitalSystem::getInstance();
-    hospitalSystem->initializeHospitals();
+    HospitalSystem* hospitalSystem = HospitalSystem::getInstance(); // Initialize the hospital system
+    hospitalSystem->initializeHospitals();  // Initialize hospitals
 
     // Sample patient 1
     Patient* p1 = new Patient("P001", "Alice Johnson", "555-1234", "Flu", "Rest and fluids", "D1", "N1");
@@ -40,8 +39,7 @@ int main(int argc, char* argv[]) {
     pharmacySystem->initializePharmacies();
     pharmacySystem->initializeDrugs();
     
-    MainWindow mainWindow;
-    mainWindow.show();
-
-    return app.exec();
+    MainWindow mainWindow;  // This creates the main window
+    mainWindow.show();      // Show the main window
+    return app.exec();      // This starts the Qt event loop
 }
