@@ -12,6 +12,8 @@
 #include <QApplication>
 #include <QScrollBar>
 #include <QDebug>
+#include <QSplitter>
+#include <QFrame>
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Get the hospital system instance
@@ -29,310 +31,518 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     // Set up UI
     QWidget* centralWidget = new QWidget(this);
     QVBoxLayout* mainLayout = new QVBoxLayout(centralWidget);
+    mainLayout->setSpacing(10);
+    mainLayout->setContentsMargins(10, 10, 10, 10);
 
-    // Create a tab widget for different functionalities
-    tabWidget = new QTabWidget(this);
+    // Create a splitter to allow users to resize the proportion between tabs and status display
+    QSplitter* mainSplitter = new QSplitter(Qt::Vertical);
+    mainSplitter->setChildrenCollapsible(false);
+    
+    // Create a tab widget for different functionalities with enhanced styling
+    tabWidget = new QTabWidget();
+    tabWidget->setDocumentMode(true);
+    tabWidget->setTabPosition(QTabWidget::North);
     
     // ===== PATIENT MANAGEMENT TAB =====
-    QWidget* patientTab = new QWidget(this);
+    QWidget* patientTab = new QWidget();
     QVBoxLayout* patientLayout = new QVBoxLayout(patientTab);
+    patientLayout->setSpacing(15);
     
-    // Create a form layout for input fields
-    QFormLayout* formLayout = new QFormLayout();
-
-    patientIDInput = new QLineEdit(this);
+    // Create patient info group
+    QGroupBox* patientInfoGroup = new QGroupBox("Patient Information");
+    QHBoxLayout* patientInfoLayout = new QHBoxLayout();
+    
+    // Left column for basic patient details
+    QFormLayout* patientBasicFormLayout = new QFormLayout();
+    patientBasicFormLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+    patientBasicFormLayout->setSpacing(8);
+    
+    patientIDInput = new QLineEdit();
     patientIDInput->setPlaceholderText("Enter Patient ID");
-    formLayout->addRow("Patient ID:", patientIDInput);
+    patientBasicFormLayout->addRow("Patient ID:", patientIDInput);
 
-    nameInput = new QLineEdit(this);
+    nameInput = new QLineEdit();
     nameInput->setPlaceholderText("Enter Patient Name");
-    formLayout->addRow("Name:", nameInput);
+    patientBasicFormLayout->addRow("Name:", nameInput);
 
-    phoneInput = new QLineEdit(this);
+    phoneInput = new QLineEdit();
     phoneInput->setPlaceholderText("Enter Phone Number");
-    formLayout->addRow("Phone:", phoneInput);
+    patientBasicFormLayout->addRow("Phone:", phoneInput);
+    
+    // Right column for medical details
+    QFormLayout* patientMedicalFormLayout = new QFormLayout();
+    patientMedicalFormLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+    patientMedicalFormLayout->setSpacing(8);
 
-    diseaseInput = new QLineEdit(this);
+    diseaseInput = new QLineEdit();
     diseaseInput->setPlaceholderText("Enter Disease");
-    formLayout->addRow("Disease:", diseaseInput);
+    patientMedicalFormLayout->addRow("Diagnosis:", diseaseInput);
 
-    treatmentInput = new QLineEdit(this);
+    treatmentInput = new QLineEdit();
     treatmentInput->setPlaceholderText("Enter Treatment");
-    formLayout->addRow("Treatment:", treatmentInput);
-
-    doctorIDInput = new QLineEdit(this);
-    doctorIDInput->setPlaceholderText("Enter Primary Doctor ID");
-    formLayout->addRow("Primary Doctor ID:", doctorIDInput);
-
-    nurseIDInput = new QLineEdit(this);
-    nurseIDInput->setPlaceholderText("Enter Nurse ID");
-    formLayout->addRow("Nurse ID:", nurseIDInput);
+    patientMedicalFormLayout->addRow("Treatment:", treatmentInput);
     
     // Add daily rate input
-    dailyRateInput = new QDoubleSpinBox(this);
+    dailyRateInput = new QDoubleSpinBox();
     dailyRateInput->setRange(50.0, 1000.0);
     dailyRateInput->setValue(100.0);
     dailyRateInput->setPrefix("$");
-    formLayout->addRow("Daily Rate:", dailyRateInput);
+    patientMedicalFormLayout->addRow("Daily Rate:", dailyRateInput);
 
+    // Add both columns to the patient info layout
+    patientInfoLayout->addLayout(patientBasicFormLayout);
+    patientInfoLayout->addLayout(patientMedicalFormLayout);
+    patientInfoGroup->setLayout(patientInfoLayout);
+    
+    // Create assignments group
+    QGroupBox* patientAssignGroup = new QGroupBox("Staff Assignments");
+    QFormLayout* patientAssignFormLayout = new QFormLayout();
+    patientAssignFormLayout->setSpacing(8);
+    
+    doctorIDInput = new QLineEdit();
+    doctorIDInput->setPlaceholderText("Enter Primary Doctor ID");
+    patientAssignFormLayout->addRow("Primary Doctor ID:", doctorIDInput);
+
+    nurseIDInput = new QLineEdit();
+    nurseIDInput->setPlaceholderText("Enter Nurse ID");
+    patientAssignFormLayout->addRow("Nurse ID:", nurseIDInput);
+    
+    patientAssignGroup->setLayout(patientAssignFormLayout);
+    
+    // Create hospital assignment group
+    QGroupBox* hospitalAssignGroup = new QGroupBox("Hospital Assignment");
+    QFormLayout* hospitalFormLayout = new QFormLayout();
+    hospitalFormLayout->setSpacing(8);
+    
     // Hospital selection for admitting patients
-    hospitalComboBox = new QComboBox(this);
+    hospitalComboBox = new QComboBox();
     for (auto hospital : hospitalSystem->getAllHospitals()) {
         hospitalComboBox->addItem(QString::fromStdString(hospital->getHospitalName()));
     }
-    formLayout->addRow("Admit to Hospital:", hospitalComboBox);
+    hospitalFormLayout->addRow("Admit to Hospital:", hospitalComboBox);
     
     // Add a second combo box for relocation
-    relocateHospitalComboBox = new QComboBox(this);
+    relocateHospitalComboBox = new QComboBox();
     for (auto hospital : hospitalSystem->getAllHospitals()) {
         relocateHospitalComboBox->addItem(QString::fromStdString(hospital->getHospitalName()));
     }
-    formLayout->addRow("Relocate to Hospital:", relocateHospitalComboBox);
-
-    // Add buttons
-    QHBoxLayout* buttonLayout = new QHBoxLayout();
-    QPushButton* addPatientButton = new QPushButton("Add Patient", this);
-    QPushButton* relocatePatientButton = new QPushButton("Relocate Patient", this);
-    QPushButton* dischargePatientButton = new QPushButton("Discharge Patient", this);
-    QPushButton* viewPatientDetailsButton = new QPushButton("View Patient Details", this);
-    QPushButton* displayStatusButton = new QPushButton("Display All Hospital Status", this);
-    QPushButton* displayPharmacyButton = new QPushButton("Display Pharmacy Status", this);
+    hospitalFormLayout->addRow("Relocate to Hospital:", relocateHospitalComboBox);
+    hospitalAssignGroup->setLayout(hospitalFormLayout);
     
-    buttonLayout->addWidget(addPatientButton);
-    buttonLayout->addWidget(relocatePatientButton);
-    buttonLayout->addWidget(dischargePatientButton);
-    buttonLayout->addWidget(viewPatientDetailsButton);
-    buttonLayout->addWidget(displayStatusButton);
-    buttonLayout->addWidget(displayPharmacyButton);
-
-    // Add patient management widgets to the layout
-    patientLayout->addLayout(formLayout);
-    patientLayout->addLayout(buttonLayout);
+    // Create horizontal layout for the two assignment groups
+    QHBoxLayout* assignmentsLayout = new QHBoxLayout();
+    assignmentsLayout->addWidget(patientAssignGroup);
+    assignmentsLayout->addWidget(hospitalAssignGroup);
     
-    // Add a hospital selection combo box and button for viewing single hospital
-    // Moved below the other buttons
-    QHBoxLayout* singleHospitalLayout = new QHBoxLayout();
-    selectedHospitalComboBox = new QComboBox(this);
+    // Create actions group
+    QGroupBox* patientActionsGroup = new QGroupBox("Patient Actions");
+    QVBoxLayout* patientActionsLayout = new QVBoxLayout();
+
+    // Patient management buttons in horizontal layout
+    QHBoxLayout* mainPatientButtonLayout = new QHBoxLayout();
+    QPushButton* addPatientButton = new QPushButton("Add Patient");
+    addPatientButton->setIcon(QIcon::fromTheme("list-add"));
+    addPatientButton->setMinimumHeight(35);
+    
+    QPushButton* relocatePatientButton = new QPushButton("Relocate Patient");
+    relocatePatientButton->setIcon(QIcon::fromTheme("edit-copy"));
+    relocatePatientButton->setMinimumHeight(35);
+    
+    QPushButton* dischargePatientButton = new QPushButton("Discharge Patient");
+    dischargePatientButton->setIcon(QIcon::fromTheme("edit-delete"));
+    dischargePatientButton->setMinimumHeight(35);
+    
+    QPushButton* viewPatientDetailsButton = new QPushButton("View Patient Details");
+    viewPatientDetailsButton->setIcon(QIcon::fromTheme("document-properties"));
+    viewPatientDetailsButton->setMinimumHeight(35);
+    
+    mainPatientButtonLayout->addWidget(addPatientButton);
+    mainPatientButtonLayout->addWidget(relocatePatientButton);
+    mainPatientButtonLayout->addWidget(dischargePatientButton);
+    mainPatientButtonLayout->addWidget(viewPatientDetailsButton);
+    
+    // System action buttons in horizontal layout
+    QHBoxLayout* systemButtonLayout = new QHBoxLayout();
+    QPushButton* displayStatusButton = new QPushButton("Display All Hospital Status");
+    displayStatusButton->setIcon(QIcon::fromTheme("view-list"));
+    displayStatusButton->setMinimumHeight(35);
+    
+    QPushButton* displayPharmacyButton = new QPushButton("Display Pharmacy Status");
+    displayPharmacyButton->setIcon(QIcon::fromTheme("view-list"));
+    displayPharmacyButton->setMinimumHeight(35);
+    
+    // Adjust layout to expand "Display Selected Hospital" button
+    selectedHospitalComboBox = new QComboBox();
     for (auto hospital : hospitalSystem->getAllHospitals()) {
         selectedHospitalComboBox->addItem(QString::fromStdString(hospital->getHospitalName()));
     }
-    QPushButton* displaySelectedHospitalButton = new QPushButton("Display Selected Hospital", this);
-    singleHospitalLayout->addWidget(selectedHospitalComboBox);
-    singleHospitalLayout->addWidget(displaySelectedHospitalButton);
+    QPushButton* displaySelectedHospitalButton = new QPushButton("Display Selected Hospital");
+    displaySelectedHospitalButton->setIcon(QIcon::fromTheme("view-list"));
+    displaySelectedHospitalButton->setMinimumHeight(35);
+    displaySelectedHospitalButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+
+    systemButtonLayout->addWidget(selectedHospitalComboBox);
+    systemButtonLayout->addWidget(displaySelectedHospitalButton);
+    systemButtonLayout->addWidget(displayStatusButton);
+    systemButtonLayout->addWidget(displayPharmacyButton);
     
-    // Add the single hospital selection layout below the other buttons
-    patientLayout->addLayout(singleHospitalLayout);
+    patientActionsLayout->addLayout(mainPatientButtonLayout);
+    patientActionsLayout->addSpacing(5);
+    patientActionsLayout->addLayout(systemButtonLayout);
+    patientActionsGroup->setLayout(patientActionsLayout);
+    
+    // Add all patient management widgets to the layout
+    patientLayout->addWidget(patientInfoGroup);
+    patientLayout->addLayout(assignmentsLayout);
+    patientLayout->addWidget(patientActionsGroup);
+    patientLayout->addStretch(1);
     
     patientTab->setLayout(patientLayout);
 
     // ===== DOCTOR MANAGEMENT TAB =====
-    QWidget* doctorTab = new QWidget(this);
+    // Using existing updated doctor tab layout
+    QWidget* doctorTab = new QWidget();
     QVBoxLayout* doctorLayout = new QVBoxLayout(doctorTab);    
+    doctorLayout->setSpacing(15);
 
-    // Create a form layout for input fields
-    QFormLayout* docManagementFormLayout = new QFormLayout();
+    // Create a group box for doctor information entry
+    QGroupBox* doctorInfoGroup = new QGroupBox("Doctor Information");
+    QFormLayout* docManagementFormLayout = new QFormLayout(doctorInfoGroup);
+    docManagementFormLayout->setSpacing(8);
 
-    docManageIDInput = new QLineEdit(this);
+    docManageIDInput = new QLineEdit();
     docManageIDInput->setPlaceholderText("Enter Doctor ID");
     docManagementFormLayout->addRow("Doctor ID:", docManageIDInput);
 
-    doctorNameInput = new QLineEdit(this);
+    doctorNameInput = new QLineEdit();
     doctorNameInput->setPlaceholderText("Enter Doctor Name");
     docManagementFormLayout->addRow("Name:", doctorNameInput); 
 
+    // Create a group box for hospital assignments
+    QGroupBox* docHospitalAssignGroup = new QGroupBox("Hospital Assignment");
+    QFormLayout* hospitalAssignLayout = new QFormLayout(docHospitalAssignGroup);
+    hospitalAssignLayout->setSpacing(8);
+    
     // Hospital selection for adding or reassigning a doctor
-    docHospitalComboBox = new QComboBox(this);
+    docHospitalComboBox = new QComboBox();
     for (auto hospital : hospitalSystem->getAllHospitals()) {
         docHospitalComboBox->addItem(QString::fromStdString(hospital->getHospitalName()));
     }
-    docManagementFormLayout->addRow("Assign to Hospital:", docHospitalComboBox);
+    hospitalAssignLayout->addRow("Assign to Hospital:", docHospitalComboBox);
 
-    docChangeHospitalComboBox = new QComboBox(this);
+    docChangeHospitalComboBox = new QComboBox();
     for (auto hospital : hospitalSystem->getAllHospitals()) {
         docChangeHospitalComboBox->addItem(QString::fromStdString(hospital->getHospitalName()));
     }
-    docManagementFormLayout->addRow("Reassign to Hospital:", docChangeHospitalComboBox);
+    hospitalAssignLayout->addRow("Reassign to Hospital:", docChangeHospitalComboBox);
     
-    // Add doctor management widgets to the layout
-    doctorLayout->addLayout(docManagementFormLayout);
-
-    // Add List All Doctors button above the other doctor management buttons
-    QPushButton* listAllDoctorsButton = new QPushButton("List All Doctors", this);
-    doctorLayout->addWidget(listAllDoctorsButton);
-
+    // Create horizontal layout to hold the two group boxes side by side
+    QHBoxLayout* topGroupsLayout = new QHBoxLayout();
+    topGroupsLayout->addWidget(doctorInfoGroup);
+    topGroupsLayout->addWidget(docHospitalAssignGroup);
+    
+    // Add the horizontal layout to the main doctor layout
+    doctorLayout->addLayout(topGroupsLayout);
+    
+    // Create action buttons group
+    QGroupBox* actionGroup = new QGroupBox("Actions");
+    QVBoxLayout* actionLayout = new QVBoxLayout(actionGroup);
+    
+    // Add List All Doctors button at the top of actions
+    QPushButton* listAllDoctorsButton = new QPushButton("List All Doctors");
+    listAllDoctorsButton->setIcon(QIcon::fromTheme("view-list"));
+    listAllDoctorsButton->setMinimumHeight(40);
+    actionLayout->addWidget(listAllDoctorsButton);
+    
+    // Add horizontal layout for doctor action buttons
     QHBoxLayout* docButtonLayout = new QHBoxLayout();
-    QPushButton* addDoctorButton = new QPushButton("Add Doctor", this);
-    QPushButton* relocateDoctorButton = new QPushButton("Relocate Doctor", this);
-    QPushButton* removeDoctorButton = new QPushButton("Remove Doctor", this);
-    QPushButton* viewDoctorDetailsButton = new QPushButton("View Doctor Details", this);  
     
-    docButtonLayout->addWidget(addDoctorButton);
-    docButtonLayout->addWidget(relocateDoctorButton);
-    docButtonLayout->addWidget(removeDoctorButton);
-    docButtonLayout->addWidget(viewDoctorDetailsButton);
-
-    doctorLayout->addLayout(docButtonLayout);
+    // Create styled buttons with appropriate sizing
+    QPushButton* addDoctorButton = new QPushButton("Add Doctor");
+    addDoctorButton->setIcon(QIcon::fromTheme("list-add"));
+    
+    QPushButton* relocateDoctorButton = new QPushButton("Relocate Doctor");
+    relocateDoctorButton->setIcon(QIcon::fromTheme("edit-copy"));
+    
+    QPushButton* removeDoctorButton = new QPushButton("Remove Doctor");
+    removeDoctorButton->setIcon(QIcon::fromTheme("edit-delete"));
+    
+    QPushButton* viewDoctorDetailsButton = new QPushButton("View Doctor Details");
+    viewDoctorDetailsButton->setIcon(QIcon::fromTheme("document-properties"));
+    
+    // Give all buttons equal sizing policies
+    QList<QPushButton*> buttons = {addDoctorButton, relocateDoctorButton, 
+                                  removeDoctorButton, viewDoctorDetailsButton};
+    for (QPushButton* button : buttons) {
+        button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        button->setMinimumHeight(35);
+        docButtonLayout->addWidget(button);
+    }
+    
+    // Add the button layout to the actions group
+    actionLayout->addLayout(docButtonLayout);
+    
+    // Add the actions group to the main doctor layout
+    doctorLayout->addWidget(actionGroup);
+    
+    // Add stretch to ensure the bottom text display gets remaining space
+    doctorLayout->addStretch(1);
+    
     doctorTab->setLayout(doctorLayout);
 
     // ===== NURSE MANAGEMENT TAB =====
-    QWidget* nurseTab = new QWidget(this);
+    QWidget* nurseTab = new QWidget();
     QVBoxLayout* nurseLayout = new QVBoxLayout(nurseTab);
+    nurseLayout->setSpacing(15);
 
-    // Form layout for input fields
-    QFormLayout* nurseManagementFormLayout = new QFormLayout();
+    // Create a group box for nurse information
+    QGroupBox* nurseInfoGroup = new QGroupBox("Nurse Information");
+    QFormLayout* nurseManagementFormLayout = new QFormLayout(nurseInfoGroup);
+    nurseManagementFormLayout->setSpacing(8);
 
-    nurseManageIDInput = new QLineEdit(this);
+    nurseManageIDInput = new QLineEdit();
     nurseManageIDInput->setPlaceholderText("Enter Nurse ID");
     nurseManagementFormLayout->addRow("Nurse ID:", nurseManageIDInput);
 
-    nurseNameInput = new QLineEdit(this);
+    nurseNameInput = new QLineEdit();
     nurseNameInput->setPlaceholderText("Enter Nurse Name");
     nurseManagementFormLayout->addRow("Name:", nurseNameInput);
 
+    // Create a group box for hospital assignments
+    QGroupBox* nurseHospitalGroup = new QGroupBox("Hospital Assignment");
+    QFormLayout* nurseHospitalLayout = new QFormLayout(nurseHospitalGroup);
+    nurseHospitalLayout->setSpacing(8);
+
     // Hospital selection
-    nurseHospitalComboBox = new QComboBox(this);
-    nurseChangeHospitalComboBox = new QComboBox(this);
+    nurseHospitalComboBox = new QComboBox();
+    nurseChangeHospitalComboBox = new QComboBox();
     for (auto hospital : hospitalSystem->getAllHospitals()) {
         QString name = QString::fromStdString(hospital->getHospitalName());
         nurseHospitalComboBox->addItem(name);
         nurseChangeHospitalComboBox->addItem(name);
     }
-    nurseManagementFormLayout->addRow("Assign to Hospital:", nurseHospitalComboBox);
-    nurseManagementFormLayout->addRow("Reassign to Hospital:", nurseChangeHospitalComboBox);
+    nurseHospitalLayout->addRow("Assign to Hospital:", nurseHospitalComboBox);
+    nurseHospitalLayout->addRow("Reassign to Hospital:", nurseChangeHospitalComboBox);
 
-    nurseLayout->addLayout(nurseManagementFormLayout);
+    // Create horizontal layout to hold the two group boxes side by side
+    QHBoxLayout* topNurseGroupsLayout = new QHBoxLayout();
+    topNurseGroupsLayout->addWidget(nurseInfoGroup);
+    topNurseGroupsLayout->addWidget(nurseHospitalGroup);
 
-    // Add List All Nurses button above the other nurse management buttons
-    QPushButton* listAllNursesButton = new QPushButton("List All Nurses", this);
-    nurseLayout->addWidget(listAllNursesButton);
+    // Create action buttons group
+    QGroupBox* nurseActionGroup = new QGroupBox("Actions");
+    QVBoxLayout* nurseActionLayout = new QVBoxLayout(nurseActionGroup);
 
-    // Buttons
-    QHBoxLayout* nurseManagementButtonLayout  = new QHBoxLayout();
-    QPushButton* addNurseButton = new QPushButton("Add Nurse", this);
-    QPushButton* relocateNurseButton = new QPushButton("Relocate Nurse", this);
-    QPushButton* removeNurseButton = new QPushButton("Remove Nurse", this);
-    QPushButton* viewNurseDetailsButton = new QPushButton("View Nurse Details", this);
+    // Add List All Nurses button at the top of actions
+    QPushButton* listAllNursesButton = new QPushButton("List All Nurses");
+    listAllNursesButton->setIcon(QIcon::fromTheme("view-list"));
+    listAllNursesButton->setMinimumHeight(40);
+    nurseActionLayout->addWidget(listAllNursesButton);
 
-    nurseManagementButtonLayout->addWidget(addNurseButton);
-    nurseManagementButtonLayout->addWidget(relocateNurseButton);
-    nurseManagementButtonLayout->addWidget(removeNurseButton);
-    nurseManagementButtonLayout->addWidget(viewNurseDetailsButton);
+    // Add horizontal layout for nurse action buttons
+    QHBoxLayout* nurseManagementButtonLayout = new QHBoxLayout();
+    
+    QPushButton* addNurseButton = new QPushButton("Add Nurse");
+    addNurseButton->setIcon(QIcon::fromTheme("list-add"));
+    
+    QPushButton* relocateNurseButton = new QPushButton("Relocate Nurse");
+    relocateNurseButton->setIcon(QIcon::fromTheme("edit-copy"));
+    
+    QPushButton* removeNurseButton = new QPushButton("Remove Nurse");
+    removeNurseButton->setIcon(QIcon::fromTheme("edit-delete"));
+    
+    QPushButton* viewNurseDetailsButton = new QPushButton("View Nurse Details");
+    viewNurseDetailsButton->setIcon(QIcon::fromTheme("document-properties"));
 
-    nurseLayout->addLayout(nurseManagementButtonLayout);
+    // Give all buttons equal sizing policies
+    QList<QPushButton*> nurseButtons = {addNurseButton, relocateNurseButton, 
+                                       removeNurseButton, viewNurseDetailsButton};
+    for (QPushButton* button : nurseButtons) {
+        button->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+        button->setMinimumHeight(35);
+        nurseManagementButtonLayout->addWidget(button);
+    }
+
+    nurseActionLayout->addLayout(nurseManagementButtonLayout);
+
+    // Add all components to the main nurse layout
+    nurseLayout->addLayout(topNurseGroupsLayout);
+    nurseLayout->addWidget(nurseActionGroup);
+    nurseLayout->addStretch(1);
+    
     nurseTab->setLayout(nurseLayout);
     
     // ===== DOCTOR-PATIENT TAB =====
-    QWidget* doctorPatientTab = new QWidget(this);
+    QWidget* doctorPatientTab = new QWidget();
     QVBoxLayout* doctorPatientLayout = new QVBoxLayout(doctorPatientTab);
+    doctorPatientLayout->setSpacing(15);
     
-    QFormLayout* doctorFormLayout = new QFormLayout();
+    // Create assignment group
+    QGroupBox* doctorAssignmentGroup = new QGroupBox("Doctor-Patient Assignment");
+    QFormLayout* doctorFormLayout = new QFormLayout(doctorAssignmentGroup);
+    doctorFormLayout->setSpacing(8);
     
-    doctorAssignmentIDInput = new QLineEdit(this);
+    doctorAssignmentIDInput = new QLineEdit();
     doctorAssignmentIDInput->setPlaceholderText("Enter Doctor ID");
     doctorFormLayout->addRow("Doctor ID:", doctorAssignmentIDInput);
     
-    doctorPatientAssignmentIDInput = new QLineEdit(this);
+    doctorPatientAssignmentIDInput = new QLineEdit();
     doctorPatientAssignmentIDInput->setPlaceholderText("Enter Patient ID");
     doctorFormLayout->addRow("Patient ID:", doctorPatientAssignmentIDInput);
     
-    // Add the List All Patients button before doctor assignment buttons
-    QPushButton* doctorListPatientsButton = new QPushButton("List All Patients", this);
-    QPushButton* nurseListPatientsButton = new QPushButton("List All Patients", this);
-
+    // Create action buttons group
+    QGroupBox* doctorPatientActionGroup = new QGroupBox("Actions");
+    QVBoxLayout* doctorPatientActionLayout = new QVBoxLayout(doctorPatientActionGroup);
+    
+    // Add the List All Patients button
+    QPushButton* doctorListPatientsButton = new QPushButton("List All Patients");
+    doctorListPatientsButton->setIcon(QIcon::fromTheme("view-list"));
+    doctorListPatientsButton->setMinimumHeight(40);
+    doctorPatientActionLayout->addWidget(doctorListPatientsButton);
+    
     // Add assignment buttons in their own layout
     QHBoxLayout* doctorButtonLayout = new QHBoxLayout();
-    QPushButton* assignDoctorButton = new QPushButton("Assign Doctor", this);
-    QPushButton* setPrimaryDoctorButton = new QPushButton("Set as Primary Doctor", this);
+    QPushButton* assignDoctorButton = new QPushButton("Assign Doctor");
+    assignDoctorButton->setIcon(QIcon::fromTheme("list-add"));
+    assignDoctorButton->setMinimumHeight(35);
+    
+    QPushButton* setPrimaryDoctorButton = new QPushButton("Set as Primary Doctor");
+    setPrimaryDoctorButton->setIcon(QIcon::fromTheme("emblem-important"));
+    setPrimaryDoctorButton->setMinimumHeight(35);
+    
     doctorButtonLayout->addWidget(assignDoctorButton);
     doctorButtonLayout->addWidget(setPrimaryDoctorButton);
     
-    // Add the form layout and buttons to the main layout
-    doctorPatientLayout->addLayout(doctorFormLayout);
-    doctorPatientLayout->addWidget(doctorListPatientsButton); // Place list button above doctor assignment buttons
-    doctorPatientLayout->addLayout(doctorButtonLayout);
+    doctorPatientActionLayout->addLayout(doctorButtonLayout);
     
     // Discharge request section
-    QGroupBox* dischargeGroupBox = new QGroupBox("Request Patient Discharge", this);
+    QGroupBox* dischargeGroupBox = new QGroupBox("Request Patient Discharge");
     QFormLayout* dischargeFormLayout = new QFormLayout();
+    dischargeFormLayout->setSpacing(8);
     
-    doctorDischargeIDInput = new QLineEdit(this);
+    doctorDischargeIDInput = new QLineEdit();
     doctorDischargeIDInput->setPlaceholderText("Doctor requesting discharge");
     dischargeFormLayout->addRow("Doctor ID:", doctorDischargeIDInput);
     
-    patientDischargeIDInput = new QLineEdit(this);
+    patientDischargeIDInput = new QLineEdit();
     patientDischargeIDInput->setPlaceholderText("Patient to discharge");
     dischargeFormLayout->addRow("Patient ID:", patientDischargeIDInput);
     
-    QPushButton* requestDischargeButton = new QPushButton("Request Discharge", this);
+    QPushButton* requestDischargeButton = new QPushButton("Request Discharge");
+    requestDischargeButton->setIcon(QIcon::fromTheme("edit-delete"));
+    requestDischargeButton->setMinimumHeight(35);
     dischargeFormLayout->addRow("", requestDischargeButton);
     dischargeGroupBox->setLayout(dischargeFormLayout);
 
+    // Add all components to the main layout
+    doctorPatientLayout->addWidget(doctorAssignmentGroup);
+    doctorPatientLayout->addWidget(doctorPatientActionGroup);
     doctorPatientLayout->addWidget(dischargeGroupBox);
+    doctorPatientLayout->addStretch(1);
+    
     doctorPatientTab->setLayout(doctorPatientLayout);
 
     // ===== NURSE-PATIENT TAB =====
-
-    QWidget* nursePatientTab = new QWidget(this);
+    QWidget* nursePatientTab = new QWidget();
     QVBoxLayout* nursePatientLayout = new QVBoxLayout(nursePatientTab);
+    nursePatientLayout->setSpacing(15);
 
-    QFormLayout* nurseFormLayout = new QFormLayout();
+    // Create assignment group
+    QGroupBox* nurseAssignmentGroup = new QGroupBox("Nurse-Patient Assignment");
+    QFormLayout* nurseFormLayout = new QFormLayout(nurseAssignmentGroup);
+    nurseFormLayout->setSpacing(8);
     
-    nurseAssignmentIDInput = new QLineEdit(this);
+    nurseAssignmentIDInput = new QLineEdit();
     nurseAssignmentIDInput->setPlaceholderText("Enter Nurse ID");
     nurseFormLayout->addRow("Nurse ID:", nurseAssignmentIDInput);
 
-    nursePatientAssignmentIDInput = new QLineEdit(this);
+    nursePatientAssignmentIDInput = new QLineEdit();
     nursePatientAssignmentIDInput->setPlaceholderText("Enter Patient ID");
     nurseFormLayout->addRow("Patient ID:", nursePatientAssignmentIDInput);
 
-    // Add assignment buttons in their own layout
-    QHBoxLayout* nurseButtonLayout = new QHBoxLayout();
-    QPushButton* assignNurseButton = new QPushButton("Assign Nurse", this);
-    nurseButtonLayout->addWidget(assignNurseButton);
+    // Create action buttons group
+    QGroupBox* nursePatientActionGroup = new QGroupBox("Actions");
+    QVBoxLayout* nursePatientActionLayout = new QVBoxLayout(nursePatientActionGroup);
     
+    // Add the List All Patients button
+    QPushButton* nurseListPatientsButton = new QPushButton("List All Patients");
+    nurseListPatientsButton->setIcon(QIcon::fromTheme("view-list"));
+    nurseListPatientsButton->setMinimumHeight(40);
+    nursePatientActionLayout->addWidget(nurseListPatientsButton);
+    
+    // Add assignment buttons
+    QPushButton* assignNurseButton = new QPushButton("Assign Nurse");
+    assignNurseButton->setIcon(QIcon::fromTheme("list-add"));
+    assignNurseButton->setMinimumHeight(35);
+    nursePatientActionLayout->addWidget(assignNurseButton);
 
-    nursePatientLayout->addLayout(nurseFormLayout);
-    nursePatientLayout->addLayout(nurseButtonLayout);
+    // Add all components to the main layout
+    nursePatientLayout->addWidget(nurseAssignmentGroup);
+    nursePatientLayout->addWidget(nursePatientActionGroup);
+    nursePatientLayout->addStretch(1);
+    
     nursePatientTab->setLayout(nursePatientLayout);
-    nursePatientLayout->addWidget(nurseListPatientsButton); // Place list button above doctor assignment buttons
     
     // ===== BILLING TAB =====
-    QWidget* billingTab = new QWidget(this);
+    QWidget* billingTab = new QWidget();
     QVBoxLayout* billingLayout = new QVBoxLayout(billingTab);
+    billingLayout->setSpacing(15);
 
-    // Patient ID input
-    QFormLayout* billingFormLayout = new QFormLayout();
-    billingPatientIDInput = new QLineEdit(this);
+    // Create billing info group
+    QGroupBox* billingInfoGroup = new QGroupBox("Billing Information");
+    QFormLayout* billingFormLayout = new QFormLayout(billingInfoGroup);
+    billingFormLayout->setSpacing(8);
+    
+    billingPatientIDInput = new QLineEdit();
     billingPatientIDInput->setPlaceholderText("Enter Patient ID");
     billingFormLayout->addRow("Patient ID:", billingPatientIDInput);
 
     // Add current bill display
-    currentBillLabel = new QLabel("$0.00", this);
+    currentBillLabel = new QLabel("$0.00");
     currentBillLabel->setStyleSheet("font-weight: bold; font-size: 14px;");
     billingFormLayout->addRow("Current Bill:", currentBillLabel);
     
     // Add payment amount input
-    paymentAmountInput = new QDoubleSpinBox(this);
+    paymentAmountInput = new QDoubleSpinBox();
     paymentAmountInput->setRange(0.0, 10000.0);
     paymentAmountInput->setPrefix("$");
     paymentAmountInput->setValue(0.0);
     billingFormLayout->addRow("Payment Amount:", paymentAmountInput);
 
-    // Add button layout for multiple buttons
+    // Create billing actions group
+    QGroupBox* billingActionGroup = new QGroupBox("Billing Actions");
+    QVBoxLayout* billingActionLayout = new QVBoxLayout(billingActionGroup);
+
+    // Individual patient billing actions
     QHBoxLayout* billingButtonLayout = new QHBoxLayout();
-    QPushButton* calculateBillButton = new QPushButton("Calculate Bill", this);
-    QPushButton* collectPaymentButton = new QPushButton("Collect Payment", this);
-    QPushButton* billingReportButton = new QPushButton("Generate Billing Report", this);
-    QPushButton* pharmacyBillingButton = new QPushButton("Generate Pharmacy Billing", this);
+    QPushButton* calculateBillButton = new QPushButton("Calculate Bill");
+    calculateBillButton->setIcon(QIcon::fromTheme("accessories-calculator"));
+    calculateBillButton->setMinimumHeight(35);
+    
+    QPushButton* collectPaymentButton = new QPushButton("Collect Payment");
+    collectPaymentButton->setIcon(QIcon::fromTheme("emblem-money"));
+    collectPaymentButton->setMinimumHeight(35);
     
     billingButtonLayout->addWidget(calculateBillButton);
     billingButtonLayout->addWidget(collectPaymentButton);
     
-    // Add all the components to the main billing layout
-    billingLayout->addLayout(billingFormLayout);
-    billingLayout->addLayout(billingButtonLayout);
-    billingLayout->addWidget(billingReportButton);
-    billingLayout->addWidget(pharmacyBillingButton);
+    // System-wide billing actions
+    QPushButton* billingReportButton = new QPushButton("Generate Billing Report");
+    billingReportButton->setIcon(QIcon::fromTheme("office-chart"));
+    billingReportButton->setMinimumHeight(35);
+    
+    QPushButton* pharmacyBillingButton = new QPushButton("Generate Pharmacy Billing");
+    pharmacyBillingButton->setIcon(QIcon::fromTheme("office-chart"));
+    pharmacyBillingButton->setMinimumHeight(35);
+    
+    billingActionLayout->addLayout(billingButtonLayout);
+    billingActionLayout->addWidget(billingReportButton);
+    billingActionLayout->addWidget(pharmacyBillingButton);
+    
+    // Add all components to the main billing layout
+    billingLayout->addWidget(billingInfoGroup);
+    billingLayout->addWidget(billingActionGroup);
+    billingLayout->addStretch(1);
     
     billingTab->setLayout(billingLayout);
 
@@ -342,39 +552,48 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     connect(billingReportButton, &QPushButton::clicked, this, &MainWindow::showBillingReport);
     connect(pharmacyBillingButton, &QPushButton::clicked, this, &MainWindow::showPharmacyBillingReport);
     
-        // ===== DRUG DELIVERY TAB =====
-    QWidget* drugDeliveryTab = new QWidget(this);
+    // ===== DRUG DELIVERY TAB =====
+    QWidget* drugDeliveryTab = new QWidget();
     QVBoxLayout* drugDeliveryLayout = new QVBoxLayout(drugDeliveryTab);
+    drugDeliveryLayout->setSpacing(15);
 
-    QFormLayout* drugFormLayout = new QFormLayout();
+    // Create drug delivery form group
+    QGroupBox* drugDeliveryGroup = new QGroupBox("Drug Delivery Request");
+    QFormLayout* drugFormLayout = new QFormLayout(drugDeliveryGroup);
+    drugFormLayout->setSpacing(8);
 
-    drugHospitalComboBox = new QComboBox(this);
+    drugHospitalComboBox = new QComboBox();
     auto allHospitals = hospitalSystem->getAllHospitals();
     for (auto hospital : allHospitals) {
         drugHospitalComboBox->addItem(QString::fromStdString(hospital->getHospitalName()));
     }
-    drugFormLayout->addRow("Select Hospital:", drugHospitalComboBox);
+    drugFormLayout->addRow("Destination Hospital:", drugHospitalComboBox);
 
-    drugPharmacyComboBox = new QComboBox(this);
+    drugPharmacyComboBox = new QComboBox();
     auto allPharmacies = PharmacySystem::getInstance()->getAllPharmacies();
     for (auto pharmacy : allPharmacies) {
         drugPharmacyComboBox->addItem(
             QString::fromStdString(pharmacy->getPharmacyName() + " (" + pharmacy->getPharmacyID() + ")")
             );
     }
-    drugFormLayout->addRow("Select Pharmacy:", drugPharmacyComboBox);
+    drugFormLayout->addRow("Source Pharmacy:", drugPharmacyComboBox);
 
-    drugComboBox = new QComboBox(this);
+    drugComboBox = new QComboBox();
     auto allDrugs = PharmacySystem::getInstance()->getAllDrugs();
     for (auto &d : allDrugs) {
         drugComboBox->addItem(QString::fromStdString(d.getDrugName()));
     }
     drugFormLayout->addRow("Select Drug:", drugComboBox);
 
-    QPushButton* requestDeliveryButton = new QPushButton("Request Delivery", this);
+    QPushButton* requestDeliveryButton = new QPushButton("Request Delivery");
+    requestDeliveryButton->setIcon(QIcon::fromTheme("mail-send"));
+    requestDeliveryButton->setMinimumHeight(35);
     drugFormLayout->addRow("", requestDeliveryButton);
 
-    drugDeliveryLayout->addLayout(drugFormLayout);
+    // Add the drug delivery group to the main layout
+    drugDeliveryLayout->addWidget(drugDeliveryGroup);
+    drugDeliveryLayout->addStretch(1);
+    
     drugDeliveryTab->setLayout(drugDeliveryLayout);
 
     connect(requestDeliveryButton, &QPushButton::clicked, this, &MainWindow::requestDrugDelivery);
@@ -389,18 +608,47 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     tabWidget->addTab(drugDeliveryTab, "Drug Delivery");
     
     // Create status display
-    statusDisplay = new QTextEdit(this);
+    statusDisplay = new QTextEdit();
     statusDisplay->setReadOnly(true);
+    
+    // Set minimum heights for both main components
+    tabWidget->setMinimumHeight(300);
+    statusDisplay->setMinimumHeight(150);
+    
+    // Add the tab widget and status display to the splitter
+    mainSplitter->addWidget(tabWidget);
+    mainSplitter->addWidget(statusDisplay);
+    
+    // Set initial sizes for splitter (70% tabs, 30% status)
+    QList<int> sizes;
+    sizes << 700 << 300;
+    mainSplitter->setSizes(sizes);
+    
+    // Create a clear button for the status display
+    QPushButton* clearDisplayButton = new QPushButton("Clear Display");
+    clearDisplayButton->setStyleSheet(R"(
+        QPushButton {
+            background-color: #e74c3c;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        QPushButton:hover {
+            background-color: #c0392b;
+        }
+    )");
+    connect(clearDisplayButton, &QPushButton::clicked, this, &MainWindow::clearStatusDisplay);
 
     // Add widgets to the main layout
-    mainLayout->addWidget(tabWidget);
-    mainLayout->addWidget(statusDisplay);
+    mainLayout->addWidget(mainSplitter, 1);
+    mainLayout->addWidget(clearDisplayButton);
 
     centralWidget->setLayout(mainLayout);
     setCentralWidget(centralWidget);
     setWindowTitle("Hospital Management System");
 
-    resize(900, 700);
+    resize(1000, 800);  // Slightly larger default size
 
     // Connect buttons to slots
     connect(addPatientButton, &QPushButton::clicked, this, &MainWindow::addPatient);
@@ -452,22 +700,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
     statusDisplay->append("Welcome to the Hospital Management System!");
     statusDisplay->append("---------------------------------------------");
 
-    QPushButton* clearDisplayButton = new QPushButton("Clear Display", this);
-    clearDisplayButton->setStyleSheet(R"(
-        QPushButton {
-            background-color: #e74c3c;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-        QPushButton:hover {
-            background-color: #c0392b;
-        }
-    )");
-    mainLayout->addWidget(clearDisplayButton);
-    connect(clearDisplayButton, &QPushButton::clicked, this, &MainWindow::clearStatusDisplay);
-
+    // Update the style sheet to ensure no black text on dark background
     qApp->setStyleSheet(R"(
     QWidget {
             background-color: #2b2b2b;
@@ -478,9 +711,45 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
         QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox, QTextEdit {
             background-color: #3c3f41;
+            color: #f0f0f0;
             border: 1px solid #555;
             border-radius: 4px;
             padding: 4px;
+            selection-background-color: #4a90e2;
+            selection-color: #ffffff;
+        }
+        
+        QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus {
+            border: 1px solid #4a90e2;
+        }
+        
+        QLineEdit:disabled, QComboBox:disabled, QSpinBox:disabled, QDoubleSpinBox:disabled {
+            background-color: #323232;
+            color: #8a8a8a;
+        }
+
+        QComboBox::drop-down {
+            border: none;
+            width: 20px;
+            /* remove arrow or add alternative design */
+        }
+
+        QComboBox::down-arrow {
+            width: 0;
+            height: 0;
+            border: none;
+            /* hide or replace with custom icon/content */
+        }
+        
+        QComboBox QAbstractItemView {
+            background-color: #3c3f41;
+            color: #f0f0f0;
+            border: 1px solid #555;
+        }
+
+        QSpinBox::up-button, QDoubleSpinBox::up-button,
+        QSpinBox::down-button, QDoubleSpinBox::down-button {
+            /* remove default arrows or use alternative design */
         }
 
         QPushButton {
@@ -493,8 +762,16 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
         QPushButton:hover {
             background-color: #357ABD;
         }
+        QPushButton:pressed {
+            background-color: #2868A0;
+        }
+        QPushButton:disabled {
+            background-color: #555555;
+            color: #aaaaaa;
+        }
 
         QLabel {
+            color: #f0f0f0;
             font-weight: bold;
         }
 
@@ -505,6 +782,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
         QTabBar::tab {
             background: #3a3a3a;
+            color: #f0f0f0;
             padding: 8px;
             border-top-left-radius: 6px;
             border-top-right-radius: 6px;
@@ -514,6 +792,199 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
         QTabBar::tab:selected {
             background: #4a90e2;
             color: white;
+        }
+        
+        QGroupBox {
+            border: 1px solid #555;
+            border-radius: 5px;
+            margin-top: 1ex;
+            padding-top: 10px;
+            color: #f0f0f0;
+        }
+        
+        QGroupBox::title {
+            subcontrol-origin: margin;
+            subcontrol-position: top center;
+            padding: 0 5px;
+            font-weight: bold;
+            color: #4a90e2;
+        }
+        
+        QSplitter::handle {
+            background-color: #555;
+            height: 2px;
+        }
+        
+        QFrame[frameShape="4"] { /* HLine */
+            background-color: #555;
+            height: 1px;
+        }
+        
+        QTextEdit {
+            background-color: #2d2d2d;
+            color: #f0f0f0;
+            border: 1px solid #444;
+            selection-background-color: #4a90e2;
+            selection-color: #ffffff;
+        }
+        
+        QScrollBar:vertical {
+            border: none;
+            background: #2b2b2b;
+            width: 10px;
+            margin: 0px;
+        }
+        
+        QScrollBar::handle:vertical {
+            background: #555;
+            min-height: 20px;
+            border-radius: 5px;
+        }
+        
+        QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+            height: 0px;
+        }
+        
+        QScrollBar:horizontal {
+            border: none;
+            background: #2b2b2b;
+            height: 10px;
+            margin: 0px;
+        }
+        
+        QScrollBar::handle:horizontal {
+            background: #555;
+            min-width: 20px;
+            border-radius: 5px;
+        }
+        
+        QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+            width: 0px;
+        }
+        
+        QHeaderView::section {
+            background-color: #3a3a3a;
+            color: #f0f0f0;
+            padding: 5px;
+            border: 1px solid #555;
+        }
+        
+        QToolTip {
+            background-color: #2b2b2b;
+            color: #f0f0f0;
+            border: 1px solid #555;
+            padding: 3px;
+        }
+
+        QComboBox QAbstractItemView {
+            background-color: #3c3f41;
+            color: #f0f0f0;
+            border: 1px solid #555;
+        }
+
+        QComboBox::down-arrow {
+            image: url(:/images/down.png);
+            width: 12px;
+            height: 12px;
+        }
+
+        QComboBox::drop-down {
+            border: none;
+            width: 20px;
+            subcontrol-position: center right;
+            subcontrol-origin: padding;
+            padding-right: 5px;
+            background-color: transparent;
+        }
+
+        QSpinBox::up-button, QDoubleSpinBox::up-button {
+            image: url(:/images/up.png);
+            width: 8px;
+            height: 8px;
+            subcontrol-position: top right;
+            subcontrol-origin: margin;
+            margin: 2px;
+            padding: 4px;
+            border: none;
+            background-color: transparent;
+        }
+
+        QSpinBox::down-button, QDoubleSpinBox::down-button {
+            image: url(:/images/down.png);
+            width: 12px;
+            height: 12px;
+            subcontrol-position: bottom right;
+            subcontrol-origin: margin;
+            margin: 2px;
+            padding: 2px;
+            border: none;
+            background-color: transparent;
+        }
+
+        QPushButton {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+        }
+        QPushButton:hover {
+            background-color: #357ABD;
+        }
+        QPushButton:pressed {
+            background-color: #2868A0;
+        }
+        QPushButton:disabled {
+            background-color: #555555;
+            color: #aaaaaa;
+        }
+
+        /* Improved tab styling for a clean, professional look */
+        QTabWidget::pane {
+            border: 1px solid #444;
+            border-top-width: 0px;
+            border-radius: 0 0 4px 4px;
+            padding: 10px;
+            background-color: #2d2d2d;
+            top: -1px;
+        }
+
+        QTabBar {
+            background-color: transparent;
+            margin-top: 10px; /* Add margin to move tabs down */
+        }
+
+        QTabWidget::tab-bar {
+            alignment: left;
+            background: transparent;
+            margin-top: 8px; /* Add margin to move tabs down */
+        }
+
+        QTabBar::tab {
+            background: #323232;
+            color: #b8b8b8;
+            padding: 12px 20px;
+            border: 1px solid #444;
+            border-bottom: none;
+            border-top-left-radius: 6px;
+            border-top-right-radius: 6px;
+            min-width: 130px;
+            font-weight: bold;
+            margin-right: 3px;
+            transition: background-color 0.3s;
+        }
+
+        QTabBar::tab:hover {
+            background-color: #3a3a3a;
+            color: #ffffff;
+        }
+
+        QTabBar::tab:selected {
+            background: #4a90e2;
+            color: white;
+            border-bottom: none;
+            margin-bottom: -1px;
+            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.3);
         }
     )");
 }
@@ -622,16 +1093,20 @@ void MainWindow::addPatient() {
 void MainWindow::relocatePatient() {
     string patientID = patientIDInput->text().toStdString();
     string newPrimaryDoctorID = doctorIDInput->text().toStdString();
+    string newNurseID = nurseIDInput->text().toStdString();
     int newHospitalIndex = relocateHospitalComboBox->currentIndex();
 
-    if (patientID.empty() || newPrimaryDoctorID.empty()) {
-        statusDisplay->append("Error: Patient ID and new Primary Doctor ID must be provided.");
+    if (patientID.empty() || newPrimaryDoctorID.empty() || newNurseID.empty()) {
+        statusDisplay->append("Error: Patient ID, new Primary Doctor ID, and new Nurse ID must be provided.");
         return;
     }
 
     Patient* patient = hospitalSystem->findPatient(patientID);
     if (!patient) {
         statusDisplay->append("Error: Patient not found.");
+        patientIDInput->clear();
+        doctorIDInput->clear();
+        nurseIDInput->clear();
         return;
     }
 
@@ -643,6 +1118,31 @@ void MainWindow::relocatePatient() {
         return;
     }
 
+    // Check if patient is already in the target hospital
+    if (currentHospital->getHospitalID() == newHospital->getHospitalID()) {
+        statusDisplay->append("Error: Patient " + QString::fromStdString(patientID) + 
+                              " is already admitted to " + relocateHospitalComboBox->currentText());
+        
+        // Clear the input fields to prevent repeated attempts with the same data
+        patientIDInput->clear();
+        doctorIDInput->clear();
+        nurseIDInput->clear();
+        return;
+    }
+
+    // Check if trying to relocate to a hospital with the same doctor ID (would cause crash)
+    if (patient->getPrimaryDoctorID() == newPrimaryDoctorID && 
+        !patient->getAttendingNursesIDs().empty() && 
+        patient->getAttendingNursesIDs()[0] == newNurseID) {
+        statusDisplay->append("Error: Cannot relocate patient with the same primary doctor and nurse. Please select different staff.");
+        
+        // Clear the input fields to prevent repeated attempts with the same data
+        patientIDInput->clear();
+        doctorIDInput->clear();
+        nurseIDInput->clear();
+        return;
+    }
+
     // Check if doctor works at new hospital
     if (!isDoctorInHospital(newPrimaryDoctorID, newHospitalIndex)) {
         statusDisplay->append("Error: Doctor " + QString::fromStdString(newPrimaryDoctorID) +
@@ -650,25 +1150,84 @@ void MainWindow::relocatePatient() {
         return;
     }
 
-    // Remove all doctor assignments from current hospital
-    for (auto doctor : currentHospital->getDoctors()) {
-        doctor->removePatient(patientID);
+    // Check if nurse works at new hospital
+    if (!isNurseInHospital(newNurseID, newHospitalIndex)) {
+        statusDisplay->append("Error: Nurse " + QString::fromStdString(newNurseID) +
+                              " does not work at " + relocateHospitalComboBox->currentText() + ".");
+        return;
     }
-    patient->getAttendingDoctorIDs().clear();
-    patient->setPrimaryDoctorID("");
 
-    // Attempt to relocate the patient
-    if (hospitalSystem->relocatePatient(patientID, newHospitalIndex)) {
-        // Assign the new primary doctor
-        if (hospitalSystem->setPatientPrimaryDoctor(patientID, newPrimaryDoctorID)) {
-            statusDisplay->append("Patient " + QString::fromStdString(patientID) +
-                                  " relocated to " + relocateHospitalComboBox->currentText() +
-                                  " and assigned to Doctor " + QString::fromStdString(newPrimaryDoctorID));
-        } else {
-            statusDisplay->append("Patient relocated, but failed to assign new primary doctor.");
+    // Get the doctor and nurse objects
+    Doctor* newDoctor = hospitalSystem->findDoctor(newPrimaryDoctorID);
+    Nurse* newNurse = hospitalSystem->findNurse(newNurseID);
+    
+    if (!newDoctor || !newNurse) {
+        statusDisplay->append("Error: Could not find the specified doctor or nurse.");
+        return;
+    }
+
+    // Check if the nurse already has the maximum number of patients
+    if (newNurse->getPatientIDs().size() >= 2) {
+        // Check if the nurse is already assigned to this patient (could happen with a new relocation)
+        bool alreadyAssigned = false;
+        for (const string& pid : newNurse->getPatientIDs()) {
+            if (pid == patientID) {
+                alreadyAssigned = true;
+                break;
+            }
         }
-    } else {
-        statusDisplay->append("Failed to relocate patient. Destination hospital may be full.");
+        
+        if (!alreadyAssigned) {
+            statusDisplay->append("Error: Nurse " + QString::fromStdString(newNurseID) + 
+                              " already has the maximum number of patients (2).");
+            return;
+        }
+    }
+
+    // Wrap the entire operation in a try-catch block
+    try {
+        // First relocate the patient
+        bool relocationSuccess = hospitalSystem->relocatePatient(patientID, newHospitalIndex);
+        
+        if (!relocationSuccess) {
+            statusDisplay->append("Failed to relocate patient!");
+            return;
+        }
+        
+        // Only proceed with staff assignments if relocation succeeded
+        
+        // Add doctor-patient association directly
+        newDoctor->addPatient(patientID);
+        patient->setPrimaryDoctorID(newPrimaryDoctorID);
+        
+        // Add nurse-patient association directly
+        newNurse->assignPatient(patientID);
+        patient->addAttendingNurse(newNurseID);
+        
+        // Only show success message after everything worked
+        statusDisplay->append("Patient " + QString::fromStdString(patientID) +
+                            " relocated to " + relocateHospitalComboBox->currentText() +
+                            " and assigned to Doctor " + QString::fromStdString(newPrimaryDoctorID) +
+                            " and Nurse " + QString::fromStdString(newNurseID));
+                            
+        // Clear the input fields after successful relocation
+        patientIDInput->clear();
+        doctorIDInput->clear();
+        nurseIDInput->clear();
+    } 
+    catch (const std::exception& e) {
+        statusDisplay->append("Error during relocation: " + QString(e.what()));
+        // Clear fields on error to prevent retrying the same operation
+        patientIDInput->clear();
+        doctorIDInput->clear();
+        nurseIDInput->clear();
+    }
+    catch (...) {
+        statusDisplay->append("An unexpected error occurred during patient relocation.");
+        // Clear fields on error to prevent retrying the same operation
+        patientIDInput->clear();
+        doctorIDInput->clear();
+        nurseIDInput->clear();
     }
 }
 

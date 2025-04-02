@@ -1,68 +1,26 @@
 # Hospital Management System
 
-The Hospital Management System is a Qt-based C++ application that allows administrators to manage multiple hospitals, patients, doctors, nurses, and pharmacies. It supports patient tracking, staff assignments, billing management, pharmacy coordination, and more through a user-friendly interface.
+The Hospital Management System is a Qt-based C++ application for managing patients, staff, billing, and medication logistics across a network of hospitals. It offers a clean tabbed interface for efficient hospital administration, supporting tasks like patient tracking, doctor/nurse assignment, billing, and pharmacy coordination.
 
 ---
 
-## Features
-
-### Patient Management
-- Admit, relocate, and discharge patients across multiple hospitals
-- View individual patient information and medical status
-
-### Doctor Assignment
-- Assign both primary and attending doctors to patients
-- Allow doctors to request patient discharges
-
-### Nurse Assignment
-- Assign nurses to patients with a limit of two patients per nurse
-
-### Billing System
-- Automatically track daily charges per patient
-- Accept partial and full payments
-- Generate billing reports for patients and hospitals
-
-### Pharmacy Integration
-- Request drug deliveries from specific pharmacies
-- Track and pay pharmacy-related bills
-
-### Hospital Network Management
-- Manage multiple hospitals with individual staff and patient lists
-- Monitor hospital capacity and status
-
-### Real-Time Updates
-- Daily updates for patient billing and admission duration
-
----
-
-## System Architecture
-
-The system is designed using the Model-View-Controller (MVC) pattern:
-
-- **Model**: Core C++ classes (`Hospital`, `Patient`, `Doctor`, `Nurse`, `Pharmacy`)
-- **View & Controller**: Qt-based GUI using `MainWindow` and tabbed navigation
-- **Controllers**: Singleton managers (`HospitalSystem`, `PharmacySystem`) coordinate logic
-
----
-
-## Building and Running
+## Getting Started
 
 ### Prerequisites
 - Qt 5.x or newer
 - C++ compiler (e.g., GCC, Clang, or MSVC)
-- Make or equivalent build tool
+- `make` or a compatible build tool
 
-### Build Instructions
+### Build & Run
 
-#### Using Qt Creator
+#### Option 1: Using Qt Creator
 1. Open **Qt Creator**
-2. Select **File > Open File or Project...**
-3. Navigate to your project directory
-4. Open `HospitalManagementSystem.pro`
-5. Configure the project as prompted
-6. Build and run the application
+2. Go to **File > Open File or Project...**
+3. Select `HospitalManagementSystem.pro` from the project folder
+4. Configure the project if prompted
+5. Click **Build** and then **Run**
 
-#### Using Command Line
+#### Option 2: Using Command Line
 ```bash
 # Navigate to the project directory
 cd /path/to/HospitalManagementSystem
@@ -74,54 +32,125 @@ qmake HospitalManagementSystem.pro
 make
 
 # Run the application
-./HospitalManagementSystem   # Also open HospitalManagementSystem.app for Mac Or 'HospitalManagementSystem.exe' on Windows
+./HospitalManagementSystem         # Linux/macOS
+open HospitalManagementSystem.app  # macOS
+HospitalManagementSystem.exe       # Windows
 ```
 
 ---
 
-## User Guide
+## System Architecture
 
-### Tab Overview
-- **Patient Management**: Add, relocate, and discharge patients
-- **Doctor-Patient**: Assign doctors and handle discharge requests
-- **Nurse-Patient**: Assign nurses to patients
-- **Billing**: Calculate and collect payments, generate billing reports
-- **Drug Delivery**: Order and track medication delivery from pharmacies
+The system follows the Model-View-Controller (MVC) pattern:
+
+- **Model**: Core logic in C++ classes like `Hospital`, `Patient`, `Doctor`, `Nurse`, `Pharmacy`, and `Drug`
+- **View & Controller**: Qt-based GUI (`MainWindow`) with a tabbed interface
+- **Controllers**: Singleton managers `HospitalSystem` and `PharmacySystem` coordinate global operations
 
 ---
 
-## Testing Scenarios
+### Core OOP Principles
+- **Encapsulation**: All class attributes are private, accessed via getters/setters (e.g., `getDoctorID()`, `getHospitalID()`).
+- **Composition**: Hospitals manage collections of `Patient`, `Doctor`, and `Nurse` objects; `Pharmacy` manages `Drug` and `Bill` objects.
+- **Modular Classes**: Each class (e.g., `Patient`, `Doctor`, `Hospital`, `Pharmacy`) has a focused responsibility and minimal dependencies.
+- **Singleton Pattern**: `HospitalSystem` and `PharmacySystem` are global managers used to coordinate application-wide logic from any part of the code.
+
+---
+
+## Main Features
+
+### Patient Management
+- Admit, relocate, discharge patients across hospitals
+- View individual patient details and status
+
+### Doctor Management
+- View, add, remove, and relocate doctors
+- Assign primary and attending doctors to patients
+- Allow doctors to request discharges
+
+### Nurse Management
+- View, add, remove, and relocate nurses
+- Assign nurses (max 2 patients per nurse)
+
+### Billing System
+- Daily charges update automatically
+- Accept partial/full payments
+- Generate reports for patients and hospitals
+
+### Pharmacy Integration
+- Request medications from pharmacies
+- Track and pay pharmacy-related bills
+
+### Hospital Network
+- Manage staff/patient lists per hospital
+- Monitor capacity and workload
+
+### Real-Time Updates
+- Automated daily updates for billing and patient stay tracking using Qt timers
+
+---
+
+## User Interface Overview
+
+The interface is organized into the following tabs:
+
+- **Patient Management**: Admit, relocate, discharge patients
+- **Doctor Management**: Add, remove, view, or reassign doctors
+- **Nurse Management**: Add, remove, view, or reassign nurses
+- **Doctor-Patient**: Assign doctors, set primary doctors, request discharges
+- **Nurse-Patient**: Assign nurses to patients
+- **Billing**: View/calculate bills, collect payments, generate reports
+- **Drug Delivery**: Order medications and track hospital pharmacy bills
+
+---
+
+## How to Test the Application
 
 ### 1. Add a Patient
-- Fill out all patient fields
-- Select a hospital and set a billing rate
-- Click "Add Patient" and verify success message
+- Fill in patient details
+- Choose hospital, doctor, and nurse
+- Set daily billing rate
+- Click **"Add Patient"**
 
 ### 2. Assign a Doctor
-- Go to the Doctor-Patient tab
-- Enter a doctor and patient ID
-- Click "Assign Doctor" or "Set as Primary Doctor"
+- Go to the **Doctor-Patient** tab
+- Enter doctor and patient IDs
+- Click **"Assign Doctor"** or **"Set as Primary Doctor"**
 
 ### 3. Relocate a Patient
-- Select a different hospital from the dropdown
-- Ensure a valid doctor is available at the new hospital
-- Click "Relocate Patient"
+- Select a new hospital from dropdown
+- Ensure doctor is valid at the destination
+- Click **"Relocate Patient"**
 
-### 4. Billing and Payments
-- Use "Calculate Bill" to view current charges
-- Enter payment amount and click "Collect Payment"
-- Generate billing reports for detailed summaries
+### 4. View & Collect Payments
+- Enter patient ID under **Billing**
+- Click **"Calculate Bill"**
+- Input amount and click **"Collect Payment"**
 
-### 5. Request a Drug
-- Go to the Drug Delivery tab
+### 5. Request Drug Delivery
+- Go to **Drug Delivery**
 - Select hospital, pharmacy, and drug
-- Click "Request Delivery" to create a pharmacy bill
+- Click **"Request Delivery"** to generate a bill
+
+### 6. Manage Staff
+- Go to **Doctor Management** or **Nurse Management**
+- Add new staff, relocate them between hospitals, or remove them by ID
 
 ---
 
 ## Sample Data
 
-- **Doctor IDs**: `D1` to `D15`
-- **Patient IDs**: `P001` to `P005` (sample), or create your own (e.g., `P006`)
-- **Hospitals**: Indexes `0` to `4`
-- **Sample Drugs**: Aspirin, Ibuprofen, Acetaminophen, Amoxicillin, Insulin
+- **Doctor IDs**: `D1` to `D49` (auto-assigned across hospitals, 1 less than max to test add doctor functionality)
+- **Nurse IDs**: `N1` to `N59` (auto-assigned across hospitals, 1 less than max to test add nurse functionality)
+- **Patient IDs**:
+  - `P001`: Alice Johnson (Hospital 0, Doctor D1, Nurse N1)
+  - `P002`: Bob Smith (Hospital 0, Doctor D3, Nurse N6)
+  - `P003`: Carla Diaz (Hospital 2, Doctor D7, Nurse N11)
+  - `P004`: David Lee (Hospital 3, Doctor D10, Nurse N16)
+  - `P005`: Eva Nguyen (Hospital 4, Doctor D13, Nurse N21)
+  - You can add more through the UI
+- **Hospitals**: Indexed `0` through `4`
+- **Pharmacies**: `P1` to `P20`
+- **Available Drugs**: Aspirin, Ibuprofen, Acetaminophen, Amoxicillin, Insulin
+
+---

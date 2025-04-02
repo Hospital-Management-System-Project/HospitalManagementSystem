@@ -31,6 +31,7 @@ public:
     bool admitPatient(Patient* patient);
     bool relocatePatient(Patient* patient, Hospital* newHospital);
     void dischargePatient(Patient* patient);
+    bool removePatient(Patient* patient);
     
     void addDoctor(Doctor* doctor);
     bool relocateDoctor(Doctor* doctor, Hospital* newHospital);

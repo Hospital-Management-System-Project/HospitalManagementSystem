@@ -52,6 +52,15 @@ void Hospital::dischargePatient(Patient* patient) {
     patients.erase(remove(patients.begin(), patients.end(), patient), patients.end());
 }
 
+bool Hospital::removePatient(Patient* patient) {
+    auto it = find(patients.begin(), patients.end(), patient);
+    if (it != patients.end()) {
+        patients.erase(it);
+        return true;
+    }
+    return false;
+}
+
 void Hospital::addDoctor(Doctor* doctor) {
     doctor->setHospitalID(getHospitalID());
     doctors.push_back(doctor);
