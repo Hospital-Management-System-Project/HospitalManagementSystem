@@ -175,3 +175,12 @@ The interface is organized into the following tabs:
 - **Available Drugs**: Aspirin, Ibuprofen, Acetaminophen, Amoxicillin, Insulin
 
 ---
+
+## Team Contribution
+
+This project was developed collaboratively, with all team members contributing to various components of the system. We worked closely together on feature design, testing, and integration.
+
+### Workload Distribution
+- **Nafiz Hasan** focused on developing core system classes and essential features, including patient admission.
+- **Cam Vandy** led the design of the user interface using Qt, ensuring a clean and intuitive layout across all tabs.
+- **Ahmed** contributed additional system features such as doctor management.
