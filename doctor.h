@@ -6,6 +6,7 @@
 
 using namespace std;
 
+// We created this class to represent a doctor in the hospital system.
 class Doctor {
 private:
     string doctorID;
@@ -15,18 +16,15 @@ private:
 
 public:
     Doctor(string id, string doctorName, string hospID);
-
     // Getters
     string getDoctorID() const;
     string getDoctorName() const;
     string getHospitalID() const;
     vector<string> getPatientIDs() const;
-
     string getFullDescription() const;
 
     // Setters
     void setHospitalID(string hospID);
-
     // Patient management
     void addPatient(string patientID);
     void removePatient(string patientID);
