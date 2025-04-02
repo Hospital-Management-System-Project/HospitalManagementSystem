@@ -180,7 +180,8 @@ The interface is organized into the following tabs:
 
 This project was developed collaboratively, with all team members contributing to various components of the system. We worked closely together on feature design, testing, and integration.
 
-### Workload Distribution
-- **Nafiz Hasan** focused on developing core system classes and essential features, including patient admission.
-- **Cam Vandy** led the design of the user interface using Qt, ensuring a clean and intuitive layout across all tabs.
-- **Ahmed** contributed additional system features such as doctor management.
+**Ahmad Munim**: Main Contributions: Doctor Management Tab, Nurse-Patient Tab, UI Design
+
+**Cameron Vandermeersch**: Main Contributions: Billing Tab, Patient Management Tab, Doctor-Patient Tab, UI Design
+
+**Nafiz Hasan**: Main Contributions: Drug Delivery Tab, Nurse Management Tab, Core classes, Patient Management Tab, UI Design
