@@ -177,20 +177,22 @@ bool HospitalSystem::relocatePatient(string patientID, int newHospitalIndex) {
         return false; // Already in this hospital
     }
     
+    // Store the patient's data before clearing relationships
+    vector<string> oldDoctorIDs = patient->getAttendingDoctorIDs();
+    vector<string> oldNurseIDs = patient->getAttendingNursesIDs();
+    string oldPrimaryDoctorID = patient->getPrimaryDoctorID();
+
     // 1. Unassign all doctors from the patient in the old hospital
-    vector<string> doctorIDs = patient->getAttendingDoctorIDs();
-    string primaryDoctorID = patient->getPrimaryDoctorID();
-    
     // Handle primary doctor
-    if (!primaryDoctorID.empty()) {
-        Doctor* primaryDoctor = findDoctor(primaryDoctorID);
+    if (!oldPrimaryDoctorID.empty()) {
+        Doctor* primaryDoctor = findDoctor(oldPrimaryDoctorID);
         if (primaryDoctor) {
             primaryDoctor->removePatient(patientID);
         }
     }
     
     // Handle attending doctors
-    for (const string& docID : doctorIDs) {
+    for (const string& docID : oldDoctorIDs) {
         Doctor* doctor = findDoctor(docID);
         if (doctor) {
             doctor->removePatient(patientID);
@@ -198,15 +200,14 @@ bool HospitalSystem::relocatePatient(string patientID, int newHospitalIndex) {
     }
     
     // 2. Unassign all nurses from the patient in the old hospital
-    vector<string> nurseIDs = patient->getAttendingNursesIDs();
-    for (const string& nurseID : nurseIDs) {
+    for (const string& nurseID : oldNurseIDs) {
         Nurse* nurse = findNurse(nurseID);
         if (nurse) {
             nurse->removePatient(patientID);
         }
     }
     
-    // 3. Clear patient's staff assignments
+    // 3. Clear patient's staff assignments - temporarily, we'll restore appropriate ones later
     patient->getAttendingDoctorIDs().clear();
     patient->getAttendingNursesIDs().clear();
     patient->setPrimaryDoctorID("");
@@ -220,9 +221,37 @@ bool HospitalSystem::relocatePatient(string patientID, int newHospitalIndex) {
     if (!newHospital->admitPatient(patient)) {
         // If new hospital couldn't admit, re-add to original hospital
         currentHospital->admitPatient(patient);
+        
+        // Restore old relationships
+        patient->setPrimaryDoctorID(oldPrimaryDoctorID);
+        if (!oldPrimaryDoctorID.empty()) {
+            Doctor* primaryDoctor = findDoctor(oldPrimaryDoctorID);
+            if (primaryDoctor) {
+                primaryDoctor->addPatient(patientID);
+            }
+        }
+        
+        for (const string& docID : oldDoctorIDs) {
+            patient->addAttendingDoctor(docID);
+            Doctor* doctor = findDoctor(docID);
+            if (doctor) {
+                doctor->addPatient(patientID);
+            }
+        }
+        
+        for (const string& nurseID : oldNurseIDs) {
+            patient->addAttendingNurse(nurseID);
+            Nurse* nurse = findNurse(nurseID);
+            if (nurse) {
+                nurse->assignPatient(patientID);
+            }
+        }
+        
         return false;
     }
     
+    // Patient has been successfully relocated
+    // We'll let the caller restore appropriate relationships in the new hospital
     return true;
 }
 

@@ -1168,6 +1168,7 @@ void MainWindow::relocatePatient() {
         }
         
         // Only proceed with staff assignments if relocation succeeded
+        
         // Add doctor-patient association directly
         newDoctor->addPatient(patientID);
         patient->setPrimaryDoctorID(newPrimaryDoctorID);
@@ -1175,6 +1176,21 @@ void MainWindow::relocatePatient() {
         // Add nurse-patient association directly
         newNurse->assignPatient(patientID);
         patient->addAttendingNurse(newNurseID);
+        
+        // Make sure the new hospital's doctor and nurse lists reflect these changes
+        for (auto& doctor : newHospital->getDoctors()) {
+            if (doctor->getDoctorID() == newPrimaryDoctorID) {
+                // The doctor list is already updated since we have a pointer to the doctor
+                break;
+            }
+        }
+        
+        for (auto& nurse : newHospital->getNurses()) {
+            if (nurse->getNurseID() == newNurseID) {
+                // The nurse list is already updated since we have a pointer to the nurse
+                break;
+            }
+        }
         
         // Only show success message after everything worked
         statusDisplay->append("Patient " + QString::fromStdString(patientID) +
