@@ -10,15 +10,17 @@ The Hospital Management System is a Qt-based C++ application for managing patien
 - Nafiz Hasan
 - Ahmad Munim
 
-This project was developed as part of a university course Comp - 3400 Object Oriented Programming 
-in C++. The goal was to create a comprehensive hospital management system that adheres to object-oriented principles and provides a user-friendly interface for managing hospital operations that meets the requirements provided.
+This project was developed as part of a university course Comp - 3400 Object Oriented Programming in C++. The goal was to create a comprehensive hospital management system that adheres to object-oriented principles and provides a user-friendly interface for managing hospital operations that meets the requirements provided.
 
 ---
 
 ## Table of Contents
 - [GitHub Repository](#github-repository)
 - [Setup and Configuration](#setup-and-configuration)
-- [Getting Started](#getting-started)
+  - [Option 1: Using the Provided ZIP File](#option-1-using-the-provided-zip-file)
+  - [Option 2: Cloning from GitHub](#option-2-cloning-from-github)
+- [Installing Qt](#installing-qt)
+- [Building and Running the Application](#building-and-running-the-application)
 - [System Architecture](#system-architecture)
 - [Main Features](#main-features)
 - [User Interface Overview](#user-interface-overview)
@@ -37,7 +39,19 @@ in C++. The goal was to create a comprehensive hospital management system that a
 
 The project is available on GitHub at [Hospital Management System](https://github.com/Hospital-Management-System-Project/HospitalManagementSystem).
 
-### Clone the Repository
+---
+
+## Setup and Configuration
+
+### Option 1: Using the Provided ZIP File
+
+1. **Extract the ZIP file** to your preferred location
+2. Navigate to the extracted directory using your file explorer
+3. Ensure Qt is installed (see [Installing Qt](#installing-qt) below)
+4. Continue with the [Building and Running the Application](#building-and-running-the-application) section
+
+### Option 2: Cloning from GitHub
+
 ```bash
 # Clone the repository
 git clone https://github.com/Hospital-Management-System-Project/HospitalManagementSystem.git
@@ -46,50 +60,139 @@ git clone https://github.com/Hospital-Management-System-Project/HospitalManageme
 cd HospitalManagementSystem
 ```
 
-### Setup and Configuration
-1. Make sure Qt is installed on your system 
-    - For Windows, install Qt via the Qt Online Installer
-    - For Linux, install Qt using your package manager (e.g., `sudo apt-get install qt5-default`)
-    - For macOS, install Qt using Homebrew (`brew install qt`)
-2. Open the project using Qt Creator or your preferred IDE
-3. Configure the build settings according to your environment
-4. Build the project using the instructions below
+---
+
+## Installing Qt
+
+### Required Versions
+- **Qt Version**: Qt 5.12 or newer required (Qt 5.15.x recommended for best compatibility)
+- **C++ Standard**: C++11 or newer
+- **Compiler Requirements**:
+  - Windows: MinGW 8.1.0 or MSVC 2019
+  - macOS: Clang (Xcode 11+)
+  - Linux: GCC 7.3.0 or newer
+
+### Windows
+1. Download and install the Qt Online Installer from [Qt's official website](https://www.qt.io/download)
+2. During installation, select the latest Qt 5.x version (Qt 5.15 recommended)
+3. Make sure to select MinGW or MSVC compiler based on your preference
+4. Install Qt Creator as part of the installation
+
+### macOS
+1. Using Homebrew:
+```bash
+brew install qt
+```
+2. Add Qt to your PATH (add to ~/.bash_profile or ~/.zshrc):
+```bash
+echo 'export PATH="/usr/local/opt/qt/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+### Linux
+```bash
+# Ubuntu/Debian
+sudo apt update
+sudo apt install qt5-default qtcreator
+```
 
 ---
 
-## Getting Started
+## Building and Running the Application
 
-### Prerequisites
-- Qt 5.x or newer
-- C++11 or newer compiler support
-- C++ compiler (e.g., GCC, Clang, or MSVC)
-- `make` or a compatible build tool
+### Using Qt Creator
+1. Open Qt Creator
+2. From the welcome screen, select **Open Project**
+3. Navigate to the project directory and select `HospitalManagementSystem.pro`
+4. Configure the project when prompted (select the appropriate kit)
+5. Wait for the project to be fully loaded and indexed
+6. Click the green play button (▶️) at the bottom left corner or press `Ctrl+R` (Windows/Linux) or `Cmd+R` (macOS)
 
-### Build & Run
+### Using Command Line
 
-#### Option 1: Using Qt Creator
-1. Open **Qt Creator**
-2. Go to **File > Open File or Project...**
-3. Select `HospitalManagementSystem.pro` from the project folder
-4. Configure the project if prompted
-5. Click **Build** and then **Run**
-
-#### Option 2: Using Command Line
+#### Windows
 ```bash
-# Navigate to the project directory
+# Navigate to your project directory
+cd C:\path\to\HospitalManagementSystem
+
+# Set up environment (you might need to adjust the path)
+"C:\Qt\5.15.2\mingw81_64\bin\qtenv2.bat"
+
+# Generate Makefile
+qmake HospitalManagementSystem.pro
+
+# Compile
+mingw32-make
+
+# Run
+release\HospitalManagementSystem.exe
+```
+
+#### macOS
+```bash
+# Navigate to your project directory
 cd /path/to/HospitalManagementSystem
 
 # Generate Makefile
 qmake HospitalManagementSystem.pro
 
-# Compile the project
+# Compile
 make
 
 # Run the application
-./HospitalManagementSystem         # Linux/macOS
-open HospitalManagementSystem.app  # macOS
-HospitalManagementSystem.exe       # Windows
+open HospitalManagementSystem.app
+# OR
+./HospitalManagementSystem
 ```
+
+#### Linux
+```bash
+# Navigate to your project directory
+cd /path/to/HospitalManagementSystem
+
+# Generate Makefile
+qmake HospitalManagementSystem.pro
+
+# Compile
+make
+
+# Run the application
+./HospitalManagementSystem
+```
+
+---
+
+## Required File Structure
+If you're having issues with missing files or resources, ensure your project has the following structure:
+
+```
+HospitalManagementSystem/
+├── HospitalManagementSystem.pro    # Qt project file
+├── *.cpp                           # C++ implementation files
+├── *.h                             # C++ header files
+├── images/                         # Directory containing images
+│   └── hospital_icon.png           # Application icon
+├── resources.qrc                   # Qt resource file
+└── README.md                       # This documentation
+```
+
+---
+
+## Verifying Qt Installation
+To verify that Qt is correctly installed and accessible:
+
+### Windows
+```bash
+qmake --version
+```
+
+### macOS/Linux
+```bash
+qmake --version
+which qmake
+```
+
+If these commands don't return a Qt version or path, your Qt installation might not be in your PATH.
 
 ---
 
@@ -421,6 +524,6 @@ All these requirements were implemented using object-oriented programming princi
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License
 
 Copyright © 2025 Hospital Management System Team
