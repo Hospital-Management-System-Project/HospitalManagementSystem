@@ -62,8 +62,6 @@ cd HospitalManagementSystem
 
 ---
 
-## Installing Qt
-
 ### Required Versions
 - **Qt Version**: Qt 5.12 or newer required (Qt 5.15.x recommended for best compatibility)
 - **C++ Standard**: C++11 or newer
@@ -71,6 +69,10 @@ cd HospitalManagementSystem
   - Windows: MinGW 8.1.0 or MSVC 2019
   - macOS: Clang (Xcode 11+)
   - Linux: GCC 7.3.0 or newer
+
+---
+
+## Installing Qt
 
 ### Windows
 1. Download and install the Qt Online Installer from [Qt's official website](https://www.qt.io/download)
@@ -134,7 +136,7 @@ release\HospitalManagementSystem.exe
 cd /path/to/HospitalManagementSystem
 
 # Generate Makefile
-qmake HospitalManagementSystem.pro
+qmake
 
 # Compile
 make
