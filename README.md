@@ -1,4 +1,7 @@
-# Hospital Management System
+<div align="center">
+  <img src="images/hospital_icon.png" alt="Hospital Management System Logo" width="120" height="120">
+  <h1>Hospital Management System</h1>
+</div>
 
 The Hospital Management System is a Qt-based C++ application for managing patients, staff, billing, and medication logistics across a network of hospitals. It offers a clean tabbed interface for efficient hospital administration, supporting tasks like patient tracking, doctor/nurse assignment, billing, and pharmacy coordination.
 
@@ -18,7 +21,10 @@ cd HospitalManagementSystem
 ```
 
 ### Setup and Configuration
-1. Make sure Qt is installed on your system
+1. Make sure Qt is installed on your system 
+    - For Windows, install Qt via the Qt Online Installer
+    - For Linux, install Qt using your package manager (e.g., `sudo apt-get install qt5-default`)
+    - For macOS, install Qt using Homebrew (`brew install qt`)
 2. Open the project using Qt Creator or your preferred IDE
 3. Configure the build settings according to your environment
 4. Build the project using the instructions below
@@ -29,6 +35,7 @@ cd HospitalManagementSystem
 
 ### Prerequisites
 - Qt 5.x or newer
+- C++11 or newer compiler support
 - C++ compiler (e.g., GCC, Clang, or MSVC)
 - `make` or a compatible build tool
 
