@@ -146,48 +146,116 @@ The system follows the Model-View-Controller (MVC) pattern:
 
 ## User Interface Overview
 
-The interface is organized into the following tabs:
-- **Patient Management**: Admit, relocate, discharge patients
-- **Doctor Management**: Add, remove, view, or reassign doctors
-- **Nurse Management**: Add, remove, view, or reassign nurses
-- **Doctor-Patient**: Assign doctors, set primary doctors, request discharges
-- **Nurse-Patient**: Assign nurses to patients
-- **Billing**: View/calculate bills, collect payments, generate reports
-- **Drug Delivery**: Order medications and track hospital pharmacy bills
+The interface is organized into a tabbed structure with a status display section below:
+
+### Main Tabs
+
+- **Patient Management**: Central hub for admitting new patients, relocating between hospitals, and discharging them
+  - Input fields for patient details to be created (ID, name, contact info, medical info)
+  - Hospital selection and staff assignment options
+  - Action buttons for patient operations
+  - Hospital status display options
+
+- **Doctor Management**: Complete tools for doctor administration
+  - Add new doctors with unique IDs
+  - Relocate doctors between hospital locations
+  - Remove doctors when no longer needed (if they have no assigned patients)
+  - View detailed doctor information including assigned patients
+
+- **Nurse Management**: Similar interface for nurse administration
+  - Add new nurses with staffing enforcement (max 60 total)
+  - Relocate nurses between hospitals
+  - Remove nurses (when they have no assigned patients)
+  - View nurse details including their current patient assignments
+
+- **Doctor-Patient**: Tools for managing doctor-patient relationships
+  - Assign attending doctors to patients
+  - Set primary doctors for patients
+  - Request patient discharges with proper authorization
+  - View comprehensive patient lists
+
+- **Nurse-Patient**: Interface for nurse-patient assignments
+  - Assign nurses to patients with workload limits enforced (max 2 patients per nurse)
+  - View patient information by nurse
+
+- **Billing**: Financial management system
+  - Calculate outstanding balances for specific patients
+  - Process payments with validation
+  - Generate billing reports across hospitals
+  - Monitor pharmacy billing reports
+
+- **Drug Delivery**: Pharmacy coordination system
+  - Select source pharmacy and destination hospital
+  - Choose medications from available inventory
+  - Generate pharmacy bills for hospitals
+  - Track medication requests
+
+### Status Display Section
+- Scrollable text area showing operation results, errors, and system updates
+- Special indicators for real-time updates (daily billing increments)
+- Current time display updates every second
+- Clear button to reset the display
 
 ---
 
 ## How to Test the Application
 
 ### 1. Add a Patient
-- Fill in patient details
-- Choose hospital, doctor, and nurse
-- Set daily billing rate
+- Navigate to the **Patient Management** tab
+- Enter a unique Patient ID (e.g., "P006")
+- Fill in patient details (Name, Phone, Diagnosis, Treatment)
+- Select a hospital from the "Admit to Hospital" dropdown
+- Enter an existing Doctor ID (e.g., "D1" through "D49")
+- Enter an existing Nurse ID (e.g., "N1" through "N59")
+- Set daily billing rate (defaults to $100.00)
 - Click **"Add Patient"**
+- Verify success message in the status display
 
-### 2. Assign a Doctor
+### 2. View Hospital Status
+- In the **Patient Management** tab
+- Select a hospital from the dropdown next to "Display Selected Hospital" button
+- Click **"Display Selected Hospital"** to see detailed information
+- Alternatively, click **"Display All Hospital Status"** to view all hospitals
+
+### 3. Manage Doctors
+- Go to the **Doctor Management** tab
+- To add: Enter a new unique ID (e.g., "D50"), name, and select a hospital
+- To relocate: Enter existing ID and select new hospital from "Reassign to Hospital" dropdown
+- To view details: Enter ID and click **"View Doctor Details"**
+- To list all: Click **"List All Doctors"**
+
+### 4. Manage Nurse-Patient Assignments
+- Navigate to the **Nurse-Patient** tab
+- Enter the Nurse ID (e.g., "N1") and Patient ID (e.g., "P001")
+- Click **"Assign Nurse"**
+- Note: System will prevent assignments if nurse already has 2 patients
+
+### 5. Doctor-Patient Workflow
 - Go to the **Doctor-Patient** tab
-- Enter doctor and patient IDs
-- Click **"Assign Doctor"** or **"Set as Primary Doctor"**
+- Assign doctors: Enter Doctor ID and Patient ID, then click **"Assign Doctor"**
+- Set primary: Enter Doctor ID and Patient ID, then click **"Set as Primary Doctor"**
+- Request discharge: Enter Doctor ID and Patient ID in the discharge section, click **"Request Discharge"**
+- Complete discharge: Go back to Patient Management tab, enter patient ID and click **"Discharge Patient"**
 
-### 3. Relocate a Patient
-- Select a new hospital from dropdown
-- Ensure doctor is valid at the destination
-- Click **"Relocate Patient"**
+### 6. Billing Process
+- Navigate to the **Billing** tab
+- Enter patient ID and click **"Calculate Bill"** to view current balance
+- Enter payment amount (must be ≤ remaining balance)
+- Click **"Collect Payment"**
+- Generate full report with **"Generate Billing Report"**
 
-### 4. View & Collect Payments
-- Enter patient ID under **Billing**
-- Click **"Calculate Bill"**
-- Input amount and click **"Collect Payment"**
+### 7. Request Medication
+- Go to the **Drug Delivery** tab
+- Select destination hospital from dropdown
+- Select source pharmacy from dropdown
+- Choose a medication from the list
+- Click **"Request Delivery"**
+- View pharmacy billing with **"Generate Pharmacy Billing"** in the Billing tab
 
-### 5. Request Drug Delivery
-- Go to **Drug Delivery**
-- Select hospital, pharmacy, and drug
-- Click **"Request Delivery"** to generate a bill
-
-### 6. Manage Staff
-- Go to **Doctor Management** or **Nurse Management**
-- Add new staff, relocate them between hospitals, or remove them by ID
+### 8. Watch Daily Updates
+- The system automatically updates patient days and billing every 24 hours
+- For testing purposes, this is simulated - observe status messages indicating updates
+- Time display updates every second to show application is running
 
 ---
 
@@ -292,11 +360,13 @@ Planned features for future releases:
 
 This project was developed collaboratively, with all team members contributing to various components of the system. We worked closely together on feature design, testing, and integration.
 
-**Ahmad Munim**: Main Contributions: Doctor Management Tab, Nurse-Patient Tab, UI Design
+**Ahmad Munim**: Main Contributions: Doctor Management Tab, Nurse-Patient Tab, UI Design, Testing
 
-**Cameron Vandermeersch**: Main Contributions: Billing Tab, Patient Management Tab, Doctor-Patient Tab, UI Design
+**Cameron Vandermeersch**: Main Contributions: Billing Tab, Patient Management Tab, Doctor-Patient Tab, UI Design, Code Cleanup and Comments, Readme, Testing
 
-**Nafiz Hasan**: Main Contributions: Drug Delivery Tab, Nurse Management Tab, Core classes, Patient Management Tab, UI Design
+**Nafiz Hasan**: Main Contributions: Drug Delivery Tab, Nurse Management Tab, Core classes, Patient Management Tab, UI Design, Testing
+
+**All Team Members**: Collaborated equally on all components and system architecture, design decisions, and overall project management.
 
 ---
 
