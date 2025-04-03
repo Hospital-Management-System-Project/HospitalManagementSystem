@@ -415,12 +415,14 @@ The system uses in-memory data structures rather than a persistent database. All
 ## System Requirements and Constraints
 
 ### Operational Requirements
-- Maximum 20 patients per hospital
+- Maximum 20 patients per hospital (100 patients total across all 5 hospitals)
 - Minimum 3 doctors per hospital
-- Minimum 3 nurses per hospital
+- Minimum 5 nurses per hospital
 - Maximum 50 doctors in the entire system
 - Maximum 60 nurses in the entire system
 - Maximum 2 patients assigned per nurse
+- Each patient can have multiple attending doctors but only one primary doctor
+- Patients can only be discharged by a doctor
 
 ---
 
@@ -493,7 +495,7 @@ This project was developed collaboratively, with all team members contributing t
 
 1. **Hospital Network Implementation**:
    - Created 5 distinct hospital locations with unique IDs and names
-   - Each hospital enforces a 20-patient capacity limit
+   - Each hospital enforces a 20-patient capacity limit (100 patients total)
    - Implemented patient relocation functionality between hospitals
    - Each hospital maintains its own staff and patient records
 
@@ -516,7 +518,7 @@ This project was developed collaboratively, with all team members contributing t
 
 5. **Nurse Management**:
    - Implemented system with maximum 60 nurses across all hospitals
-   - Enforced minimum 5 nurses per hospital constraint
+   - Enforced minimum 5 nurses per hospital constraint (as specified in the requirements)
    - Limited each nurse to maximum 2 patient assignments
    - Created nurse-patient assignment tracking
 
