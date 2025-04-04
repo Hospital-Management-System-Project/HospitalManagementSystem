@@ -1537,20 +1537,26 @@ void MainWindow::calculateBill() {
         return;
     }
     
-    // Get remaining balance instead of full bill
+    // Get total charges from patient calculation
+    double totalCharges = patient->calculateCurrentBill();
+    // Get remaining balance from hospital system (accounts for payments)
     double remainingBalance = hospitalSystem->getPatientRemainingBalance(patientID);
-    
-    // If the balance is 0 but the patient exists, it's likely the billing record wasn't properly initialized
-    // Let's calculate the current bill directly from the patient
-    if (remainingBalance <= 0.01 && patient->getDaysAdmitted() > 0) {
-        remainingBalance = patient->calculateCurrentBill();
-        statusDisplay->append("Note: Initialized billing record for patient " + QString::fromStdString(patientID));
-    }
-    
+    // Calculate amount paid (total - remaining)
+    double amountPaid = totalCharges - remainingBalance;
+    // Update the display with the remaining balance
     currentBillLabel->setText(QString("$%1").arg(remainingBalance, 0, 'f', 2));
-    // Show the remaining balance in the status display
-    statusDisplay->append("Remaining Balance For Patient " + QString::fromStdString(patientID) + " Is $" + 
-                         QString::number(remainingBalance, 'f', 2));
+    
+    // Show billing information in the status display
+    statusDisplay->append("Patient: " + QString::fromStdString(patient->getPatientName()));
+    statusDisplay->append("Days Admitted: " + QString::number(patient->getDaysAdmitted()));
+    statusDisplay->append("Total Charges: $" + QString::number(totalCharges, 'f', 2));
+    statusDisplay->append("Amount Paid: $" + QString::number(amountPaid, 'f', 2));
+    statusDisplay->append("Remaining Balance: $" + QString::number(remainingBalance, 'f', 2));
+    
+    // If paid in full, show that information
+    if (remainingBalance < 0.01) {
+        statusDisplay->append("Status: Paid in Full");
+    }
 }
 
 // This method will be used when the user clicks the button to collect payment in MainWindow
@@ -1587,20 +1593,20 @@ void MainWindow::collectPayment() {
     // If the amount is very close to the remaining balance, adjust it to be exact
     if (fabs(amount - remainingBalance) < 0.01) {
         amount = remainingBalance;
+        statusDisplay->append("Adjusting Payment To Match Exact Remaining Balance: $" + QString::number(amount, 'f', 2));
     }
     // Attempt to collect the payment and show the result
     if (hospitalSystem->collectPatientPayment(patientID, amount)) {
         statusDisplay->append("Payment of $" + QString::number(amount, 'f', 2) + " Collected From Patient " + QString::fromStdString(patientID));
-        // Calculate new remaining balance
-        double newBalance = remainingBalance - amount;
-        if (newBalance < 0.01) newBalance = 0.0; // Avoid tiny remaining amounts
-        // Update display with remaining amount
-        statusDisplay->append("Remaining balance: $" + QString::number(newBalance, 'f', 2));
+        // Calculate new remaining balance - make sure to get it from the system to reflect the payment
+        double newBalance = hospitalSystem->getPatientRemainingBalance(patientID);
+        // Update display with remaining amount - if less than $0.01, display as $0.00
+        statusDisplay->append("Remaining Balance: $" + QString::number(newBalance, 'f', 2));
         // Update the bill label
         currentBillLabel->setText(QString("$%1").arg(newBalance, 0, 'f', 2));
         // Reset payment input
         paymentAmountInput->setValue(0.0);
-        // If paid in full, we want to show a message
+        // If paid in full, we want to show a clear message
         if (newBalance < 0.01) {
             statusDisplay->append("Bill Paid In Full - Thank You!");
         }

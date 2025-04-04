@@ -622,9 +622,30 @@ bool HospitalSystem::requestPatientDischarge(string doctorID, string patientID) 
 // The getPatientBillingReport method will generate a billing report for all patients in the system
 string HospitalSystem::getPatientBillingReport() {
     stringstream billReport;
+    double systemTotalBilled = 0.0;
+    double systemTotalPaid = 0.0;
+    double systemTotalOutstanding = 0.0;
+    // We will loop through all hospitals and get their billing report
     for (auto hospital : hospitals) {
+        // First extract information for our own calculation
+        for (auto patient : hospital->getPatients()) {
+            string patientID = patient->getPatientID();
+            double currentBill = patient->calculateCurrentBill();
+            systemTotalBilled += currentBill;
+            // Get the remaining balance from the hospital's records
+            double remainingBalance = hospital->getPatientRemainingBalance(patientID);
+            systemTotalOutstanding += remainingBalance;
+            // The paid amount is the difference
+            systemTotalPaid += (currentBill - remainingBalance);
+        }
+        // Get the formatted report from the hospital
         billReport << hospital->getPatientBillingReport() << "\n\n";
     }
+    // Add system-wide summary
+    billReport << "======= SYSTEM-WIDE PAYMENT SUMMARY =======\n";
+    billReport << "Total Billed Across System: $" << fixed << setprecision(2) << systemTotalBilled << "\n";
+    billReport << "Total Payments Collected: $" << fixed << setprecision(2) << systemTotalPaid << "\n";
+    billReport << "Total Outstanding Balance: $" << fixed << setprecision(2) << systemTotalOutstanding << "\n";
     // We formatted the report using str to make it easier to read
     return billReport.str();
 }
@@ -699,22 +720,19 @@ double HospitalSystem::getPatientRemainingBalance(string patientID) {
     if (!patient) { 
         return 0.0; // Return 0.0 if the patient is not found
     }
-    
-    // Calculate bill directly from patient if they exist (as a fallback)
-    double directBill = patient->calculateCurrentBill();
-    
     // Check if the patient is already in the system and see if they are in the hospital
     Hospital* hospital = findPatientHospital(patientID);
     if (!hospital) {    
-        return directBill; // Return direct bill if hospital not found
+        // If no hospital is found, calculate directly from patient (fallback)
+        return patient->calculateCurrentBill();
     }
-    // Check if the patient has a remaining balance at that hospital
-    double hospitalBill = hospital->getPatientRemainingBalance(patientID);
-    // If hospital shows no bill but the patient has days admitted, return the direct bill
-    if (hospitalBill <= 0.01 && patient->getDaysAdmitted() > 0) {
-        return directBill;
+    // We will get the remaining balance from the hospital's payment records
+    double remainingBalance = hospital->getPatientRemainingBalance(patientID);
+    // Want to check if the balance is 0 or very close to 0
+    if (remainingBalance < 0.01) {
+        return 0.0;
     }
-    return hospitalBill;
+    return remainingBalance;
 }
 
 // We have implemented the destructor for the HospitalSystem class since we are creating dynamic memory

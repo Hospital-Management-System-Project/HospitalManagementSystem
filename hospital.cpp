@@ -159,7 +159,7 @@ bool Hospital::collectPaymentFromPatient(string patientID, double amount) {
             }
             double remainingBalance = bill - alreadyPaid;   // Calculate remaining balance
             // Check if payment exceeds remaining bill
-            if (amount > remainingBalance) {
+            if (amount > remainingBalance + 0.01) { // Add small tolerance for floating point
                 return false; // Payment exceeds remaining bill
             }
             // Update payment records
@@ -179,7 +179,9 @@ double Hospital::getPatientRemainingBalance(string patientID) const {
             // Need to see if there are any payments made
             auto it = patientPayments.find(patientID);
             if (it != patientPayments.end()) {
-                return bill - it->second;   // Return remaining balance
+                double remainingBalance = bill - it->second;
+                // We dont want any negative values or small fractional amounts
+                return (remainingBalance < 0.01) ? 0.0 : remainingBalance;
             }
             return bill; // No payments yet, return the full bill amount
         }
@@ -209,15 +211,39 @@ string Hospital::getPatientBillingReport() const {
     report << left << setw(15) << "Patient ID" << setw(25) << "Name"
     << setw(10) << "Days" << setw(15) << "Amount Due" << setw(15) << "Status" << "\n";
     report << string(80, '-') << "\n";
+    double totalOutstanding = 0.0;
+    double totalBilled = 0.0;
+    double totalPaid = 0.0;
+    
     // Loop through all patients and generate the report
     for (auto patient : patients) {
+        // Calculate the current bill for this patient
+        double currentBill = patient->calculateCurrentBill();
+        totalBilled += currentBill;
+        // Check for payments
+        double amountPaid = 0.0;
+        auto paymentIt = patientPayments.find(patient->getPatientID());
+        if (paymentIt != patientPayments.end()) {
+            amountPaid = paymentIt->second;
+        }
+        // Calculate remaining balance
+        double remainingBalance = currentBill - amountPaid;
+        if (remainingBalance < 0.01) remainingBalance = 0.0; // Avoid tiny amounts
+        totalPaid += amountPaid;
+        totalOutstanding += remainingBalance;
+        
+        // Format the report line
         report << left << setw(15) << patient->getPatientID()
                << setw(25) << patient->getPatientName()
                << setw(10) << patient->getDaysAdmitted()
-               << "$" << setw(14) << fixed << setprecision(2) << patient->calculateCurrentBill()
+               << "$" << setw(14) << fixed << setprecision(2) << remainingBalance
                << setw(15) << patient->getStatus() << "\n";
     }
+    
     report << "\n";
-    report << "Total Billing: $" << fixed << setprecision(2) << getTotalPatientBills() << "\n";
+    report << "Total Billed: $" << fixed << setprecision(2) << totalBilled << "\n";
+    report << "Total Payments: $" << fixed << setprecision(2) << totalPaid << "\n";
+    report << "Outstanding Balance: $" << fixed << setprecision(2) << totalOutstanding << "\n";
+    
     return report.str();
 }
