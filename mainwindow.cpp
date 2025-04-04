@@ -933,7 +933,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
             min-width: 130px;
             font-weight: bold;
             margin-right: 3px;
-            transition: background-color 0.3s;
         }
         /* Hover effect for tabs */
         QTabBar::tab:hover {
@@ -946,7 +945,6 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
             color: white;
             border-bottom: none;
             margin-bottom: -1px;
-            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.3);
         }
     )");
 }
