@@ -181,7 +181,7 @@ double Hospital::getPatientRemainingBalance(string patientID) const {
             if (it != patientPayments.end()) {
                 return bill - it->second;   // Return remaining balance
             }
-            return bill; // No payments yet
+            return bill; // No payments yet, return the full bill amount
         }
     }
     return 0.0; // Patient not found

@@ -699,13 +699,22 @@ double HospitalSystem::getPatientRemainingBalance(string patientID) {
     if (!patient) { 
         return 0.0; // Return 0.0 if the patient is not found
     }
+    
+    // Calculate bill directly from patient if they exist (as a fallback)
+    double directBill = patient->calculateCurrentBill();
+    
     // Check if the patient is already in the system and see if they are in the hospital
     Hospital* hospital = findPatientHospital(patientID);
     if (!hospital) {    
-        return 0.0;
+        return directBill; // Return direct bill if hospital not found
     }
     // Check if the patient has a remaining balance at that hospital
-    return hospital->getPatientRemainingBalance(patientID);
+    double hospitalBill = hospital->getPatientRemainingBalance(patientID);
+    // If hospital shows no bill but the patient has days admitted, return the direct bill
+    if (hospitalBill <= 0.01 && patient->getDaysAdmitted() > 0) {
+        return directBill;
+    }
+    return hospitalBill;
 }
 
 // We have implemented the destructor for the HospitalSystem class since we are creating dynamic memory

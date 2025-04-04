@@ -1529,14 +1529,31 @@ void MainWindow::calculateBill() {
         statusDisplay->append("Error: Patient ID Is Required!");
         return;
     }
+    
+    // Check if the patient exists
+    Patient* patient = hospitalSystem->findPatient(patientID);
+    if (!patient) {
+        statusDisplay->append("Error: Patient Not Found!");
+        return;
+    }
+    
     // Get remaining balance instead of full bill
     double remainingBalance = hospitalSystem->getPatientRemainingBalance(patientID);
+    
+    // If the balance is 0 but the patient exists, it's likely the billing record wasn't properly initialized
+    // Let's calculate the current bill directly from the patient
+    if (remainingBalance <= 0.01 && patient->getDaysAdmitted() > 0) {
+        remainingBalance = patient->calculateCurrentBill();
+        statusDisplay->append("Note: Initialized billing record for patient " + QString::fromStdString(patientID));
+    }
+    
     currentBillLabel->setText(QString("$%1").arg(remainingBalance, 0, 'f', 2));
     // Show the remaining balance in the status display
-    statusDisplay->append("Remaining Balance For Patient " + QString::fromStdString(patientID) + " Is $" + QString::number(remainingBalance, 'f', 2));
+    statusDisplay->append("Remaining Balance For Patient " + QString::fromStdString(patientID) + " Is $" + 
+                         QString::number(remainingBalance, 'f', 2));
 }
 
-// This method will be used when the user clicks the button to collect payment in MainWindow which will be used to collect payment from a patient
+// This method will be used when the user clicks the button to collect payment in MainWindow
 void MainWindow::collectPayment() {
     // We need the patient ID and payment amount from the input fields
     string patientID = billingPatientIDInput->text().toStdString();
@@ -1553,6 +1570,15 @@ void MainWindow::collectPayment() {
     }
     // Get the current remaining balance
     double remainingBalance = hospitalSystem->getPatientRemainingBalance(patientID);
+    
+    // Check if patient exists but balance is 0
+    if (remainingBalance <= 0.01) {
+        Patient* patient = hospitalSystem->findPatient(patientID);
+        if (patient) {
+            remainingBalance = patient->calculateCurrentBill();
+            statusDisplay->append("Note: Initialized Billing Record For Patient " + QString::fromStdString(patientID));
+        }
+    }
     // Allow a small floating-point difference and make sure the amount is not greater than the remaining balance
     if (amount > remainingBalance + 0.01) {
         statusDisplay->append("Error: Payment Amount ($" + QString::number(amount, 'f', 2) + ") Exceeds Remaining Balance ($" + QString::number(remainingBalance, 'f', 2) + ")");
@@ -1674,23 +1700,38 @@ void MainWindow::listAllPatients() {
     // We want to loop through all patients and group them by their hospital
     for (const auto& pair : allPatients) {
         Patient* patient = pair.second; // We are creating a pointer to the patient object
+        if (!patient) continue; // Skip null patients for safety
+        
         // Created a hospital object to get find the hospital of the patient using the patient ID
         Hospital* hospital = hospitalSystem->findPatientHospital(patient->getPatientID());
         // We will check if the hospital is valid and if it is then we push the patient into the vector
         if (hospital) {
             patientsByHospital[hospital->getHospitalName()].push_back(patient);
+        } else {
+            // Handle patients without a hospital assignment
+            patientsByHospital["Unassigned"].push_back(patient);
         }
     }
+    
     // Display patients grouped by hospital
     for (const auto& pair : patientsByHospital) {
         statusDisplay->append("\n--- " + QString::fromStdString(pair.first) + " ---");
         // Loop through the patients in the vector and display their details
         for (const Patient* patient : pair.second) {
+            if (!patient) continue; // Skip null patients for safety
+            
             statusDisplay->append("Patient ID: " + QString::fromStdString(patient->getPatientID()));
             statusDisplay->append("Name: " + QString::fromStdString(patient->getPatientName()));
             statusDisplay->append("Disease: " + QString::fromStdString(patient->getDisease()));
             statusDisplay->append("Days Admitted: " + QString::number(patient->getDaysAdmitted()));
-            statusDisplay->append("Primary Doctor: " + QString::fromStdString(patient->getPrimaryDoctorID()));
+            
+            // Add null checks before accessing IDs
+            if (!patient->getPrimaryDoctorID().empty()) {
+                statusDisplay->append("Primary Doctor: " + QString::fromStdString(patient->getPrimaryDoctorID()));
+            } else {
+                statusDisplay->append("Primary Doctor: None assigned");
+            }
+            
             // Show attending nurses if any
             if (!patient->getAttendingNursesIDs().empty()) {
                 QString attendingNurses = "Assigned Nurses: ";
@@ -1701,7 +1742,10 @@ void MainWindow::listAllPatients() {
                     }
                 }
                 statusDisplay->append(attendingNurses); // Show the list of assigned nurses
+            } else {
+                statusDisplay->append("Assigned Nurses: None");
             }
+            
             // Show attending doctors if any
             if (!patient->getAttendingDoctorIDs().empty()) {
                 QString attendingDocs = "Attending Doctors: ";
@@ -1712,7 +1756,10 @@ void MainWindow::listAllPatients() {
                     }
                 }
                 statusDisplay->append(attendingDocs);   // Show the list of attending doctors
+            } else {
+                statusDisplay->append("Attending Doctors: None");
             }
+            
             // Show a separator between patients
             statusDisplay->append("------------------------------------------");
         }
