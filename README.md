@@ -310,8 +310,8 @@ The interface is organized into a tabbed structure with a status display section
 - Enter a unique Patient ID (e.g., "P006")
 - Fill in patient details (Name, Phone, Diagnosis, Treatment)
 - Select a hospital from the "Admit to Hospital" dropdown
-- Enter an existing Doctor ID (e.g., "D1" through "D49")
-- Enter an existing Nurse ID (e.g., "N1" through "N59")
+- Enter an existing Doctor ID (e.g., "D1" through "D50")
+- Enter an existing Nurse ID (e.g., "N1" through "N60")
 - Set daily billing rate (defaults to $100.00)
 - Click **"Add Patient"**
 - Verify success message in the status display
@@ -366,8 +366,8 @@ The interface is organized into a tabbed structure with a status display section
 
 ## Sample Data
 
-- **Doctor IDs**: `D1` to `D49` (auto-assigned across hospitals, 1 less than max to test add doctor functionality)
-- **Nurse IDs**: `N1` to `N59` (auto-assigned across hospitals, 1 less than max to test add nurse functionality)
+- **Doctor IDs**: `D1` to `D50` (auto-assigned across hospitals, 1 less than max to test add doctor functionality)
+- **Nurse IDs**: `N1` to `N60` (auto-assigned across hospitals, 1 less than max to test add nurse functionality)
 - **Patient IDs**:
   - `P001`: Alice Johnson (Hospital 0, Doctor D1, Nurse N1)
   - `P002`: Bob Smith (Hospital 0, Doctor D3, Nurse N6)
